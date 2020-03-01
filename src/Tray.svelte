@@ -2,12 +2,12 @@
 	.tray {
 		margin-top: 0.5rem;
 		width: 2vw;
-		background: rgba(255, 255, 255, 0.1);
-		overflow: auto;
-		position: absolute;
+		background: rgba(33, 39, 55, 0.2);
+		position: fixed;
 		right: 0;
 		top: 0;
 		color: white;
+		height: calc(100% - 5rem);
 	}
 
 	.tray > * {
@@ -18,6 +18,7 @@
 		width: 40vw;
 		max-width: 40rem;
 		background: rgb(33, 39, 55);
+		overflow: auto;
 		border-radius: 3px;
 	}
 
@@ -50,8 +51,6 @@
 	}
 	ul {
 		list-style: none;
-		overflow-y: scroll;
-		padding-bottom: 2rem;
 	}
 	a {
 		color: white;

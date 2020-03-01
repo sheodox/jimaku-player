@@ -4,7 +4,7 @@ const fs = require('fs'),
 const userscript = `// ==UserScript==
 // @name         VRV Subtitler
 // @namespace    http://tampermonkey.net/
-// @version      0.1.0
+// @version      0.1.1
 // @description  Display SRT format subtitles on VRV
 // @author       sheodox
 // @match        https://static.vrv.co/vilos/player.html
