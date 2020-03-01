@@ -1,7 +1,4 @@
 <style>
-    .subtitles {
-
-	}
     p {
 		cursor: pointer;
         color: white;
@@ -14,15 +11,21 @@
 	}
 </style>
 <script>
+	import {createEventDispatcher} from 'svelte';
 	export let current = [];
+	export let visible = true;
+	const dispatch = createEventDispatcher();
 
 	function define(phrase) {
+		dispatch('define-pauser');
 		window.open(`https://jisho.org/search/${encodeURIComponent(phrase.trim())}`);
 	}
 </script>
 
 <div class="subtitles">
-	{#each current as sub}
-		<p style="font-size: {0.5 + 2.5 * sub.line}rem" on:click={() => define(sub.text)} title="click to search this phrase on Jisho.org">{sub.text}</p>
-	{/each}
+	{#if visible}
+		{#each current as sub}
+			<p style="font-size: {0.5 + 2.5 * sub.line}rem" on:click={() => define(sub.text)} title="click to search this phrase on Jisho.org">{sub.text}</p>
+		{/each}
+	{/if}
 </div>

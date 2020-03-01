@@ -1,7 +1,11 @@
-class VideoController {
-	constructor(videoElement) {
-		this.video = videoElement;
+export default class VideoController {
+	constructor() {
+		this.video = null;
 		this.reasons = [];
+	}
+	setVideo(videoElement) {
+		this.reasons = [];
+		this.video = videoElement;
 	}
 	//adds a reason to pause the video, allowing multiple things to have a reason to pause the video without them fighting for control
 	addPauser(reason) {

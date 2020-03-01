@@ -78,7 +78,7 @@
 	}
 </style>
 
-<div class="tray">
+<div class="tray" on:mouseenter={trayHover(true)} on:mouseleave={trayHover(false)}>
 	<h1>SubRenderer</h1>
 	<button on:click={() => showSettings = !showSettings}>{showSettings ? 'Hide' : 'Show'} Settings</button>
 	{#if showSettings}
@@ -91,10 +91,10 @@
 				Realign subtitles
 			</button>
 			<br>
-			<input id="show-subs" type="checkbox" checked>
+			<input id="show-subs" type="checkbox" checked on:change={toggleSetting('show-subs')}>
 			<label for="show-subs">Show subs over video</label>
 			<br>
-			<input id="pause-on-tray" type="checkbox" checked>
+			<input id="pause-on-tray" type="checkbox" bind:checked={pauseOnTray}>
 			<label for="pause-on-tray">Pause when tray is open</label>
 		</div>
 	{/if}
@@ -102,7 +102,7 @@
 	<ul class="recent-subs">
 		{#each recentSubs as sub (sub.text)}
 			<li in:fly={{y: 50, duration: 200}} out:fly={{y:-50, duration: 200}}>
-				<a target="_blank" href={`https://jisho.org/search/${encodeURIComponent(sub.text.trim())}`} rel="noopener noreferrer">{sub.text}</a>
+				<a target="_blank" href={`https://jisho.org/search/${encodeURIComponent(sub.text.trim())}`} rel="noopener noreferrer" on:click={() => dispatch('define-pauser')}>{sub.text}</a>
 			</li>
 		{/each}
 	</ul>
@@ -114,5 +114,23 @@
 	const dispatch = createEventDispatcher();
 
 	export let recentSubs = [];
-	let showSettings = false;
+	let showSettings = false,
+		showSubs = true,
+		pauseOnTray = true;
+
+	function trayHover(isEntering) {
+		return () => {
+			// only check if we need to add a pauser, controlled by the option, if the tray is being entered, don't
+			// want that to control if we remove a pauser, that's not the point
+			if (!isEntering || pauseOnTray) {
+				dispatch('tray-pauser', isEntering);
+			}
+		}
+	}
+
+	function toggleSetting(setting) {
+		return e => {
+			dispatch(setting, e.target.checked);
+		}
+	}
 </script>

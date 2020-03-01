@@ -44,19 +44,22 @@
 			{/if}
 		</div>
 	{:else if phase === 'play'}
-		<Subtitles current={currentSubtitles} currentTime={currentTime}/>
-		<Tray recentSubs={recentSubs} on:restart={restart} on:realign={() => phase = 'align'} />
+		<Subtitles current={currentSubtitles} currentTime={currentTime} visible={showSubs} on:define-pauser={definePauser}/>
+		<Tray recentSubs={recentSubs} on:restart={restart} on:tray-pauser={trayPauser} on:define-pauser={definePauser} on:realign={() => phase = 'align'} on:show-subs={e => showSubs = e.detail} />
 	{/if}
 </div>
 
 <script>
+    import {onMount} from 'svelte';
 	import SRT from './SRT';
 	import SRTPrompt from './SRTPrompt.svelte';
 	import Tray from "./Tray.svelte";
 	import Subtitles from "./Subtitles.svelte";
+	import VideoController from './VideoController';
 
 	const alignmentKey = 'last-used-alignment',
-		lastAlignment = GM_getValue(alignmentKey);
+		lastAlignment = GM_getValue(alignmentKey),
+		videoController = new VideoController();
 
 	let phase = 'prompt',
 		currentSubtitles = [],
@@ -64,7 +67,8 @@
 		srt = null,
 		video = null,
 		subOffset = -1,
-		recentSubs = [];
+		recentSubs = [],
+		showSubs = true;
 
 	function restart() {
 		recentSubs = [];
@@ -72,8 +76,17 @@
 		phase = 'prompt';
 	}
 
+	onMount(() => {
+		document.addEventListener('visibilitychange', () => {
+			if (!document.hidden) {
+				videoController.removePauser('define');
+			}
+		})
+	});
+
 	function align(alignment) {
 		video = document.querySelector('video');
+		videoController.setVideo(video);
 		//assume decent reaction time, subtract by a bit so they don't have to perfectly predict
 		subOffset = typeof alignment === 'number' ? alignment : video.currentTime * 1000 - srt.subs[0].start - 400;
 		GM_setValue(alignmentKey, subOffset);
@@ -104,5 +117,13 @@
 	function srtLoaded(e) {
 		srt = new SRT(e.detail);
 		phase = 'align';
+	}
+
+	function trayPauser(e) {
+		e.detail ? videoController.addPauser('tray')  : videoController.removePauser('tray');
+	}
+
+	function definePauser() {
+		videoController.addPauser('define');
 	}
 </script>
