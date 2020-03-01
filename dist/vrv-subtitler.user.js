@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         VRV SRT Player
+// @name         VRV Subtitler
 // @namespace    http://tampermonkey.net/
 // @version      0.1.0
 // @description  Display SRT format subtitles on VRV
