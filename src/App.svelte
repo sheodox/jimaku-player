@@ -116,7 +116,12 @@
 
 	function srtLoaded(e) {
 		srt = new SRT(e.detail);
-		phase = 'align';
+		if (srt.subs.length === 0) {
+			alert(`No subtitles were parsed from the selected SRT file, verify nothing is wrong with the file. If it appears normal please submit a bug report with the episode and the SRT file you used to the issue tracker!`);
+		}
+		else {
+			phase = 'align';
+		}
 	}
 
 	function trayPauser(e) {
