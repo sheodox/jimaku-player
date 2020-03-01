@@ -71,9 +71,9 @@
 		showSubs = true;
 
 	function restart() {
-		recentSubs = [];
-		currentSubtitles = [];
 		phase = 'prompt';
+		srt = null;
+		currentSubtitles = [];
 	}
 
 	onMount(() => {
@@ -81,7 +81,18 @@
 			if (!document.hidden) {
 				videoController.removePauser('define');
 			}
-		})
+		});
+
+		//poll for video changes, and restart the sub process if a different video is selected
+		let lastSrc = '';
+		setInterval(() => {
+			//query the video each time, in case the video gets deleted and replaced
+			const curSrc = document.querySelector('video').getAttribute('src');
+			if (curSrc && curSrc !== lastSrc) {
+				lastSrc = curSrc;
+				restart();
+			}
+		}, 50);
 	});
 
 	function align(alignment) {
@@ -90,8 +101,9 @@
 		//assume decent reaction time, subtract by a bit so they don't have to perfectly predict
 		subOffset = typeof alignment === 'number' ? alignment : video.currentTime * 1000 - srt.subs[0].start - 400;
 		GM_setValue(alignmentKey, subOffset);
+		recentSubs = [];
 		phase = 'play';
-		filterCurrentSubtitles();
+		renderSubs();
 	}
 	function useLastAlignment() {
 		align(lastAlignment);
@@ -100,7 +112,7 @@
 	function mergeSubsWithRecent(subs) {
 		let newestSub = subs[subs.length - 1],
 			mostRecent = recentSubs[recentSubs.length - 1];
-		if (!mostRecent || newestSub && newestSub.text !== mostRecent.text) {
+		if (newestSub && (!mostRecent || newestSub.text !== mostRecent.text)) {
 			recentSubs = [...recentSubs, newestSub];
 		}
 		if (recentSubs.length > 10) {
@@ -108,10 +120,12 @@
 		}
 	}
 
-	function filterCurrentSubtitles() {
-		currentSubtitles = srt.getSubs(video.currentTime * 1000 - subOffset);
-		mergeSubsWithRecent(currentSubtitles);
-		requestAnimationFrame(filterCurrentSubtitles);
+	function renderSubs() {
+		if (phase === 'play') {
+			currentSubtitles = srt.getSubs(video.currentTime * 1000 - subOffset);
+			mergeSubsWithRecent(currentSubtitles);
+			requestAnimationFrame(renderSubs);
+		}
 	}
 
 	function srtLoaded(e) {
