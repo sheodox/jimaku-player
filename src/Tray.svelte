@@ -78,7 +78,7 @@
 </style>
 
 <div class="tray" on:mouseenter={trayHover(true)} on:mouseleave={trayHover(false)}>
-	<h1>SubRenderer</h1>
+	<h1>VRV Subtitler</h1>
 	<button on:click={() => showSettings = !showSettings}>{showSettings ? 'Hide' : 'Show'} Settings</button>
 	{#if showSettings}
 		<div class="settings">
