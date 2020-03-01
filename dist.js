@@ -4,7 +4,7 @@ const fs = require('fs'),
 	script = fs.readFileSync(`./dist/main.js`).toString();
 
 let versionBase = '0.1.';
-const [_, oldVersion] = lastPackagedScript.match(/@version\s*\d+.\d+.(\d+)/);
+const [_, oldVersion] = lastPackagedScript.match(/@version\s*\d+\.\d+\.(\d+)/);
 
 //if packaging a release version, increment the version
 if (process.argv.includes('release')) {
