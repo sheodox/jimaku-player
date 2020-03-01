@@ -60,5 +60,7 @@ If you have any issues, please let me know! This has worked well for me for a co
 but are likely issues I don't know about with parsing, or lack of support for some extra
  formatting that can be present in an SRT file. Please don't hesitate to 
  [create an issue](https://github.com/sheodox/vrv-subtitler/issues/new)!
+ 
+Please read the [contributing guide](https://github.com/sheodox/vrv-subtitler/blob/master/CONTRIBUTING.md) if you would like to help out!
 
 [Check out my other Japanese learning focused Userscripts!](https://github.com/sheodox/japanese-userscripts#vrv-srt-playeruserjs)
