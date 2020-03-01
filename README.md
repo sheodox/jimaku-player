@@ -13,7 +13,36 @@ This is a Tampermonkey userscript that lets you provide your own [subtitles in `
  can look back at a line you might have missed without having to rewind.
 * Click on a subtitle to open a [Jisho.org](https://jisho.org) search for that line.
 
-### Alignment
+## Usage
+
+### Step 1 - Select an SRT file
+
+Click to open a file selection dialog for the episode's subtitles.
+
+![screenshot](https://raw.githubusercontent.com/sheodox/vrv-subtitler/master/images/select-srt.png)
+
+### Step 2 - Align subtitles
+
+Click the button when the first line is spoken, so the subtitles appear at the correct time.
+
+![screenshot](https://raw.githubusercontent.com/sheodox/vrv-subtitler/master/images/align-subs.png)
+
+### Step 3 - Watch!
+
+![screenshot](https://raw.githubusercontent.com/sheodox/vrv-subtitler/master/images/subtitles.png)
+
+### Settings and recent subs
+
+Hover over the right side of the screen to show some settings and the last few subtitles.
+
+![screenshot](https://raw.githubusercontent.com/sheodox/vrv-subtitler/master/images/tray.png)
+
+### Click subtitles to search for words you don't know!
+
+![screenshot](https://raw.githubusercontent.com/sheodox/vrv-subtitler/master/images/click-to-search.png)
+
+
+## Alignment
 
 Some subtitles might have a different start time than VRV does, like if VRV plays a studio's
  intro before the episode but the SRT file assumes the episode starts immediately. In instances
