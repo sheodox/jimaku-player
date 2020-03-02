@@ -25,7 +25,7 @@
 <div class="subtitles">
 	{#if visible}
 		{#each current as sub}
-			<p style="font-size: {0.5 + 2.5 * sub.line}rem" on:click={() => define(sub.text)} title="click to search this phrase on Jisho.org">{sub.text}</p>
+			<p style="font-size: {1.5 + 1.5 * sub.line}rem" on:click={() => define(sub.text)} title="click to search this phrase on Jisho.org">{sub.text}</p>
 		{/each}
 	{/if}
 </div>
