@@ -58,10 +58,10 @@
 	import VideoController from './VideoController';
 
 	const alignmentKey = 'last-used-alignment',
-		lastAlignment = GM_getValue(alignmentKey),
 		videoController = new VideoController();
 
 	let phase = 'prompt',
+		lastAlignment = GM_getValue(alignmentKey),
 		currentSubtitles = [],
 		currentTime = '',
 		srt = null,
@@ -134,6 +134,7 @@
 			alert(`No subtitles were parsed from the selected SRT file, verify nothing is wrong with the file. If it appears normal please submit a bug report with the episode and the SRT file you used to the issue tracker!`);
 		}
 		else {
+			lastAlignment = GM_getValue(alignmentKey);
 			phase = 'align';
 		}
 	}
