@@ -2,7 +2,7 @@
 	.tray {
 		margin-top: 0.5rem;
 		width: 2vw;
-		background: rgba(33, 39, 55, 0.2);
+		background: rgba(255, 255, 255, 0.2);
 		position: fixed;
 		right: 0;
 		top: 0;
