@@ -32,18 +32,17 @@ The development build command currently has an `xclip` command. I'm just using t
  
 ## Files of note
 
-* **src/SRT.js** - The SRT class is a parser for SRT files. It breaks up each subtitle line in an
- SRT file into an array of objects including: the subtitle text, the start and end times of when
- that subtitle is to be shown (in ms), and any optional styling information (currently just font
- size is supported).
+* **src/parsers/** - The files in this folder are parsers for each supported format. It parses
+ each raw subtitle file into an array of objects with start/end times in milliseconds, and the
+ subtitle text that should show in between those times.
 * **src/VideoController.js** - When opening the tray or when clicking a subtitle (to open a Jisho
  search) the video should be automatically paused. The VideoController class handles when the
  video should be paused or resumed. It just maintains an array of reasons why a video should be
  paused, and if no reasons remain it will resume playing the video.
 * **src/main.js** - Creates and mounts the Svelte app.
 * **src/App.svelte** - The main component that orchestrates everything.
-* **src/SRTPrompt.svelte** - Basically just a file input, allows you to select an SRT file, then
- passes the file content back up to the App component which takes it from there.
+* **src/SubtitlePrompt.svelte** - Basically just a file input, allows you to select a subtitle file,
+ then passes the file content back up to the App component which takes it from there.
 * **src/Subtitles.svelte** - The component that actually shows the subtitles over the video.
 * **src/Tray.svelte** - The sidebar that contains settings for how the script behaves, and a list of
  recent subtitles to easily view if you missed what someone said.

@@ -1,11 +1,11 @@
+import SubtitleFormat from "./SubtitleFormat";
 /**
  * Parser for SRT files. Can return an array of subtitles and their styling at any point in time during a video.
  */
-export default class SRT {
+export default class SRT extends SubtitleFormat {
 	constructor(srt) {
-		this.parse(srt);
-	}
-	parse(srt) {
+		super('srt');
+
 		//split subs up by the double line breaks
 		const subs = srt.split('\n\n');
 		this.subs = subs.reduce((done, sub) => {
@@ -41,22 +41,13 @@ export default class SRT {
 				shift();
 
 				done.push({
-					start: this.toMS(startStr),
-					end: this.toMS(endStr),
+					start: this.timeToMs(startStr),
+					end: this.timeToMs(endStr),
 					text: lines.join('\n').replace(/<\/?c.Japanese>/g, ''),
 					line
 				});
 			} catch(e){}
 			return done;
 		}, []);
-	}
-	getSubs(ms) {
-		return this.subs.filter(sub => {
-			return sub.start <= ms && sub.end >= ms;
-		});
-	}
-	toMS(timeStr) {
-		const [hr, min, sec] = timeStr.trim().split(':');
-		return sec * 1000 + min * 1000 * 60 + hr * 1000 * 60 * 60;
 	}
 }

@@ -29,13 +29,13 @@
 </style>
 <div class="subtitles-app">
 	{#if phase === 'prompt'}
-		<SRTPrompt on:srt-loaded={srtLoaded}/>
+		<SubtitlePrompt on:subtitles-loaded={subtitlesLoaded}/>
 	{:else if phase === 'align'}
 		<div class="alignment-buttons">
 			<button on:click={align}>
 				Click when the first line is said:
 				<br />
-				<pre>{srt.subs[0].text}</pre>
+				<pre>{subtitles.firstSubtitle().text}</pre>
 			</button>
 			{#if typeof lastAlignment === 'number'}
 				<button on:click={useLastAlignment}>
@@ -50,29 +50,28 @@
 </div>
 
 <script>
-    import {onMount} from 'svelte';
-	import SRT from './SRT';
-	import SRTPrompt from './SRTPrompt.svelte';
+	import {onMount} from 'svelte';
 	import Tray from "./Tray.svelte";
 	import Subtitles from "./Subtitles.svelte";
 	import VideoController from './VideoController';
+	import SubtitlePrompt from "./SubtitlePrompt.svelte";
 
 	const alignmentKey = 'last-used-alignment',
-		videoController = new VideoController();
+			videoController = new VideoController();
 
 	let phase = 'prompt',
-		lastAlignment = GM_getValue(alignmentKey),
-		currentSubtitles = [],
-		currentTime = '',
-		srt = null,
-		video = null,
-		subOffset = -1,
-		recentSubs = [],
-		showSubs = true;
+			lastAlignment = GM_getValue(alignmentKey),
+			currentSubtitles = [],
+			currentTime = '',
+			subtitles = null,
+			video = null,
+			subOffset = -1,
+			recentSubs = [],
+			showSubs = true;
 
 	function restart() {
 		phase = 'prompt';
-		srt = null;
+		subtitles = null;
 		currentSubtitles = [];
 	}
 
@@ -99,19 +98,20 @@
 		video = document.querySelector('video');
 		videoController.setVideo(video);
 		//assume decent reaction time, subtract by a bit so they don't have to perfectly predict
-		subOffset = typeof alignment === 'number' ? alignment : video.currentTime * 1000 - srt.subs[0].start - 400;
+		subOffset = typeof alignment === 'number' ? alignment : video.currentTime * 1000 - subtitles.firstSubtitle().start - 400;
 		GM_setValue(alignmentKey, subOffset);
 		recentSubs = [];
 		phase = 'play';
 		renderSubs();
 	}
+
 	function useLastAlignment() {
 		align(lastAlignment);
 	}
 
 	function mergeSubsWithRecent(subs) {
 		let newestSub = subs[subs.length - 1],
-			mostRecent = recentSubs[recentSubs.length - 1];
+				mostRecent = recentSubs[recentSubs.length - 1];
 		if (newestSub && (!mostRecent || newestSub.text !== mostRecent.text)) {
 			recentSubs = [...recentSubs, newestSub];
 		}
@@ -122,25 +122,25 @@
 
 	function renderSubs() {
 		if (phase === 'play') {
-			currentSubtitles = srt.getSubs(video.currentTime * 1000 - subOffset);
+			currentSubtitles = subtitles.getSubs(video.currentTime * 1000 - subOffset);
 			mergeSubsWithRecent(currentSubtitles);
 			requestAnimationFrame(renderSubs);
 		}
 	}
 
-	function srtLoaded(e) {
-		srt = new SRT(e.detail);
-		if (srt.subs.length === 0) {
-			alert(`No subtitles were parsed from the selected SRT file, verify nothing is wrong with the file. If it appears normal please submit a bug report with the episode and the SRT file you used to the issue tracker!`);
-		}
-		else {
+	function subtitlesLoaded(e) {
+		 subtitles = e.detail;
+		if (subtitles.subs.length === 0) {
+			console.log('subtitles object failed to parse: ', subtitles);
+			alert(`No subtitles were parsed from the selected .${subtitles.format} file, verify nothing is wrong with the file. If it appears normal please submit a bug report with the episode and the subtitles file you used to the issue tracker!`);
+		} else {
 			lastAlignment = GM_getValue(alignmentKey);
 			phase = 'align';
 		}
 	}
 
 	function trayPauser(e) {
-		e.detail ? videoController.addPauser('tray')  : videoController.removePauser('tray');
+		e.detail ? videoController.addPauser('tray') : videoController.removePauser('tray');
 	}
 
 	function definePauser() {
