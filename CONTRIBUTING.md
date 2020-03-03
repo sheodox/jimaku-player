@@ -42,7 +42,8 @@ The development build command currently has an `xclip` command. I'm just using t
 * **src/main.js** - Creates and mounts the Svelte app.
 * **src/App.svelte** - The main component that orchestrates everything.
 * **src/SubtitlePrompt.svelte** - Basically just a file input, allows you to select a subtitle file,
- then passes the file content back up to the App component which takes it from there.
+ then selects the right parser based on the file extension, and passes the parsed subtitle file
+ back up to the App component to handle it from there.
 * **src/Subtitles.svelte** - The component that actually shows the subtitles over the video.
 * **src/Tray.svelte** - The sidebar that contains settings for how the script behaves, and a list of
  recent subtitles to easily view if you missed what someone said.
