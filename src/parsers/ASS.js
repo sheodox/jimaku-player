@@ -182,9 +182,9 @@ module.exports = class ASS extends SubtitleFormat {
 			}
 
 			if (borderStyle === '1') { //outline + drop shadow
-				const color = outlineColour || backColour;
-				// inlineStyle.push(`-webkit-text-stroke: ${outline || 1}px ${color}; text-shadow: ${shadow}px ${shadow}px ${color}`);
-				inlineStyle.push(`text-shadow: ${color} 2px 2px, ${color} 2px -2px, ${color} -2px 2px, ${color} -2px -2px, ${color} 2px 0, ${color} 0 2px, ${color} -2px 0, ${color} 0 -2px, ${color} 2px 2px, ${shadow}px ${shadow}px ${color}`);
+				const color = outlineColour || backColour,
+					o = `${typeof outline !== 'number' ? 1 : outline}px`;
+				inlineStyle.push(`text-shadow: ${color} ${o} ${o}, ${color} ${o} -${o}, ${color} -${o} ${o}, ${color} -${o} -${o}, ${color} ${o} 0, ${color} 0 ${o}, ${color} -${o} 0, ${color} 0 -${o}, ${shadow}px ${shadow}px ${color}`);
 			}
 			else if (borderStyle === '3') { //opaque box
 				inlineStyle.push(`background-color: ${backColour}`);
