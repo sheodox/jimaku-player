@@ -25,7 +25,7 @@
 
 	function genStyles(sub) {
 		if (format === 'srt') {
-			return `font-size: ${1.5 + 1.5 * (sub.line ? sub.line : 1)}rem; text-shadow: black 2px 2px 0, black 2px -2px 0, black -2px 2px 0, black -2px -2px 0, black 2px 0 0, black 0 2px 0, black -2px 0 0, black 0 -2px 0, black 2px 2px 2px`
+			return `font-size: ${1.5 + 1.5 * (sub.line ? sub.line : 1)}rem; -webkit-text-stroke: 2px black;text-shadow: 3px 3px black;font-weight: bold`
 		}
 		else if (format === 'ass' && sub.style in styles) {
 			return styles[sub.style].inline;

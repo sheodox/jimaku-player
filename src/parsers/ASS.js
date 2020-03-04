@@ -124,6 +124,8 @@ module.exports = class ASS extends SubtitleFormat {
 				zipped[propName] = lineData.attributes[index];
 			});
 
+			// sometimes *Default === Default, just make anything here and in styles that use either just be "Default"
+			zipped.style = zipped.style === '*Default' ? 'Default' : zipped.style;
 			done.push(zipped);
 
 			return done;
@@ -139,6 +141,7 @@ module.exports = class ASS extends SubtitleFormat {
 	parseStyles(styles) {
 		const parseColor = assColor => {
 			if (assColor) {
+				//todo - support shorthand colors?
 				const [_, alpha, blue, green, red] = assColor.match(/&H([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})/i);
 				//seems the alpha color is often 00 used to pad numbers when it's not actually needed, ignore 00 alpha because then everything is invisible
 				return `#${red}${green}${blue}${alpha === '00' ? '' : alpha}`
@@ -155,8 +158,8 @@ module.exports = class ASS extends SubtitleFormat {
 				style[colorKey] = parseColor(style[colorKey]);
 			}
 
-			// seems the default style is called *Default in the actual events
-			style.name = style.name === 'Default' ? '*Default' : style.name;
+			// sometimes *Default === Default, just make anything here and in subs that use either just be "Default"
+			style.name = style.name === '*Default' ? 'Default' : style.name;
 
 			//figure out all the inline styles that will be needed to render the sub, do it once now so
 			//Subtitles.svelte doesn't end up doing this on every frame
@@ -164,8 +167,8 @@ module.exports = class ASS extends SubtitleFormat {
 				//for boolean values, ASS considers -1 to be true and 0 to be false
 				assTrue = '-1',
 				{
-					primaryColour, secondaryColour, outlineColour, backColour,
-					fontname, fontsize, bold, italic, underline, strikeOut
+					primaryColour, secondaryColour, outlineColour, backColour, borderStyle, outline,
+					shadow, fontname, fontsize, bold, italic, underline, strikeOut
 				} = style;
 
 			if (primaryColour) {
@@ -177,10 +180,16 @@ module.exports = class ASS extends SubtitleFormat {
 			if (fontsize) {
 				inlineStyle.push(`font-size: ${fontsize}pt`);
 			}
-			if (outlineColour) {
-				const c = backColour; //i'd think it should be outlineColour, but that seems to be a third alternative main color
-				inlineStyle.push(`text-shadow: ${c} 2px 2px 0, ${c} 2px -2px 0, ${c} -2px 2px 0, ${c} -2px -2px 0, ${c} 2px 0 0, ${c} 0 2px 0, ${c} -2px 0 0, ${c} 0 -2px 0, ${c} 2px 2px 2px`);
+
+			if (borderStyle === '1') { //outline + drop shadow
+				const color = outlineColour || backColour;
+				// inlineStyle.push(`-webkit-text-stroke: ${outline || 1}px ${color}; text-shadow: ${shadow}px ${shadow}px ${color}`);
+				inlineStyle.push(`text-shadow: ${color} 2px 2px, ${color} 2px -2px, ${color} -2px 2px, ${color} -2px -2px, ${color} 2px 0, ${color} 0 2px, ${color} -2px 0, ${color} 0 -2px, ${color} 2px 2px, ${shadow}px ${shadow}px ${color}`);
 			}
+			else if (borderStyle === '3') { //opaque box
+				inlineStyle.push(`background-color: ${backColour}`);
+			}
+
 			if (bold === assTrue) {
 				inlineStyle.push(`font-weight: bold`);
 			}
@@ -190,8 +199,6 @@ module.exports = class ASS extends SubtitleFormat {
 			if (underline === assTrue || strikeOut === assTrue) {
 				inlineStyle.push(`text-decoration: ${underline === assTrue ? 'underline': ''} ${strikeOut === assTrue ? 'line-through' : ''}`)
 			}
-
-			//todo borderStyle, lots of options, currently we're just haphazardly throwing a text shadow on but there are other options in ASS
 
 			parsedStyles[style.name] = {
 				inline: inlineStyle.join(';'),
