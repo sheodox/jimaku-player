@@ -1,7 +1,8 @@
 const MS_MINUTE = 60 * 1000,
 	MS_HOUR = 60 * MS_MINUTE;
 
-export default class SubtitleFormat {
+// export default class SubtitleFormat {
+module.exports = class SubtitleFormat {
 	constructor(format) {
 		this.format = format;
 		this.subs = [];

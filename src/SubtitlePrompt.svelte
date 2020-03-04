@@ -1,5 +1,5 @@
 <label for="srt-upload">Select a subtitle file to begin</label>
-<input type="file" id="srt-upload" on:change={uploadSRT} accept=".srt,.ass">
+<input type="file" id="srt-upload" on:change={uploadSRT} accept=".srt,.ass,.ssa">
 <script>
 	import {createEventDispatcher} from 'svelte';
 	import ASS from "./parsers/ASS";
@@ -12,6 +12,7 @@
 		reader.onload = (readEvent) => {
 			const constructorClass = {
 					'ass': ASS,
+					'ssa': ASS,
 					'srt': SRT
 				},
 				[_, extension] = file.name.match(/\.(\w{3})$/);

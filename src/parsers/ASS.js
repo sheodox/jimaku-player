@@ -1,16 +1,18 @@
-import SubtitleFormat from "./SubtitleFormat";
+// import SubtitleFormat from "./SubtitleFormat";
+const SubtitleFormat = require('./SubtitleFormat');
 
 //parser for Advanced SubStation Alpha (.ass) subtitle files
 //https://en.wikipedia.org/wiki/SubStation_Alpha#Advanced_SubStation_Alpha
 
-export default class ASS extends SubtitleFormat {
+// export default class ASS extends SubtitleFormat {
+module.exports = class ASS extends SubtitleFormat {
 	/**
 	 * @param ass - .ass file contents
 	 */
 	constructor(ass) {
 		super('ass');
 		//much easier to parse without carriage returns
-		ass = ass.replace('\r', '');
+		ass = ass.replace(/\r/g, '');
 		try {
 			this.blocks = this.parseBlocks(ass);
 			this.styles = this.parseBlock(this.blocks.styles);
@@ -18,6 +20,7 @@ export default class ASS extends SubtitleFormat {
 			this.parseSubTimings();
 			this.parseSubOverrideTags();
 		} catch(e) {
+			console.error('ASS PARSE ERROR', e);
 			// if we errored out, having no subs is an error condition detected elsewhere
 			this.subs = [];
 		}
@@ -32,6 +35,8 @@ export default class ASS extends SubtitleFormat {
 		const splitByBlocks = ass.split(/\n(?=\[)/),
 			captureBlock = (heading) => {
 				const block = splitByBlocks.find(block => {
+					//be tolerant of errant spacing, have seen blocks start like " [Script Info]"
+					block = block.trim();
 					//parse out the text inside the header
 					const [_, blockHeading] = block.match(/^\[(.*?)]/);
 					return blockHeading === heading;
@@ -40,7 +45,6 @@ export default class ASS extends SubtitleFormat {
 				return block
 					.replace(/.*\n/, '').trim();
 			};
-		// first comes a [Script Info] block
 
 		return {
 			info: captureBlock('Script Info'),
@@ -61,6 +65,7 @@ export default class ASS extends SubtitleFormat {
 	 *
 	 * This function will transform that to something like:
 	 * [{
+	 *     dataType: 'dialogue',
 	 *     layer: "0",
 	 *     start: "0:00:02.43",
 	 *     end: "0:00:03.54",
@@ -102,21 +107,24 @@ export default class ASS extends SubtitleFormat {
 		const format = parseLine(formatLine);
 
 		return subs.reduce((done, line) => {
-			if (!line) {
+			//skip blank lines and comments
+			if (!line || line.charAt(0) === ';' || line.indexOf('Comment: ') === 0) {
 				return done;
 			}
 			const lineData = parseLine(line, format.attributes.length);
+			//zip the attributes with the format names
+			const zipped = {
+				dataType: lineData.type.toLowerCase()
+			};
 
-			if (lineData.type === 'Dialogue') {
-				//zip the attributes with the format names
-				const zipped = {};
+			format.attributes.forEach((columnHeader, index) => {
+				columnHeader = columnHeader.trim();
+				//camel case
+				const propName = columnHeader.charAt(0).toLowerCase() + columnHeader.substring(1);
+				zipped[propName] = lineData.attributes[index];
+			});
 
-				format.attributes.forEach((columnHeader, index) => {
-					zipped[columnHeader.trim().toLowerCase()] = lineData.attributes[index];
-				});
-
-				done.push(zipped);
-			}
+			done.push(zipped);
 
 			return done;
 		}, [])

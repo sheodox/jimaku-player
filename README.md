@@ -16,7 +16,7 @@ This is a Tampermonkey userscript that lets you provide your own subtitles to pl
 
 Supported subtitle formats: 
 * [.srt](https://en.wikipedia.org/wiki/SubRip) - supported
-* [.ass](https://en.wikipedia.org/wiki/SubStation_Alpha) - basic support, no overrides or fancy
+* [.ass/.ssa](https://en.wikipedia.org/wiki/SubStation_Alpha) - basic support, no overrides or fancy
  formatting yet
 
 ## Usage
