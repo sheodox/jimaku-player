@@ -42,6 +42,7 @@
 					Use the last alignment (first line at {(lastAlignment / 1000).toFixed(1)} seconds).
 				</button>
 			{/if}
+			<button on:click={() => align(0)}>No alignment adjustment.</button>
 		</div>
 	{:else if phase === 'play'}
 		<Subtitles format={subtitles.format} styles={subtitles.styles} current={currentSubtitles} currentTime={currentTime} visible={showSubs} on:define-pauser={definePauser}/>
