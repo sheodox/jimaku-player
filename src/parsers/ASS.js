@@ -15,9 +15,9 @@ module.exports = class ASS extends SubtitleFormat {
 		ass = ass.replace(/\r/g, '');
 		try {
 			this.blocks = this.parseBlocks(ass);
-			this.styles = this.parseBlock(this.blocks.styles);
 			this.subs = this.parseBlock(this.blocks.subs);
 			this.parseSubTimings();
+			this.parseStyles(this.parseBlock(this.blocks.styles));
 			this.parseSubOverrideTags();
 		} catch(e) {
 			console.error('ASS PARSE ERROR', e);
@@ -135,8 +135,75 @@ module.exports = class ASS extends SubtitleFormat {
 			sub.end = this.timeToMs(sub.end);
 		})
 	}
+
+	parseStyles(styles) {
+		const parseColor = assColor => {
+			if (assColor) {
+				const [_, alpha, blue, green, red] = assColor.match(/&H([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})/i);
+				//seems the alpha color is often 00 used to pad numbers when it's not actually needed, ignore 00 alpha because then everything is invisible
+				return `#${red}${green}${blue}${alpha === '00' ? '' : alpha}`
+			}
+		};
+
+		const parsedStyles = {};
+		styles.forEach(style => {
+			/**
+			 * Colors and stuff are weird in the ASS spec, they're in a backwards order (AABBGGRR) to rgba
+			 */
+
+			for (const colorKey of Object.keys(style).filter(k => /colour/i.test(k))) {
+				style[colorKey] = parseColor(style[colorKey]);
+			}
+
+			// seems the default style is called *Default in the actual events
+			style.name = style.name === 'Default' ? '*Default' : style.name;
+
+			//figure out all the inline styles that will be needed to render the sub, do it once now so
+			//Subtitles.svelte doesn't end up doing this on every frame
+			const inlineStyle = [],
+				//for boolean values, ASS considers -1 to be true and 0 to be false
+				assTrue = '-1',
+				{
+					primaryColour, secondaryColour, outlineColour, backColour,
+					fontname, fontsize, bold, italic, underline, strikeOut
+				} = style;
+
+			if (primaryColour) {
+				inlineStyle.push(`color: ${primaryColour}`)
+			}
+			if (fontname) {
+				inlineStyle.push(`font-family: "${fontname}"`);
+			}
+			if (fontsize) {
+				inlineStyle.push(`font-size: ${fontsize}pt`);
+			}
+			if (outlineColour) {
+				const c = backColour; //i'd think it should be outlineColour, but that seems to be a third alternative main color
+				inlineStyle.push(`text-shadow: ${c} 2px 2px 0, ${c} 2px -2px 0, ${c} -2px 2px 0, ${c} -2px -2px 0, ${c} 2px 0 0, ${c} 0 2px 0, ${c} -2px 0 0, ${c} 0 -2px 0, ${c} 2px 2px 2px`);
+			}
+			if (bold === assTrue) {
+				inlineStyle.push(`font-weight: bold`);
+			}
+			if (italic === assTrue) {
+				inlineStyle.push(`font-style: italic`)
+			}
+			if (underline === assTrue || strikeOut === assTrue) {
+				inlineStyle.push(`text-decoration: ${underline === assTrue ? 'underline': ''} ${strikeOut === assTrue ? 'line-through' : ''}`)
+			}
+
+			//todo borderStyle, lots of options, currently we're just haphazardly throwing a text shadow on but there are other options in ASS
+
+			parsedStyles[style.name] = {
+				inline: inlineStyle.join(';'),
+				//keep parsed styles as-is for debugging
+				raw: style
+			};
+		});
+
+		this.styles = parsedStyles;
+	}
 	parseSubOverrideTags() {
 		//todo - parse override tags, all kinds of cool effects can be present
 		//http://docs.aegisub.org/3.2/ASS_Tags/
 	}
-}
+};

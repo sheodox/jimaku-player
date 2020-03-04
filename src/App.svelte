@@ -44,7 +44,7 @@
 			{/if}
 		</div>
 	{:else if phase === 'play'}
-		<Subtitles current={currentSubtitles} currentTime={currentTime} visible={showSubs} on:define-pauser={definePauser}/>
+		<Subtitles format={subtitles.format} styles={subtitles.styles} current={currentSubtitles} currentTime={currentTime} visible={showSubs} on:define-pauser={definePauser}/>
 		<Tray recentSubs={recentSubs} on:restart={restart} on:tray-pauser={trayPauser} on:define-pauser={definePauser} on:realign={() => phase = 'align'} on:show-subs={e => showSubs = e.detail} />
 	{/if}
 </div>
