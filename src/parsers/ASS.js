@@ -211,7 +211,12 @@ module.exports = class ASS extends SubtitleFormat {
 		this.styles = parsedStyles;
 	}
 	parseSubOverrideTags() {
-		//todo - parse override tags, all kinds of cool effects can be present
-		//http://docs.aegisub.org/3.2/ASS_Tags/
+		this.subs.forEach(sub => {
+			//if we don't double escape N, we'll have a newline plus a slash
+			sub.text = sub.text.replace('\\N', '\n');
+
+			//todo - parse override tags, all kinds of cool effects can be present
+			//http://docs.aegisub.org/3.2/ASS_Tags/
+		})
 	}
 };
