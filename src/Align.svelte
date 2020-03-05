@@ -7,6 +7,11 @@
 		margin: 0.5rem;
 		align-self: center;
 	}
+    .row {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+	}
 </style>
 <div class="alignment-buttons">
 	<button on:click={align}>
@@ -14,13 +19,15 @@
 		<br />
 		<pre>{firstSubtitle.text}</pre>
 	</button>
-	{#if typeof lastAlignment === 'number'}
-		<button on:click={useLastAlignment}>
-			Use the last alignment ({Math.abs(lastAlignmentSeconds)} seconds {lastAlignment > 0 ? 'later' : 'earlier'}).
-		</button>
-	{/if}
-	<button on:click={() => align(0)}>No alignment adjustment.</button>
-	<button on:click={promptAlignment}>Enter alignment manually.</button>
+	<div class="row">
+		{#if typeof lastAlignment === 'number'}
+			<button on:click={useLastAlignment}>
+				Use the last alignment ({Math.abs(lastAlignmentSeconds)} seconds {lastAlignment > 0 ? 'later' : 'earlier'}).
+			</button>
+		{/if}
+		<button on:click={() => align(0)}>No alignment adjustment.</button>
+		<button on:click={promptAlignment}>Enter alignment manually.</button>
+	</div>
 </div>
 
 <script>
