@@ -11,8 +11,8 @@ module.exports = class ASS extends SubtitleFormat {
 	 */
 	constructor(ass) {
 		super('ass');
-		//much easier to parse without carriage returns
-		ass = ass.replace(/\r/g, '');
+		//much easier to parse without carriage returns, keep in mind though that \r is also a 'reset' override tag
+		ass = ass.replace(/\r\n/g, '\n');
 		try {
 			this.blocks = this.parseBlocks(ass);
 			this.subs = this.parseBlock(this.blocks.subs);
@@ -217,6 +217,8 @@ module.exports = class ASS extends SubtitleFormat {
 
 			//todo - parse override tags, all kinds of cool effects can be present
 			//http://docs.aegisub.org/3.2/ASS_Tags/
+
+
 		})
 	}
 };
