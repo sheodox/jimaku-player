@@ -18,32 +18,12 @@
 	.subtitles-app :global(button:hover) {
 		background: #ffea6d;
 	}
-	.alignment-buttons {
-		display: flex;
-		flex-direction: column;
-	}
-	.alignment-buttons button {
-		margin: 0.5rem;
-		align-self: center;
-	}
 </style>
 <div class="subtitles-app">
 	{#if phase === 'prompt'}
 		<SubtitlePrompt on:subtitles-loaded={subtitlesLoaded}/>
 	{:else if phase === 'align'}
-		<div class="alignment-buttons">
-			<button on:click={align}>
-				Click when the first line is said:
-				<br />
-				<pre>{subtitles.firstSubtitle().text}</pre>
-			</button>
-			{#if typeof lastAlignment === 'number'}
-				<button on:click={useLastAlignment}>
-					Use the last alignment (first line at {(lastAlignment / 1000).toFixed(1)} seconds).
-				</button>
-			{/if}
-			<button on:click={() => align(0)}>No alignment adjustment.</button>
-		</div>
+		<Align firstSubtitle={subtitles.firstSubtitle()} on:set-align={align}/>
 	{:else if phase === 'play'}
 		<Subtitles format={subtitles.format} styles={subtitles.styles} current={currentSubtitles} currentTime={currentTime} visible={showSubs} on:define-pauser={definePauser}/>
 		<Tray recentSubs={recentSubs} on:restart={restart} on:tray-pauser={trayPauser} on:define-pauser={definePauser} on:realign={() => phase = 'align'} on:show-subs={e => showSubs = e.detail} />
@@ -56,19 +36,19 @@
 	import Subtitles from "./Subtitles.svelte";
 	import VideoController from './VideoController';
 	import SubtitlePrompt from "./SubtitlePrompt.svelte";
+	import Align from "./Align.svelte";
 
 	const alignmentKey = 'last-used-alignment',
-			videoController = new VideoController();
+		videoController = new VideoController();
 
 	let phase = 'prompt',
-			lastAlignment = GM_getValue(alignmentKey),
-			currentSubtitles = [],
-			currentTime = '',
-			subtitles = null,
-			video = null,
-			subOffset = -1,
-			recentSubs = [],
-			showSubs = true;
+		currentSubtitles = [],
+		currentTime = '',
+		subtitles = null,
+		video = null,
+		subOffset = -1,
+		recentSubs = [],
+		showSubs = true;
 
 	function restart() {
 		phase = 'prompt';
@@ -95,24 +75,18 @@
 		}, 50);
 	});
 
-	function align(alignment) {
+	function align(e) {
 		video = document.querySelector('video');
 		videoController.setVideo(video);
-		//assume decent reaction time, subtract by a bit so they don't have to perfectly predict
-		subOffset = typeof alignment === 'number' ? alignment : video.currentTime * 1000 - subtitles.firstSubtitle().start - 400;
-		GM_setValue(alignmentKey, subOffset);
+		subOffset = e.detail;
 		recentSubs = [];
 		phase = 'play';
 		renderSubs();
 	}
 
-	function useLastAlignment() {
-		align(lastAlignment);
-	}
-
 	function mergeSubsWithRecent(subs) {
 		let newestSub = subs[subs.length - 1],
-				mostRecent = recentSubs[recentSubs.length - 1];
+			mostRecent = recentSubs[recentSubs.length - 1];
 		if (newestSub && (!mostRecent || newestSub.text !== mostRecent.text)) {
 			recentSubs = [...recentSubs, newestSub];
 		}
@@ -130,12 +104,11 @@
 	}
 
 	function subtitlesLoaded(e) {
-		 subtitles = e.detail;
+		subtitles = e.detail;
 		if (subtitles.subs.length === 0) {
 			console.log('subtitles object failed to parse: ', subtitles);
 			alert(`No subtitles were parsed from the selected .${subtitles.format} file, verify nothing is wrong with the file. If it appears normal please submit a bug report with the episode and the subtitles file you used to the issue tracker!`);
 		} else {
-			lastAlignment = GM_getValue(alignmentKey);
 			phase = 'align';
 		}
 	}
