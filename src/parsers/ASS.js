@@ -142,9 +142,10 @@ module.exports = class ASS extends SubtitleFormat {
 		const parseColor = assColor => {
 			if (assColor) {
 				//todo - support shorthand colors?
-				const [_, alpha, blue, green, red] = assColor.match(/&H([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})/i);
-				//seems the alpha color is often 00 used to pad numbers when it's not actually needed, ignore 00 alpha because then everything is invisible
-				return `#${red}${green}${blue}${alpha === '00' ? '' : alpha}`
+				const [_, alpha, blue, green, red] = assColor.match(/&H([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})/i),
+					fromHex = num => parseInt(num, 16);
+				//alpha channel numbers are backwards from CSS hex colors, need to invert it
+				return `rgba(${fromHex(red)}, ${fromHex(green)}, ${fromHex(blue)}, ${255 - fromHex(alpha)})`
 			}
 		};
 
