@@ -185,7 +185,7 @@ module.exports = class ASS extends SubtitleFormat {
 			if (borderStyle === '1') { //outline + drop shadow
 				const color = outlineColour || backColour,
 					o = `${typeof outline !== 'number' ? 1 : outline}px`;
-				inlineStyle.push(`text-shadow: ${color} ${o} ${o}, ${color} ${o} -${o}, ${color} -${o} ${o}, ${color} -${o} -${o}, ${color} ${o} 0, ${color} 0 ${o}, ${color} -${o} 0, ${color} 0 -${o}, ${shadow}px ${shadow}px ${color}`);
+				inlineStyle.push(`text-shadow: ${color} ${o} ${o}, ${color} ${o} -${o}, ${color} -${o} ${o}, ${color} -${o} -${o}, ${color} ${o} 0, ${color} 0 ${o}, ${color} -${o} 0, ${color} 0 -${o}, ${shadow}px ${shadow}px ${backColour}`);
 			}
 			else if (borderStyle === '3') { //opaque box
 				inlineStyle.push(`background-color: ${backColour}`);
