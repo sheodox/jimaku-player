@@ -17,7 +17,7 @@
 				},
 				[_, extension] = file.name.match(/\.(\w{3})$/);
 
-			dispatch('subtitles-loaded', new constructorClass[extension](readEvent.target.result));
+			dispatch('subtitles-loaded', new constructorClass[extension](readEvent.target.result, file.name));
 		};
 		reader.readAsText(file);
 	}

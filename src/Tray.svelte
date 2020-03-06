@@ -42,13 +42,6 @@
 	button {
 		margin: 0.5rem;
 	}
-	.settings {
-		background: #1a1d2b;
-		margin: 1rem;
-		padding: 1rem;
-		box-shadow: inset 0 0 0.5rem black;
-		border-radius: 3px;
-	}
 	ul {
 		list-style: none;
 	}
@@ -75,36 +68,67 @@
 		margin: 0 auto;
 		border-radius: 4px;
 	}
+	dl {
+		padding: 2rem;
+		text-align: left;
+	}
+	dt {
+		font-weight: bold;
+	}
+    dd {
+		font-style: italic;
+	}
 </style>
 
 <div class="tray" on:mouseenter={trayHover(true)} on:mouseleave={trayHover(false)}>
 	<h1>VRV Subtitler</h1>
-	<button on:click={() => showSettings = !showSettings}>{showSettings ? 'Hide' : 'Show'} Settings</button>
-	{#if showSettings}
-		<div class="settings">
-			<h2>Settings</h2>
-			<button on:click={() => dispatch('restart')}>
-				Reselect subtitles
-			</button>
-			<button on:click={() => dispatch('realign')}>
-				Realign subtitles
-			</button>
-			<br>
-			<input id="show-subs" type="checkbox" checked on:change={toggleSetting('show-subs')}>
-			<label for="show-subs">Show subs over video</label>
-			<br>
-			<input id="pause-on-tray" type="checkbox" bind:checked={pauseOnTray}>
-			<label for="pause-on-tray">Pause when tray is open</label>
-		</div>
+	<div>
+
+	</div>
+	<div class="tray-tabs">
+		<button on:click={() => panel = 'recent'} disabled={panel === 'recent'}>Recent Subtitles</button>
+		<button on:click={() => panel = 'settings'} disabled={panel === 'settings'}>Settings</button>
+		<button on:click={() => panel = 'debug'} disabled={panel === 'debug'}>Debug</button>
+	</div>
+	{#if panel === 'recent'}
+		<h2>Recent Subtitles</h2>
+		<ul class="recent-subs">
+			{#each recentSubs as sub (sub.text)}
+				<li in:fly={{y: 50, duration: 200}} out:fly={{y:-50, duration: 200}}>
+					<a target="_blank" href={`https://jisho.org/search/${encodeURIComponent(sub.text.trim())}`} rel="noopener noreferrer" on:click={() => dispatch('define-pauser')}>{sub.text}</a>
+				</li>
+			{/each}
+		</ul>
+	{:else if panel === "settings"}
+		<h2>Settings</h2>
+		<button on:click={() => dispatch('restart')}>
+			Reselect subtitles
+		</button>
+		<button on:click={() => dispatch('realign')}>
+			Realign subtitles
+		</button>
+		<br>
+		<input id="show-subs" type="checkbox" checked on:change={toggleSetting('show-subs')}>
+		<label for="show-subs">Show subs over video</label>
+		<br>
+		<input id="pause-on-tray" type="checkbox" bind:checked={pauseOnTray}>
+		<label for="pause-on-tray">Pause when tray is open</label>
+	{:else if panel === 'debug'}
+		<h2>Debug Information</h2>
+		<dl>
+			<dt>Subtitles File</dt>
+			<dd>{subtitles.fileName}</dd>
+
+			<dt>Alignment</dt>
+			<dd>{alignment > 0 ? '+' : ''}{(alignment / 1000).toFixed(1)} seconds</dd>
+
+			{#each subtitles.debugInfo() as info}
+				<dt>{info.title}</dt>
+				<dd>{info.detail}</dd>
+			{/each}
+		</dl>
+		<a href={createParsedSubDownloadLink()} download="parsed-subtitles.json">⬇ Download Parsed Subtitles</a>
 	{/if}
-	<h2>Recent Subtitles</h2>
-	<ul class="recent-subs">
-		{#each recentSubs as sub (sub.text)}
-			<li in:fly={{y: 50, duration: 200}} out:fly={{y:-50, duration: 200}}>
-				<a target="_blank" href={`https://jisho.org/search/${encodeURIComponent(sub.text.trim())}`} rel="noopener noreferrer" on:click={() => dispatch('define-pauser')}>{sub.text}</a>
-			</li>
-		{/each}
-	</ul>
 </div>
 
 <script>
@@ -113,9 +137,17 @@
 	const dispatch = createEventDispatcher();
 
 	export let recentSubs = [];
-	let showSettings = false,
+	export let subtitles = {};
+	export let alignment = 0;
+	let panel = 'recent',
+		showSettings = false,
 		showSubs = true,
 		pauseOnTray = true;
+
+	function createParsedSubDownloadLink() {
+		const downloadBlob = new Blob([subtitles.serialize()], {type: 'application/json'});
+		return URL.createObjectURL(downloadBlob);
+	}
 
 	function trayHover(isEntering) {
 		return () => {

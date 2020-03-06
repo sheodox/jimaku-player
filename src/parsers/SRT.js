@@ -3,8 +3,8 @@ import SubtitleFormat from "./SubtitleFormat";
  * Parser for SRT files. Can return an array of subtitles and their styling at any point in time during a video.
  */
 export default class SRT extends SubtitleFormat {
-	constructor(srt) {
-		super('srt');
+	constructor(srt, fileName) {
+		super('srt', fileName);
 
 		//split subs up by the double line breaks
 		const subs = srt.split('\n\n');
@@ -49,5 +49,16 @@ export default class SRT extends SubtitleFormat {
 			} catch(e){}
 			return done;
 		}, []);
+	}
+
+	serialize() {
+		return JSON.stringify(this.subs, null, 4);
+	}
+
+	debugInfo() {
+		return [{
+			title: 'Number of subtitles',
+			detail: this.subs.length
+		}];
 	}
 }

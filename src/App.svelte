@@ -15,7 +15,11 @@
 		color: black;
 		text-transform: uppercase;
 	}
-	.subtitles-app :global(button:hover) {
+	.subtitles-app :global(button:disabled) {
+		background: #2a3450;
+
+	}
+	.subtitles-app :global(button:not(:disabled):hover) {
 		background: #ffea6d;
 	}
 </style>
@@ -26,7 +30,16 @@
 		<Align firstSubtitle={subtitles.firstSubtitle()} on:set-align={align}/>
 	{:else if phase === 'play'}
 		<Subtitles format={subtitles.format} styles={subtitles.styles} current={currentSubtitles} currentTime={currentTime} visible={showSubs} on:define-pauser={definePauser}/>
-		<Tray recentSubs={recentSubs} on:restart={restart} on:tray-pauser={trayPauser} on:define-pauser={definePauser} on:realign={() => phase = 'align'} on:show-subs={e => showSubs = e.detail} />
+		<Tray
+				recentSubs={recentSubs}
+				subtitles={subtitles}
+				alignment={subOffset}
+				on:restart={restart}
+				on:tray-pauser={trayPauser}
+				on:define-pauser={definePauser}
+				on:realign={() => phase = 'align'}
+				on:show-subs={e => showSubs = e.detail}
+		/>
 	{/if}
 </div>
 

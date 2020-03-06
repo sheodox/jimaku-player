@@ -67,8 +67,8 @@ module.exports = class ASS extends SubtitleFormat {
 	/**
 	 * @param ass - .ass file contents
 	 */
-	constructor(ass) {
-		super('ass');
+	constructor(ass, fileName) {
+		super('ass', fileName);
 		//much easier to parse without carriage returns, keep in mind though that \r is also a 'reset' override tag
 		ass = ass.replace(/\r\n/g, '\n');
 		try {
@@ -83,6 +83,24 @@ module.exports = class ASS extends SubtitleFormat {
 			// if we errored out, having no subs is an error condition detected elsewhere
 			this.subs = [];
 		}
+	}
+
+	serialize() {
+		return JSON.stringify({
+			info: this.info,
+			styles: this.styles,
+			subs: this.subs,
+		}, null, 4);
+	}
+
+	debugInfo() {
+		return [{
+			title: 'Number of styles',
+			detail: Object.keys(this.styles).length
+		}, {
+			title: 'Number of subtitles',
+			detail: this.subs.length
+		}];
 	}
 
 	parseInfo() {
@@ -328,7 +346,6 @@ module.exports = class ASS extends SubtitleFormat {
 				checkOverride('fscx');
 				checkOverride('fscy');
 				checkOverride('blur');
-				checkOverride('shad');
 
 				checkOverride('pos', true, ([x, y]) => {
 					//try and scale the x/y coordinates to percentages based on the player sizes
