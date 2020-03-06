@@ -13,6 +13,7 @@
 </style>
 <script>
 	import {createEventDispatcher} from 'svelte';
+	import {fade} from 'svelte/transition';
 	export let current = []; // the subtitles that are currently supposed to be shown
 	export let styles = {}; // parsed styles from the subtitle file
 	export let format = ''; // subtitle file format that was parsed
@@ -29,7 +30,10 @@
 			return `font-size: ${1.5 + 1.5 * (sub.line ? sub.line : 1)}rem; -webkit-text-stroke: 2px black;text-shadow: 3px 3px black;font-weight: bold`
 		}
 		else if (format === 'ass' && sub.style in styles) {
-			return styles[sub.style].inline;
+			return [
+				styles[sub.style].inline,
+				(sub.inline || '')
+			].join(';');
 		}
 	}
 </script>
@@ -37,7 +41,15 @@
 <div class="subtitles">
 	{#if visible}
 		{#each current as sub}
-			<p style="{genStyles(sub)}" on:click={() => define(sub.text)} title="click to search this phrase on Jisho.org">{sub.text}</p>
+			<p style="{genStyles(sub)}" data-sub-style={sub.style} on:click={() => define(sub.text)} title="click to search this phrase on Jisho.org">
+				{#if sub.styledText}
+					{#each sub.styledText as phrase}
+						<span style={phrase.inline} in:fade={phrase.fadeIn} out:fade={phrase.fadeOut}>{phrase.text}</span>
+					{/each}
+				{:else}
+					{sub.text}
+				{/if}
+			</p>
 		{/each}
 	{/if}
 </div>

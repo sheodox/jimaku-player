@@ -16,9 +16,10 @@ This is a Tampermonkey userscript that lets you provide your own subtitles to pl
 
 Supported subtitle formats: 
 * [.srt](https://en.wikipedia.org/wiki/SubRip) - supported
-* [.ass/.ssa](https://en.wikipedia.org/wiki/SubStation_Alpha) - basic support (most general font
- styles like font family, size, colors, outlines, shadows, bold, italic, underline, strikethrough,
- etc), but currently no support for specific overrides on individual subtitles
+* [.ass/.ssa](https://en.wikipedia.org/wiki/SubStation_Alpha) - pretty good support (most general
+ font styles like font family, size, colors, outlines, shadows, bold, italic, underline, strikethrough,
+ etc), and many overrides are supported (position, outline/shadow colors and widths, fonts and
+  sizing, bold, italic etc.)
 
 ## Usage
 

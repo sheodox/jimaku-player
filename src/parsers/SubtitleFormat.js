@@ -26,4 +26,4 @@ module.exports = class SubtitleFormat {
 			return next.start < best.start ? next : best;
 		}, {start: Infinity})
 	}
-}
+};
