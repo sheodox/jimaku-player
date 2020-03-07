@@ -20,10 +20,22 @@ const parseColor = assColor => {
 };
 
 const genOutlineStyles = (outlineColor, outlineWidth, shadowColor='transparent', shadowDepth=0, blur=0) => {
-	const color = outlineColor || shadowColor,
-		o = `${typeof outlineWidth === 'undefined' ? 1 : outlineWidth}px`;
+	const color = outlineColor || shadowColor;
+		shadowBlur = `${blur}px`;
+	shadowDepth *= 2;
 	blur = `${blur}px`;
-	return `text-shadow: ${color} ${o} ${o} ${blur}, ${color} ${o} -${o} ${blur}, ${color} -${o} ${o} ${blur}, ${color} -${o} -${o} ${blur}, ${color} ${o} 0 ${blur}, ${color} 0 ${o} ${blur}, ${color} -${o} 0 ${blur}, ${color} 0 -${o} ${blur}, ${shadowDepth}px ${shadowDepth}px ${blur} ${shadowColor}`
+
+	//make the outline a bit stronger, seems to need it when comparing to VLC's rendered subtitles
+	outlineWidth = (typeof outlineWidth === 'undefined' ? 1 : outlineWidth) * 2;
+	const outlines = [];
+	//make a ton of stacking shadows, because otherwise thicker outlines won't appear smooth
+	for (let i = -1 * outlineWidth; i <= outlineWidth; i++) {
+		for (let j = -1 * outlineWidth; j <= outlineWidth; j++) {
+			outlines.push(`${i}px ${j}px ${blur} ${color}`);
+		}
+	}
+	// return `text-shadow: ${color} ${o} ${o} ${blur}, ${color} ${o} -${o} ${blur}, ${color} -${o} ${o} ${blur}, ${color} -${o} -${o} ${blur}, ${color} ${o} 0 ${blur}, ${color} 0 ${o} ${blur}, ${color} -${o} 0 ${blur}, ${color} 0 -${o} ${blur}, ${shadowDepth}px ${shadowDepth}px ${shadowBlur} ${shadowColor}`
+	return `text-shadow: ${outlines.join(', ')}, ${shadowDepth}px ${shadowDepth}px ${blur} ${shadowColor}`
 };
 
 /**
