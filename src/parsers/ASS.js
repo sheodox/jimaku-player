@@ -124,6 +124,16 @@ module.exports = class ASS extends SubtitleFormat {
 			})
 	}
 
+	scaleHeight(height) {
+		//fonts in ASS files are meant to be equivalent to px, but they need to scale compared to the size of the video they were expecting,
+		//since we know expected video resolutions we can scale the subtitles into vh units so it'll automatically scale. this can also
+		//be used by pos override tags
+		return `${100 * (height / +this.info.playResY)}vh`;
+	}
+	scaleWidth(width) {
+		return `${100 * (width / +this.info.playResX)}vw`;
+	}
+
 	/**
 	 * ASS subtitles have data in INI-like sections, under a header like [Events]
 	 * @param ass
@@ -267,7 +277,7 @@ module.exports = class ASS extends SubtitleFormat {
 				inlineStyle.push(`font-family: "${fontname}"`);
 			}
 			if (fontsize) {
-				inlineStyle.push(`font-size: ${fontsize}pt`);
+				inlineStyle.push(`font-size: ${this.scaleHeight(fontsize)}`);
 			}
 
 			if (borderStyle === '1') { //outline + drop shadow
@@ -376,15 +386,11 @@ module.exports = class ASS extends SubtitleFormat {
 				checkOverride('shad', false, depth => {
 					shadowDepth = depth;
 				});
-				//both blur and be can be overrides for blurred edges, but it seems blurs are much stronger.
-				//to ASS subs than text-shadow uses, so multiply it by a bit.
-				//docs say 'blur' works better than 'be' at high strengths so just guessing the blurring should
-				//be stronger for 'be' overrides, but multiply both by a bit to exaggerate the effect
 				checkOverride('blur', false, b => {
-					blur = 3 * b;
+					blur = b;
 				});
 				checkOverride('be', false, be => {
-					blur = 5 * be;
+					blur = be;
 				});
 				//if any of them are defined, merge them in with the applied style's definitions, then generate an outline/shadow style
 				if ([outlineColor, shadowColor, outlineSize, shadowDepth, blur].some(p => typeof p !== "undefined")) {
@@ -402,13 +408,9 @@ module.exports = class ASS extends SubtitleFormat {
 				}
 
 				checkOverride('pos', true, ([x, y]) => {
-					//try and scale the x/y coordinates to percentages based on the player sizes
-					x = 100 * (+x / +this.info.playResX);
-					y = 100 * (+y / +this.info.playResY);
-
 					//positioning applies to the line, and if we just put it on this span it might get put in the right space, but the
 					//containing paragraph elements will stack, possibly overlapping the video controls if
-					containerInline.push(`position: fixed; left: ${x}vw; top: ${y}vh`);
+					containerInline.push(`position: fixed; left: ${this.scaleWidth(x)}; top: ${this.scaleHeight(y)}`);
 				});
 
 				checkOverride('fad', true, ([fadeIn, fadeOut]) => {
@@ -424,7 +426,7 @@ module.exports = class ASS extends SubtitleFormat {
 				});
 
 				checkOverride('fs', false, fontSize => {
-					cumulativeStyles.push(`font-size: ${fontSize}pt`);
+					cumulativeStyles.push(`font-size: ${this.scaleHeight(fontSize)}`);
 				});
 
 				//need to handle underline and strike through decorations at the same time, because it's the same css property
