@@ -21,7 +21,6 @@ const parseColor = assColor => {
 
 const genOutlineStyles = (outlineColor, outlineWidth, shadowColor='transparent', shadowDepth=0, blur=0) => {
 	const color = outlineColor || shadowColor;
-		shadowBlur = `${blur}px`;
 	shadowDepth *= 2;
 	blur = `${blur}px`;
 
