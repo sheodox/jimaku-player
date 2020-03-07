@@ -19,10 +19,11 @@ const parseColor = assColor => {
 	}
 };
 
-const genOutlineStyles = (outlineColor, outlineWidth, shadowColor='transparent', shadowDepth=0) => {
+const genOutlineStyles = (outlineColor, outlineWidth, shadowColor='transparent', shadowDepth=0, blur=0) => {
 	const color = outlineColor || shadowColor,
 		o = `${typeof outlineWidth === 'undefined' ? 1 : outlineWidth}px`;
-	return `text-shadow: ${color} ${o} ${o}, ${color} ${o} -${o}, ${color} -${o} ${o}, ${color} -${o} -${o}, ${color} ${o} 0, ${color} 0 ${o}, ${color} -${o} 0, ${color} 0 -${o}, ${shadowDepth}px ${shadowDepth}px ${shadowColor}`
+	blur = `${blur}px`;
+	return `text-shadow: ${color} ${o} ${o} ${blur}, ${color} ${o} -${o} ${blur}, ${color} -${o} ${o} ${blur}, ${color} -${o} -${o} ${blur}, ${color} ${o} 0 ${blur}, ${color} 0 ${o} ${blur}, ${color} -${o} 0 ${blur}, ${color} 0 -${o} ${blur}, ${shadowDepth}px ${shadowDepth}px ${blur} ${shadowColor}`
 };
 
 /**
@@ -345,7 +346,50 @@ module.exports = class ASS extends SubtitleFormat {
 				//overrides, so pretend to process them so they're not in the override string
 				checkOverride('fscx');
 				checkOverride('fscy');
-				checkOverride('blur');
+
+
+				//outline and shadow use a bunch of text-shadows, so they need to all be parsed at once, and their result computed
+				let outlineColor,
+					shadowColor,
+					outlineSize,
+					shadowDepth,
+					blur;
+				checkOverride('3c', false, color => {
+					outlineColor = color;
+				});
+				checkOverride('4c', false, color => {
+					shadowColor = color;
+				});
+				checkOverride('bord', false, size => {
+					outlineSize = size;
+				});
+				checkOverride('shad', false, depth => {
+					shadowDepth = depth;
+				});
+				//both blur and be can be overrides for blurred edges, but it seems blurs are much stronger.
+				//to ASS subs than text-shadow uses, so multiply it by a bit.
+				//docs say 'blur' works better than 'be' at high strengths so just guessing the blurring should
+				//be stronger for 'be' overrides, but multiply both by a bit to exaggerate the effect
+				checkOverride('blur', false, b => {
+					blur = 3 * b;
+				});
+				checkOverride('be', false, be => {
+					blur = 5 * be;
+				});
+				//if any of them are defined, merge them in with the applied style's definitions, then generate an outline/shadow style
+				if ([outlineColor, shadowColor, outlineSize, shadowDepth, blur].some(p => typeof p !== "undefined")) {
+					const baseStyle = this.styles[sub.style],
+						useOrFallback = (value, fallbackProp) => typeof value !== "undefined" ? value : baseStyle.raw[fallbackProp];
+					// just in case there's no style applied? unsure if that's possible, but checking just in case
+					if (baseStyle) {
+						outlineColor = useOrFallback(parseColor(outlineColor), 'outlineColour');
+						shadowColor = useOrFallback(parseColor(shadowColor), 'backColour');
+						outlineSize = useOrFallback(outlineSize, 'outline');
+						shadowDepth = useOrFallback(shadowDepth, 'shadow');
+						//not using a blur fallback, because blur is only ever defined in an override it seems
+						cumulativeStyles.push(genOutlineStyles(outlineColor, outlineSize, shadowColor, shadowDepth, blur));
+					}
+				}
 
 				checkOverride('pos', true, ([x, y]) => {
 					//try and scale the x/y coordinates to percentages based on the player sizes
@@ -399,36 +443,6 @@ module.exports = class ASS extends SubtitleFormat {
 					cumulativeStyles.push(`color: ${parseColor(color)}`)
 				});
 
-				//outline and shadow use a bunch of text-shadows, so they need to all be parsed at once, and their result computed
-				let outlineColor,
-					shadowColor,
-					outlineSize,
-					shadowDepth;
-				checkOverride('3c', false, color => {
-					outlineColor = color;
-				});
-				checkOverride('4c', false, color => {
-					shadowColor = color;
-				});
-				checkOverride('bord', false, size => {
-					outlineSize = size;
-				});
-				checkOverride('shad', false, depth => {
-					shadowDepth = depth;
-				});
-				//if any of them are defined, merge them in with the applied style's definitions, then generate an outline/shadow style
-				if ([outlineColor, shadowColor, outlineSize, shadowDepth].some(p => typeof p !== "undefined")) {
-					const baseStyle = this.styles[sub.style],
-						useOrFallback = (value, fallbackProp) => typeof value !== "undefined" ? value : baseStyle.raw[fallbackProp];
-					// just in case there's no style applied? unsure if that's possible, but checking just in case
-					if (baseStyle) {
-						outlineColor = useOrFallback(parseColor(outlineColor), 'outlineColour');
-						shadowColor = useOrFallback(parseColor(shadowColor), 'backColour');
-						outlineSize = useOrFallback(outlineSize, 'outline');
-						shadowDepth = useOrFallback(shadowDepth, 'shadow');
-						cumulativeStyles.push(genOutlineStyles(outlineColor, outlineSize, shadowColor, shadowDepth));
-					}
-				}
 
 
 				checkOverride('r', false, style => {
