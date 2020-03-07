@@ -14,11 +14,6 @@
 	}
 </style>
 <div class="alignment-buttons">
-	<button on:click={align}>
-		Click when the first line is said:
-		<br />
-		<pre>{firstSubtitle.text}</pre>
-	</button>
 	<div class="row">
 		{#if typeof lastAlignment === 'number'}
 			<button on:click={useLastAlignment}>
@@ -28,6 +23,11 @@
 		<button on:click={() => align(0)}>No alignment adjustment.</button>
 		<button on:click={promptAlignment}>Enter alignment manually.</button>
 	</div>
+	<button on:click={align}>
+		Click when the first line is said:
+		<br />
+		<pre>{firstSubtitle.text}</pre>
+	</button>
 </div>
 
 <script>
