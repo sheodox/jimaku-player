@@ -34,7 +34,6 @@ const genOutlineStyles = (outlineColor, outlineWidth, shadowColor='transparent',
 			outlines.push(`${i}px ${j}px ${blur} ${color}`);
 		}
 	}
-	// return `text-shadow: ${color} ${o} ${o} ${blur}, ${color} ${o} -${o} ${blur}, ${color} -${o} ${o} ${blur}, ${color} -${o} -${o} ${blur}, ${color} ${o} 0 ${blur}, ${color} 0 ${o} ${blur}, ${color} -${o} 0 ${blur}, ${color} 0 -${o} ${blur}, ${shadowDepth}px ${shadowDepth}px ${shadowBlur} ${shadowColor}`
 	return `text-shadow: ${outlines.join(', ')}, ${shadowDepth}px ${shadowDepth}px ${blur} ${shadowColor}`
 };
 
