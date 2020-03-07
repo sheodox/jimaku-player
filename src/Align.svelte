@@ -20,7 +20,7 @@
 	<div class="row">
 		{#if typeof lastAlignment === 'number'}
 			<button on:click={useLastAlignment}>
-				Use the last alignment for <span class="show-name">{showName}</span> ({Math.abs(lastAlignmentSeconds)} seconds {lastAlignment > 0 ? 'later' : 'earlier'}).
+				Use the last alignment for <span class="show-name">{showName}</span> ({alignmentHint()}).
 			</button>
 		{/if}
 		<button on:click={() => align(0)}>No alignment adjustment.</button>
@@ -43,6 +43,10 @@
 		alignmentKey = `last-used-alignment-${showName}`,
 		lastAlignment = GM_getValue(alignmentKey),
 		lastAlignmentSeconds = (lastAlignment / 1000).toFixed(1);
+
+	function alignmentHint() {
+		return `${Math.abs(lastAlignmentSeconds)} seconds ${lastAlignment > 0 ? 'later' : 'earlier'}`
+	}
 
 	function useLastAlignment() {
 		align(lastAlignment);
