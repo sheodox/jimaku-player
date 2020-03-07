@@ -417,14 +417,15 @@ module.exports = class ASS extends SubtitleFormat {
 					cumulativeStyles.push(`font-size: ${fontSize}pt`);
 				});
 
-				//TODO need to handle text-decoration properties a bit differently, it should be possible to underline
-				//and strikethrough at the same time, but they'll currently overwrite each other
+				//need to handle underline and strike through decorations at the same time, because it's the same css property
+				const textDecorationOptions = [];
 				checkOverride('u', false, underlined => {
-					cumulativeStyles.push(`text-decoration: ${underlined ? 'underline' : 'none'}`)
+					textDecorationOptions.push('underline');
 				});
 				checkOverride('s', false, striked => {
-					cumulativeStyles.push(`text-decoration: ${striked ? 'line-through' : 'none'}`)
+					textDecorationOptions.push('line-through');
 				});
+				cumulativeStyles.push(`text-decoration: ${textDecorationOptions.length ? textDecorationOptions.join(' ') : 'none'}`);
 
 				checkOverride('b', false, bolded => {
 					cumulativeStyles.push(`font-weight: ${bolded ? 'bold' : 'normal'}`);
