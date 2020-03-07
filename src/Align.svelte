@@ -12,12 +12,15 @@
 		flex-direction: row;
 		justify-content: center;
 	}
+	.show-name {
+		font-style: italic;
+	}
 </style>
 <div class="alignment-buttons">
 	<div class="row">
 		{#if typeof lastAlignment === 'number'}
 			<button on:click={useLastAlignment}>
-				Use the last alignment ({Math.abs(lastAlignmentSeconds)} seconds {lastAlignment > 0 ? 'later' : 'earlier'}).
+				Use the last alignment for <span class="show-name">{showName}</span> ({Math.abs(lastAlignmentSeconds)} seconds {lastAlignment > 0 ? 'later' : 'earlier'}).
 			</button>
 		{/if}
 		<button on:click={() => align(0)}>No alignment adjustment.</button>
@@ -35,7 +38,9 @@
 	export let firstSubtitle = {};
 
 	const dispatch = createEventDispatcher(),
-		alignmentKey = 'last-used-alignment',
+		videoTitle = document.querySelector('.video-title'),
+		showName = videoTitle ?  videoTitle.textContent : '',
+		alignmentKey = `last-used-alignment-${showName}`,
 		lastAlignment = GM_getValue(alignmentKey),
 		lastAlignmentSeconds = (lastAlignment / 1000).toFixed(1);
 
@@ -44,7 +49,7 @@
 	}
 
 	function promptAlignment() {
-		const alignment = parseFloat(prompt('Enter an alignment in seconds. Positive numbers mean the subtitles are timed earlier than the video and need to be delayed.', lastAlignmentSeconds));
+		const alignment = parseFloat(prompt('Enter an alignment in seconds. Positive numbers mean the subtitles are timed earlier than the video and need to be delayed.', (lastAlignmentSeconds || '')));
         if (!isNaN(alignment)) {
         	//alignment needs to be milliseconds
         	align(alignment * 1000);
