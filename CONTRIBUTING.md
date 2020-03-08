@@ -38,8 +38,8 @@ When releasing a new build `npm run release` will create a production build of t
 I won't accept PRs that include a new build of the userscript, I will build new releases myself so I
  can ensure the minified production code hasn't been tampered.
 
-The development build command currently has an `xclip` command. I'm just using that to
- automatically copy the userscript to my clipboard. It was an easy stop-gap solution but can
+The `test` build command currently has an `xclip` command (a Linux utility). I'm just
+ using that to automatically copy the userscript to my clipboard. It was an easy stop-gap solution but can
  definitely be improved.
  
 ## Files of note
