@@ -8,7 +8,6 @@
 	.subtitles-app :global(button) {
 		background: #fd0;
 		border: none;
-		cursor: pointer;
 		padding: 10px;
 		line-height: 1;
 		font-weight: bold;
@@ -21,6 +20,7 @@
 	}
 	.subtitles-app :global(button:not(:disabled):hover) {
 		background: #ffea6d;
+		cursor: pointer;
 	}
 </style>
 <div class="subtitles-app">

@@ -2,12 +2,14 @@
 	.tray {
 		margin-top: 0.5rem;
 		width: 2vw;
-		background: rgba(255, 255, 255, 0.2);
+		background: #1b1a26;
 		position: fixed;
 		right: 0;
 		top: 0;
 		color: white;
 		height: calc(100% - 5rem);
+		display: flex;
+		flex-direction: column;
 	}
 
 	.tray > * {
@@ -31,16 +33,13 @@
 		background: rgb(27, 26, 38);
 		padding: 0.5rem 0;
 		border-radius: 3px;
-		margin: 0 0 0.5rem 0;
+		margin: 0;
 		border-bottom: 2px solid #f47521;
 	}
 
 	.tray h2 {
-		margin: 0;
 		text-decoration: underline;
-	}
-	button {
-		margin: 0.5rem;
+		margin: 0 0 0.4rem;
 	}
 	ul {
 		list-style: none;
@@ -58,25 +57,36 @@
 		cursor: pointer;
 		text-decoration: underline;
 	}
+	li {
+		padding-bottom: 0.2rem;
+	}
 	li:not(:first-of-type)::before {
 		content: ' ';
 		position: relative;
-		background: #f47521;
-		height: 0.1rem;
-		width: 3.2rem;
+		border: 1px solid #7b724e;
 		display: block;
 		margin: 0 auto;
 		border-radius: 4px;
-	}
-	dl {
-		padding: 2rem;
-		text-align: left;
 	}
 	dt {
 		font-weight: bold;
 	}
     dd {
 		font-style: italic;
+	}
+
+	.tab {
+		display: none;
+		text-align: left;
+		padding: 2rem;
+        background: #1c1825;
+	}
+	.tab-active {
+		display: block;
+		flex: 1;
+	}
+	.tray-tab-buttons {
+		margin: 0.2rem;
 	}
 </style>
 
@@ -85,12 +95,12 @@
 	<div>
 
 	</div>
-	<div class="tray-tabs">
+	<div class="tray-tab-buttons">
 		<button on:click={() => panel = 'recent'} disabled={panel === 'recent'}>Recent Subtitles</button>
 		<button on:click={() => panel = 'settings'} disabled={panel === 'settings'}>Settings</button>
 		<button on:click={() => panel = 'debug'} disabled={panel === 'debug'}>Debug</button>
 	</div>
-	{#if panel === 'recent'}
+	<div class="tab" class:tab-active={panel === 'recent'}>
 		<h2>Recent Subtitles</h2>
 		<ul class="recent-subs">
 			{#each recentSubs as sub (sub.text)}
@@ -99,7 +109,8 @@
 				</li>
 			{/each}
 		</ul>
-	{:else if panel === "settings"}
+	</div>
+	<div class="tab" class:tab-active={panel === 'settings'}>
 		<h2>Settings</h2>
 		<button on:click={() => dispatch('restart')}>
 			Reselect subtitles
@@ -113,7 +124,8 @@
 		<br>
 		<input id="pause-on-tray" type="checkbox" bind:checked={pauseOnTray}>
 		<label for="pause-on-tray">Pause when tray is open</label>
-	{:else if panel === 'debug'}
+	</div>
+	<div class="tab" class:tab-active={panel === 'debug'}>
 		<h2>Debug Information</h2>
 		<dl>
 			<dt>Subtitles File</dt>
@@ -128,12 +140,12 @@
 			{/each}
 		</dl>
 		<a href={createParsedSubDownloadLink()} download="parsed-subtitles.json">⬇ Download Parsed Subtitles</a>
-	{/if}
+	</div>
 </div>
 
 <script>
 	import {createEventDispatcher} from 'svelte';
-	import {fly} from 'svelte/transition';
+	import {fly, fade} from 'svelte/transition';
 	const dispatch = createEventDispatcher();
 
 	export let recentSubs = [];
