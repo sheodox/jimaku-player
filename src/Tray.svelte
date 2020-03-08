@@ -2,7 +2,7 @@
 	.tray {
 		margin-top: 0.5rem;
 		width: 2vw;
-		background: #1b1a26;
+		background: rgba(255, 255, 255, 0.2);
 		position: fixed;
 		right: 0;
 		top: 0;
@@ -19,7 +19,7 @@
 	.tray:hover {
 		width: 40vw;
 		max-width: 40rem;
-		background: rgb(33, 39, 55);
+		background: #111218;
 		overflow: auto;
 		border-radius: 3px;
 	}
@@ -30,11 +30,9 @@
 
 	.tray h1 {
 		font-size: 2rem;
-		background: rgb(27, 26, 38);
 		padding: 0.5rem 0;
 		border-radius: 3px;
 		margin: 0;
-		border-bottom: 2px solid #f47521;
 	}
 
 	.tray h2 {
@@ -87,6 +85,7 @@
 	}
 	.tray-tab-buttons {
 		margin: 0.2rem;
+		border-bottom: 2px solid #f47521;
 	}
 </style>
 
