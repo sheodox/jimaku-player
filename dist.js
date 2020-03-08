@@ -1,7 +1,7 @@
 const fs = require('fs'),
 	packagedScriptPath = `./dist/vrv-subtitler.user.js`,
 	lastPackagedScript = fs.readFileSync(packagedScriptPath).toString(),
-	script = fs.readFileSync(`./dist/main.js`).toString();
+	script = fs.readFileSync(`./static/main.js`).toString();
 
 let versionBase = '0.1.';
 const [_, oldVersion] = lastPackagedScript.match(/@version\s*\d+\.\d+\.(\d+)/);

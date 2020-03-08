@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Test Video</title>
+	<style>
+		.video-title {
+			display: none;
+		}
+		html, body {
+			margin: 0;
+			padding: 0;
+			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			text-align: center;
+		}
+		video {
+			width: 100vw;
+			height: 100vh;
+			position: absolute;
+			left: 0;
+		}
+	</style>
+	<script>
+		window.GM_setValue = (key, value) => {
+			return localStorage.setItem(key, value);
+		};
+		window.GM_getValue = (key) => {
+			return localStorage.getItem(key);
+		};
+	</script>
+</head>
+<body>
+<span class="video-title">Test Video</span>
+<video src="test-video.mp4" controls></video>
+<script src="main.js"></script>
+</body>
+</html>

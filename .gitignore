@@ -1,3 +1,4 @@
 .idea
-dist/main.js
+static/main.js
+static/test-video.mp4
 node_modules

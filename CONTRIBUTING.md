@@ -13,13 +13,25 @@ The UI portions of this userscript are written with [Svelte 3](https://svelte.de
 ## Development Workflow
 
 You will need [Node.js](https://nodejs.org/en/) and should be pretty familiar with Javascript
- development.
+ development. Development mostly centers around testing things on a test webpage that simulates a
+ VRV video page. It's very barebones, but the sizing and iframe structure should generally be
+ correct.
+ 
+### Setup
+1. Copy a long mp4 video file to `static/test-video.mp4`, your subtitles will play over this
+ video in the simulated environment.
+1. Run `npm run dev` to start Webpack in watch mode
+1. Run `npm run dev-server` to start a test server which simulates a video player.
+1. Open a web browser to `http://localhost:3500`
 
+### Development
 1. Edit files in `src/`
-2. Run `npm run dev` to build a new userscript in `dist/vrv-subtitler.user.js`
-3. Paste that file into Tampermonkey.
-4. Test
-5. Submit a PR!
+1. Refresh your web browser test page and try out your changes
+1. Repeat until you're done with what you're working on
+1. Run `npm test` and paste the code from `dist/vrv-subtitler.user.js` into Tampermonkey and try
+ out your changes on VRV, please try to do some general regression testing around anything that
+ possibly could be impacted by your changes
+1. Submit a PR!
 
 When releasing a new build `npm run release` will create a production build of the userscript.
 
@@ -40,6 +52,7 @@ The development build command currently has an `xclip` command. I'm just using t
  video should be paused or resumed. It just maintains an array of reasons why a video should be
  paused, and if no reasons remain it will resume playing the video.
 * **src/main.js** - Creates and mounts the Svelte app.
+* **src/Align.svelte** - Handles subtitle alignments.
 * **src/App.svelte** - The main component that orchestrates everything.
 * **src/SubtitlePrompt.svelte** - Basically just a file input, allows you to select a subtitle file,
  then selects the right parser based on the file extension, and passes the parsed subtitle file

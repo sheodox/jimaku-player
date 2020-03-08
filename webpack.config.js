@@ -2,10 +2,11 @@ const path = require('path');
 
 module.exports = {
 	mode: process.argv.includes('production') ? 'production' : 'development',
+	watch: process.argv.includes('watch'),
 	entry: './src/main.js',
 	output: {
 		filename: '[name].js',
-		path: path.resolve(__dirname, './dist')
+		path: path.resolve(__dirname, './static')
 	},
 	resolve: {
 		alias: {
