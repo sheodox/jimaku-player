@@ -276,9 +276,6 @@ module.exports = class ASS extends SubtitleFormat {
 			if (fontname) {
 				inlineStyle.push(`font-family: "${fontname}"`);
 			}
-			if (fontsize) {
-				inlineStyle.push(`font-size: ${this.scaleHeight(fontsize)}`);
-			}
 
 			if (borderStyle === '1') { //outline + drop shadow
 				inlineStyle.push(genOutlineStyles(outlineColour, outline, backColour, shadow));
@@ -299,12 +296,27 @@ module.exports = class ASS extends SubtitleFormat {
 
 			parsedStyles[style.name] = {
 				inline: inlineStyle.join(';'),
+				...this.genScaledFont(fontsize),
 				//keep parsed styles as-is for debugging
 				raw: style
 			};
 		});
 
 		this.styles = parsedStyles;
+	}
+
+	genScaledFont(fontSize) {
+		//it seems the font size numbers are a max size, but the font sizes need to scale when small, or text will overlap
+		return {
+			//if we're using scaled fonts (video player height is lower than script resolution height) use vh scaled units.
+			//font size in ASS defines the line height, not character height, and it seems setting a font height directly
+			//leads to characters that are too large than they're supposed to be, so scale it down a bit extra
+			fontScaled: this.scaleHeight(fontSize * 0.75),
+			//the actual px size font size defined by the style or override tag, this is the biggest the font should be
+			fontMax: `${fontSize}px`,
+			//the player height, below which we will use scaled font sizes, and above which we use the fontMax
+			fontScalingThreshold: +this.info.playResY,
+		}
 	}
 	parseSubOverrideTags() {
 		/**
@@ -426,7 +438,7 @@ module.exports = class ASS extends SubtitleFormat {
 				});
 
 				checkOverride('fs', false, fontSize => {
-					cumulativeStyles.push(`font-size: ${this.scaleHeight(fontSize)}`);
+					Object.assign(styled, this.genScaledFont(fontSize));
 				});
 
 				//need to handle underline and strike through decorations at the same time, because it's the same css property

@@ -25,6 +25,13 @@
 		window.open(`https://jisho.org/search/${encodeURIComponent(phrase.trim())}`);
 	}
 
+	function getFontSize(sub) {
+		if (!sub.fontScaled) {
+			return '';
+		}
+		return `font-size: ${window.innerHeight > sub.fontScalingThreshold ? sub.fontMax : sub.fontScaled}`;
+	}
+
 	function genStyles(sub) {
 		if (format === 'srt') {
 			//text-shadow taken from ASS styling text-shadow generation
@@ -33,7 +40,9 @@
 		else if (format === 'ass' && sub.style in styles) {
 			return [
 				styles[sub.style].inline,
-				(sub.inline || '')
+				getFontSize(styles[sub.style]),
+				(sub.inline || ''),
+				getFontSize(sub)
 			].join(';');
 		}
 	}
