@@ -61,7 +61,7 @@
 	}
 
 	function promptAlignment() {
-		const alignment = parseFloat(prompt('Enter an alignment in seconds. Positive numbers mean the subtitles are timed earlier than the video and need to be delayed.', (lastAlignmentSeconds || '')));
+		const alignment = parseFloat(prompt('Enter an alignment in seconds. Positive numbers are for when the subtitles need to be delayed (subtitle file starts too soon). \nNegative numbers will play the subtitles earlier (subtitle file is too late).', (lastAlignmentSeconds || '')));
         if (!isNaN(alignment)) {
         	//alignment needs to be milliseconds
         	align(alignment * 1000);
