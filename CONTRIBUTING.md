@@ -21,7 +21,9 @@ You will need [Node.js](https://nodejs.org/en/) and should be pretty familiar wi
 1. Copy a long mp4 video file to `static/test-video.mp4`, your subtitles will play over this
  video in the simulated environment.
 1. Run `npm run dev` to start Webpack in watch mode
-1. Run `npm run dev-server` to start a test server which simulates a video player.
+1. Run `npm run dev-server` to start a test server to serves your video on a test page, along
+ with the compiled script, avoiding the need to interact with VRV or Tampermonkey for the bulk of
+ the development workflow.
 1. Open a web browser to `http://localhost:3500`
 
 ### Development
@@ -60,4 +62,6 @@ The `test` build command currently has an `xclip` command (a Linux utility). I'm
 * **src/Subtitles.svelte** - The component that actually shows the subtitles over the video.
 * **src/Tray.svelte** - The sidebar that contains settings for how the script behaves, and a list of
  recent subtitles to easily view if you missed what someone said.
+* **static/{index,video}.html** some test pages that mock VRV's video player, and some
+ Tampermonkey API methods, along with serving the userscript already on the page.
 
