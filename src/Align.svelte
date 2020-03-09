@@ -12,6 +12,9 @@
 		flex-direction: row;
 		justify-content: center;
 	}
+    .row button {
+		max-width: 15rem;
+	}
 	.show-name {
 		font-style: italic;
 	}
@@ -23,7 +26,7 @@
 				Use the last alignment for <span class="show-name">{showName}</span> ({alignmentHint()}).
 			</button>
 		{/if}
-		<button on:click={() => align(0)}>No alignment adjustment.</button>
+		<button on:click={() => align(0)}>No alignment adjustment<br />(use when you know the subtitles are timed properly)</button>
 		<button on:click={promptAlignment}>Enter alignment manually.</button>
 	</div>
 	<button on:click={align}>
@@ -41,11 +44,16 @@
 		videoTitle = document.querySelector('.video-title'),
 		showName = videoTitle ?  videoTitle.textContent : '',
 		alignmentKey = `last-used-alignment-${showName}`,
-		lastAlignment = GM_getValue(alignmentKey),
+		lastAlignment = parseInt(GM_getValue(alignmentKey), 10),
 		lastAlignmentSeconds = (lastAlignment / 1000).toFixed(1);
 
 	function alignmentHint() {
-		return `${Math.abs(lastAlignmentSeconds)} seconds ${lastAlignment > 0 ? 'later' : 'earlier'}`
+		if (lastAlignment === 0) {
+			return `no adjustment`;
+		}
+		return lastAlignment > 0
+			? `subtitles delayed by ${lastAlignmentSeconds} seconds`
+			: `subtitles hastened by ${Math.abs(lastAlignmentSeconds)} seconds`;
 	}
 
 	function useLastAlignment() {
