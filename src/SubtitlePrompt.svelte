@@ -1,5 +1,8 @@
-<label for="srt-upload">Select a subtitle file to begin</label>
-<input type="file" id="srt-upload" on:change={uploadSRT} accept=".srt,.ass,.ssa">
+<div class="column">
+	<label for="srt-upload">Select a subtitle file to begin</label>
+	<input type="file" id="srt-upload" on:change={uploadSRT} accept=".srt,.ass,.ssa">
+	<button on:click={cancelSubbing}>&Cross; Skip Subtitling For This Episode</button>
+</div>
 <script>
 	import {createEventDispatcher} from 'svelte';
 	import ASS from "./parsers/ASS";
@@ -21,9 +24,21 @@
 		};
 		reader.readAsText(file);
 	}
+
+	function cancelSubbing() {
+		dispatch('cancel');
+	}
 </script>
 
 <style>
+    .column {
+		display: flex;
+		flex-direction: column;
+	}
+	.column > * {
+		align-self: center;
+	}
+
 	label {
 		background: #fd0;
 		border: none;
@@ -34,7 +49,8 @@
 		color: black;
 		text-transform: uppercase;
 		display: inline-block;
-		margin: 2rem;
+		font-size: 1.2rem;
+		margin: 1rem;
 	}
 	label:hover {
 		background: #ffea6d;
