@@ -15,6 +15,9 @@
 		text-transform: uppercase;
 		font-size: 0.9rem;
 	}
+	.subtitles-app :global(.small-button) {
+		font-size: 0.6rem;
+	}
 	.subtitles-app :global(button:disabled) {
 		background: #2a3450;
 
@@ -28,7 +31,7 @@
 	{#if phase === 'prompt'}
 		<SubtitlePrompt on:subtitles-loaded={subtitlesLoaded} on:cancel={() => phase = 'cancelled'}/>
 	{:else if phase === 'align'}
-		<Align firstSubtitle={subtitles.firstSubtitle()} on:set-align={align}/>
+		<Align firstSubtitle={subtitles.firstSubtitle()} on:set-align={align} on:reselect={() => phase = 'prompt'}/>
 	{:else if phase === 'play'}
 		<Subtitles format={subtitles.format} styles={subtitles.styles} current={currentSubtitles} currentTime={currentTime} visible={showSubs} on:define-pauser={definePauser}/>
 		<Tray

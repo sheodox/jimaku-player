@@ -20,6 +20,7 @@
 	}
 </style>
 <div class="alignment-buttons">
+	<button class="small-button" on:click={() => dispatch('reselect')}>&circlearrowleft; Reselect Subtitles</button>
 	<div class="row">
 		{#if typeof lastAlignment === 'number'}
 			<button on:click={useLastAlignment}>

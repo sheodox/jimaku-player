@@ -1,7 +1,7 @@
 <div class="column">
+	<button class="small-button" on:click={cancelSubbing}>&Cross; Skip Subtitling For This Episode</button>
 	<label for="srt-upload">Select a subtitle file to begin</label>
 	<input type="file" id="srt-upload" on:change={uploadSRT} accept=".srt,.ass,.ssa">
-	<button on:click={cancelSubbing}>&Cross; Skip Subtitling For This Episode</button>
 </div>
 <script>
 	import {createEventDispatcher} from 'svelte';
@@ -37,6 +37,7 @@
 	}
 	.column > * {
 		align-self: center;
+        margin: 0.5rem;
 	}
 
 	label {
@@ -50,7 +51,6 @@
 		text-transform: uppercase;
 		display: inline-block;
 		font-size: 1.2rem;
-		margin: 1rem;
 	}
 	label:hover {
 		background: #ffea6d;
