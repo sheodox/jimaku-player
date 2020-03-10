@@ -27,7 +27,7 @@
 				Use the last alignment for <span class="show-name">{showName}</span> ({alignmentHint()})
 			</button>
 		{/if}
-		<button on:click={() => align(0)}>&RightArrowBar; No alignment adjustment<br />(use when you know the subtitles are timed properly)</button>
+		<button on:click={() => align(0)}>No alignment adjustment<br />(use when you know the subtitles are timed properly)</button>
 		<button on:click={promptAlignment}>Enter alignment manually</button>
 	</div>
 	<button on:click={align}>
