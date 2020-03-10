@@ -6,8 +6,10 @@ export default class SRT extends SubtitleFormat {
 	constructor(srt, fileName) {
 		super('srt', fileName);
 
-		//split subs up by the double line breaks
-		const subs = srt.split('\n\n');
+		const subs = srt
+			.replace(/\r/g, '')
+			//two lines separate each subtitle line
+			.split('\n\n');
 		this.subs = subs.reduce((done, sub) => {
 			let lines = sub.trim().split('\n');
 
