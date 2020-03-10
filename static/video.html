@@ -35,5 +35,21 @@
 <span class="video-title">Test Video</span>
 <video src="test-video.mp4" controls></video>
 <script src="main.js"></script>
+
+<script>
+	(function() {
+		const isResuming = GM_getValue('maintain-time'),
+			timeKey = 'last-video-time',
+			lastTime = GM_getValue(timeKey),
+			video = document.querySelector('video');
+
+		if (isResuming) {
+			video.currentTime = lastTime;
+		}
+		setInterval(() => {
+			GM_setValue(timeKey, video.currentTime);
+		}, 50);
+	}());
+</script>
 </body>
 </html>
