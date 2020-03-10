@@ -316,6 +316,8 @@ module.exports = class ASS extends SubtitleFormat {
 			fontMax: `${fontSize}px`,
 			//the player height, below which we will use scaled font sizes, and above which we use the fontMax
 			fontScalingThreshold: +this.info.playResY,
+			//original font size with no units, to be reused when switching styles inline
+			fontRaw: fontSize
 		}
 	}
 	parseSubOverrideTags() {
@@ -471,8 +473,15 @@ module.exports = class ASS extends SubtitleFormat {
 
 
 				checkOverride('r', false, style => {
+					if (style) {
+						const srcStyle = this.styles[style];
+						cumulativeStyles = [srcStyle.inline];
+						Object.assign(styled, this.genScaledFont(srcStyle.fontRaw));
+					}
 					//if we're not switching to another style, just blank out the styles
-					cumulativeStyles = style ? [this.styles[style].inline] : [];
+					else {
+						cumulativeStyles = [];
+					}
 				});
 
 
