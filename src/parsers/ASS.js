@@ -381,6 +381,29 @@ module.exports = class ASS extends SubtitleFormat {
 					}
 				}
 
+				/**
+				 * Check multiple override codes at once, for things that depend all on the same CSS property
+				 * @param codes - array of override tags
+				 * @param isComplex - boolean (or array of booleans matching each code) determining if the override
+				 * tag is complex (has multiple comma separated arguments in parenthesis)
+				 * @param fn
+				 */
+				function checkMultipeOverrides(codes, isComplex, fn) {
+					const overrideResults = codes.map((code, index) => {
+						const complex = Array.isArray(isComplex) ? isComplex[index] : isComplex;
+
+						const results = getOverride(overrides, code, complex);
+						if (results) {
+							overrides = results.overrides;
+							return results.params;
+						}
+					});
+
+					if (overrideResults.some(r => r !== undefined)) {
+						fn(...overrideResults);
+					}
+				}
+
 				//todo - parse more tags
 				//http://docs.aegisub.org/3.2/ASS_Tags/
 
@@ -429,11 +452,56 @@ module.exports = class ASS extends SubtitleFormat {
 					}
 				}
 
-				checkOverride('pos', true, ([x, y]) => {
-					//positioning applies to the line, and if we just put it on this span it might get put in the right space, but the
-					//containing paragraph elements will stack, possibly overlapping the video controls if
-					containerInline.push(`position: fixed; left: ${this.scaleWidth(x)}; top: ${this.scaleHeight(y)}`);
+				checkMultipeOverrides(['pos', 'an'], [true, false], (pos, an='5') => {
+					if (pos) {
+						const [x, y] = pos;
+						//positioning applies to the line, and if we just put it on this span it might get put in the right space, but the
+						//containing paragraph elements will stack, possibly overlapping the video controls if
+						containerInline.push(`position: fixed; left: ${this.scaleWidth(x)}; top: ${this.scaleHeight(y)}`);
+
+						//CSS positioning moves as if it's \an7
+						//but by .ass positionings seem to work like \an5,
+						//so we need to first reconcile the difference in movement by adding
+						//an extra -50%, -50%, so that's why these numbers look weird, without
+						//that adjustment all positioned subtitles are too far down and right
+						const origin = {
+							'1': '50%, -150%',
+							'2': '-50%, -150%',
+							'3': '-150%, -150%',
+							'4': '50%, -50%',
+							'5': '-50%, -50%',
+							'6': '-150%, -50%',
+							'7': '50%, 50%',
+							'8': '-50%, 50%',
+							'9': '-150%, 50%'
+						}[an];
+						containerInline.push(`transform: translate(${origin})`);
+					}
+					else if (an) {
+
+					}
 				});
+
+				checkMultipeOverrides(['frx', 'fry', 'frz'], false, (xRot, yRot, zRot) => {
+					const rotations = [];
+					const checkRotate = (deg, axis, multiplier=1) => {
+						if (deg !== undefined) {
+							deg = parseFloat(deg) * multiplier;
+							return rotations.push(`rotate${axis}(${deg}deg)`);
+						}
+					};
+
+					checkRotate(xRot, 'X');
+					//the direction of rotation seems to be different for the y/z axis compared to css transforms
+					checkRotate(yRot, 'Y', -1);
+					checkRotate(zRot, 'Z', -1);
+
+					if (rotations.length) {
+						//can't rotate while it's display: inline;
+						cumulativeStyles.push(`display: block; transform: ${rotations.join(' ')}`);
+					}
+				});
+
 
 				checkOverride('fad', true, ([fadeIn, fadeOut]) => {
 					styled.fadeIn = fadeIn;
