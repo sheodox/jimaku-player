@@ -50,6 +50,12 @@ function* overrideScanner(subtitleText) {
 	const nextOverriddenTextReg = /({.*?}[^{]*)/g;
 	let next;
 
+	//don't skip text with no overrides at the start
+	const firstOverrideIndex = subtitleText.indexOf('{');
+	if (firstOverrideIndex > 0) {
+		yield subtitleText.substring(0, firstOverrideIndex);
+	}
+
 	while ((next = nextOverriddenTextReg.exec(subtitleText)) !== null) {
 		yield next[1]
 	}
@@ -364,7 +370,9 @@ module.exports = class ASS extends SubtitleFormat {
 					inline: ''
 				};
 
-				let [overrides] = text.match(/{.*?}/);
+				let overridesMatch = text.match(/{.*?}/),
+					overrides = overridesMatch ? overridesMatch[0] : '';
+
 				function checkOverride(code, isComplex=false, fn=()=>{}) {
 					const results = getOverride(overrides, code, isComplex);
 					if (results) {
@@ -469,8 +477,6 @@ module.exports = class ASS extends SubtitleFormat {
 				checkOverride('1c', false, color => {
 					cumulativeStyles.push(`color: ${parseColor(color)}`)
 				});
-
-
 
 				checkOverride('r', false, style => {
 					if (style) {
