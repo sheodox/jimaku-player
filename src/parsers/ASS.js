@@ -36,6 +36,10 @@ const genOutlineStyles = (outlineColor, outlineWidth, shadowColor='transparent',
 	return `text-shadow: ${outlines.join(', ')}, ${shadowDepth}px ${shadowDepth}px ${blur} ${shadowColor}`
 };
 
+const genFontFamily = fontName => {
+	return `font-family: "${fontName}", "Helvetica Neue", Helvetica, Arial, sans-serif`
+};
+
 /**
  * Generator for parsing out blocks of override tags and the text that follows it.
  * This turns:
@@ -280,7 +284,7 @@ module.exports = class ASS extends SubtitleFormat {
 				inlineStyle.push(`color: ${primaryColour}`)
 			}
 			if (fontname) {
-				inlineStyle.push(`font-family: "${fontname}"`);
+				inlineStyle.push(genFontFamily(fontname));
 			}
 
 			if (borderStyle === '1') { //outline + drop shadow
@@ -538,7 +542,7 @@ module.exports = class ASS extends SubtitleFormat {
 				});
 
 				checkOverride('fn', false, fn => {
-					cumulativeStyles.push(`font-family: "${fn}"`);
+					cumulativeStyles.push(genFontFamily(fn));
 				});
 
 				//colors
