@@ -44,6 +44,10 @@
 				on:realign={() => phase = 'align'}
 				on:show-subs={e => showSubs = e.detail}
 		/>
+	{:else if phase === 'cancelled'}
+        <Tray mode="cancelled"
+			on:restart={restart}
+	    />
 	{/if}
 </div>
 
