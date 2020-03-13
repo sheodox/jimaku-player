@@ -392,7 +392,7 @@ module.exports = class ASS extends SubtitleFormat {
 				 * tag is complex (has multiple comma separated arguments in parenthesis)
 				 * @param fn
 				 */
-				function checkMultipeOverrides(codes, isComplex, fn) {
+				function checkMultipleOverrides(codes, isComplex, fn) {
 					const overrideResults = codes.map((code, index) => {
 						const complex = Array.isArray(isComplex) ? isComplex[index] : isComplex;
 
@@ -456,7 +456,7 @@ module.exports = class ASS extends SubtitleFormat {
 					}
 				}
 
-				checkMultipeOverrides(['pos', 'an'], [true, false], (pos, an='5') => {
+				checkMultipleOverrides(['pos', 'an', 'org'], [true, false, true], (pos, an='5', org) => {
 					if (pos) {
 						const [x, y] = pos;
 						//positioning applies to the line, and if we just put it on this span it might get put in the right space, but the
@@ -480,27 +480,33 @@ module.exports = class ASS extends SubtitleFormat {
 							'9': '-150%, 50%'
 						}[an];
 						containerInline.push(`transform: translate(${origin})`);
+
+						if (org) {
+							const [orgX, orgY] = org;
+							cumulativeStyles.push(`transform-origin: ${this.scaleWidth(orgX)} ${this.scaleHeight(orgY)}`);
+						}
 					}
 					else if (an) {
 
 					}
 				});
 
-				checkMultipeOverrides(['frx', 'fry', 'frz'], false, (xRot, yRot, zRot) => {
+				checkMultipleOverrides(['frx', 'fry', 'frz'], false, (xRot, yRot, zRot) => {
 					const rotations = [];
-					const checkRotate = (deg, axis, multiplier=1) => {
+					const checkRotate = (deg, axies, multiplier=1) => {
 						if (deg !== undefined) {
 							deg = parseFloat(deg) * multiplier;
-							return rotations.push(`rotate${axis}(${deg}deg)`);
+							return rotations.push(`rotate3d(${axies.join(', ')}, ${deg}deg)`);
 						}
 					};
 
-					checkRotate(xRot, 'X');
 					//the direction of rotation seems to be different for the y/z axis compared to css transforms
-					checkRotate(yRot, 'Y', -1);
-					checkRotate(zRot, 'Z', -1);
+					checkRotate(xRot, [1, 0, 0]);
+					checkRotate(zRot, [0, 0, 1], -1);
+					checkRotate(yRot, [0, 1, 0]);
 
 					if (rotations.length) {
+						containerInline.push(`perspective: 200px`);
 						//can't rotate while it's display: inline;
 						cumulativeStyles.push(`display: block; transform: ${rotations.join(' ')}`);
 					}

@@ -1,0 +1,114 @@
+<div class="video-player">
+	<video src={src} bind:currentTime={currentTime} bind:duration={totalTime} bind:paused={paused} on:click={togglePause}></video>
+	<div class="video-controls">
+        <button on:click={togglePause}>{!paused ? '⯀' : '⯈'}</button>
+		<span class="times">
+			{prettyTime(currentTime)} / {prettyTime(totalTime)}
+		</span>
+		<input type="range" bind:value={currentTime} max={totalTime} />
+		<button on:click={toggleFullscreen}>⛶</button>
+	</div>
+</div>
+
+<style>
+	.video-controls {
+		display: flex;
+		flex-direction: row;
+		background: rgba(28, 24, 37, 0.79);
+		position: absolute;
+		bottom: 0;
+		color: white;
+		width: 100%;
+		font-size: 1rem;
+	}
+    .times {
+		padding: 0.3rem;
+	}
+	.video-controls input[type=range] {
+		flex: 1;
+	}
+	video {
+		width: 100vw;
+		height: 100vh;
+		position: absolute;
+		left: 0;
+	}
+    button {
+		color: white;
+		background: #2a3450;
+		border: none;
+	}
+	button:hover {
+		background: #344062;
+	}
+
+	input[type=range] {
+		-webkit-appearance: none;
+		background: none !important;
+		width: 100%;
+	}
+	::-moz-range-track {
+		background-color: #4b5266;
+		height: 0.2rem;
+	}
+
+	::-moz-range-progress {
+		background-color: #ffdd00;
+	}
+
+	::-moz-range-thumb {
+		-webkit-appearance: none;
+		cursor: pointer;
+		height: 0.75rem;
+		width: 0.75rem;
+		background: #ffdd00;
+		border-radius: 50%;
+		margin-top: -0.875rem;
+	}
+
+	/* chrome doesn't seem to play nicely with comma separated selectors, can't combine with the firefox ones */
+	::-webkit-slider-runnable-track {
+		background-color: #4b5266;
+		height: 0.2rem;
+	}
+
+	::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		cursor: pointer;
+		height: 0.75rem;
+		width: 0.75rem;
+		background: #ffdd00;
+		border-radius: 50%;
+		margin-top: -0.25rem;
+	}
+</style>
+
+<script>
+    export let src = '';
+    let currentTime = 0,
+		totalTime = 0,
+		paused = true;
+
+    function prettyTime(seconds) {
+		const hoursRemainder = seconds % 3600,
+			hours = Math.floor((seconds / 3600)),
+			minutesRemainder = hoursRemainder % 60,
+			minutes = Math.floor(hoursRemainder / 60);
+		const pad = num => num.toFixed(0).padStart(2, '0');
+		return (hours > 0 ? [hours, minutes, minutesRemainder] : [minutes, minutesRemainder])
+			.map(pad).join(':');
+    }
+
+    function togglePause() {
+    	paused = !paused;
+	}
+
+    function toggleFullscreen() {
+    	if (document.fullscreenElement) {
+    		document.exitFullscreen();
+		}
+    	else {
+    		document.documentElement.requestFullscreen();
+		}
+	}
+</script>

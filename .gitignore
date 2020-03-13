@@ -1,4 +1,6 @@
 .idea
-static/main.js
-static/test-video.mp4
+static/subtitler.js
+static/host.js
+static/player.js
 node_modules
+videos

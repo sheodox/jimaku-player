@@ -1,7 +1,7 @@
 # VRV Subtitler
 
-This is a Tampermonkey userscript that lets you provide your own subtitles to play over anime on VRV
-, to help with learning Japanese.
+This is a Tampermonkey userscript that lets you provide your own subtitles to play over anime on VRV,
+ to help with learning Japanese.
 
 [Install (requires Tampermonkey)](https://github.com/sheodox/vrv-subtitler/raw/master/dist/vrv-subtitler.user.js)
 

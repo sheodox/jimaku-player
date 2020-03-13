@@ -3,20 +3,12 @@
 <head>
 	<title>Test Video</title>
 	<style>
-		.video-title {
-			display: none;
-		}
 		html, body {
 			margin: 0;
 			padding: 0;
 			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 			text-align: center;
-		}
-		video {
-			width: 100vw;
-			height: 100vh;
-			position: absolute;
-			left: 0;
+			overflow: hidden;
 		}
 	</style>
 	<script>
@@ -32,24 +24,14 @@
 	</script>
 </head>
 <body>
-<span class="video-title">Test Video</span>
-<video src="test-video.mp4" controls></video>
-<script src="main.js"></script>
 
+<div id="player-root"></div>
+
+<script src="player.js"></script>
+<script src="subtitler.js"></script>
 <script>
-	(function() {
-		const isResuming = GM_getValue('maintain-time'),
-			timeKey = 'last-video-time',
-			lastTime = GM_getValue(timeKey),
-			video = document.querySelector('video');
-
-		if (isResuming) {
-			video.currentTime = lastTime;
-		}
-		setInterval(() => {
-			GM_setValue(timeKey, video.currentTime);
-		}, 50);
-	}());
+	console.log("Subtitler App", document.querySelector('.subtitles-app'));
 </script>
+
 </body>
 </html>

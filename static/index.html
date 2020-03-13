@@ -27,19 +27,7 @@
 	</style>
 </head>
 <body>
-<div class="column">
-	<div>
-		<input type="checkbox" id="maintain-time"/>
-		<label for="maintain-time">Remember video time on refresh</label>
-	</div>
-	<iframe src="video.html"></iframe>
-</div>
-
-<script>
-	document.querySelector('#maintain-time')
-		.addEventListener('change', e => {
-			localStorage.setItem('maintain-time', JSON.stringify(e.target.checked));
-		})
-</script>
+<div id="host-root"></div>
+<script src="host.js"></script>
 </body>
 </html>
