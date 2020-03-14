@@ -24,7 +24,7 @@ class ImageStore extends StockPile {
 						image_medium: 'BLOB',
 						image_small: 'BLOB',
 						source: 'TEXT NOT NULL',
-						//identifying information for the place this came from, like a candidate ID on voter
+						//identifying information for the place this came from
 						source_id: 'TEXT NOT NULL UNIQUE'
 					}}
 			]
@@ -38,7 +38,7 @@ class ImageStore extends StockPile {
 
 	/**
 	 * Get an array of source IDs that are missing images, given a bunch of sourceIDs
-	 * @param {string} source - where this image is for on Overseer
+	 * @param {string} source - where in the app this image is from
 	 * @param {string[]} sourceKeys - array of source IDs
 	 * @returns {Promise<string[]>}
 	 */
