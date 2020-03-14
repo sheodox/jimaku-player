@@ -7,17 +7,21 @@
 	}
 </style>
 
+<svelte:window on:storage={storageChange} />
+
 <script>
     import {onMount} from 'svelte';
 	import settings from '../settings';
 	import Video from './Video.svelte';
-	let videoSrc = '';
+
+	const selectedVideoKey = 'selected-video';
+	let videoSrc = settings.get(selectedVideoKey);
+
 	onMount(() => {
 		const isResuming = settings.get('maintain-time', true),
 			timeKey = 'last-video-time',
 			lastTime = settings.get(timeKey, 0),
 			video = document.querySelector('video'),
-			selectedVideoKey = 'selected-video';
 
 		videoSrc = settings.get(selectedVideoKey);
 
@@ -28,10 +32,11 @@
 			settings.set(timeKey, video.currentTime);
 		}, 50);
 
-		window.addEventListener('storage', ({key}) => {
-			if (key === selectedVideoKey) {
-				videoSrc = settings.get(selectedVideoKey);
-			}
-		});
-	})
+	});
+
+	function storageChange({key}){
+		if (key === selectedVideoKey) {
+			videoSrc = settings.get(selectedVideoKey);
+		}
+	}
 </script>
