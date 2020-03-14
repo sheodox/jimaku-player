@@ -83,6 +83,7 @@
 	$: {
 		const video = videos.find(video => video.src === selectedVideo);
 		selectedVideoName = video ? video.text : '';
-		settings.set(keys.selectedVideo, selectedVideo)
+		settings.set(keys.selectedVideo, selectedVideo);
+		window.scrollTo(0, 0);
 	}
 </script>
