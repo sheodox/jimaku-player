@@ -3,13 +3,6 @@
 <head>
 	<title>VRV Subtitler Test</title>
 	<style>
-		iframe {
-			max-width: 1280px;
-			max-height: 720px;
-			width: 90vw;
-			height: 50.625vw;
-			border: 1px solid white;
-		}
 		body {
 			display: flex;
 			justify-content: center;
@@ -19,10 +12,14 @@
 			color: white;
 			font-family: sans-serif;
 		}
-		.column {
-			justify-content: center;
-			display: flex;
-			flex-direction: column;
+		html, body {
+			padding: 0;
+			margin: 0;
+			width: 100%;
+			height: 100%;
+		}
+		#host-root {
+			width: 100%;
 		}
 	</style>
 </head>

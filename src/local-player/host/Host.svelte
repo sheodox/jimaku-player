@@ -1,25 +1,63 @@
-<div class="column">
-    <h1>VRV Subtitler</h1>
-	<h2>{selectedVideo}</h2>
-	<iframe title="video player" src="video.html" allowfullscreen></iframe>
+<style>
+	header {
+		background: #42d1f2;
+		color: black;
+		text-align: center;
+	}
 
-	<div>
-		<input type="checkbox" id="maintain-time" bind:checked={maintainTime}/>
-		<label for="maintain-time">Remember video time on refresh</label>
+	iframe {
+		width: 100%;
+		height: 56.25vw;
+		max-height: 70vh;
+		border: 0;
+	}
 
-		<br>
+	h1 {
+		margin: 0;
+	}
 
-		<label for="video-select">Select a video:</label>
-		<select id="video-select" bind:value={selectedVideo}>
-			{#each videos as video}
-				<option value={video.src} selected={selectedVideo === video.text}>{video.text}</option>
-			{/each}
-		</select>
+	.video-info {
+		padding: 0 1rem 1rem 1rem;
+	}
+
+	.video-player {
+		background: #111218;
+	}
+
+	.column {
+		justify-content: center;
+		display: flex;
+		flex-direction: column;
+		max-width: 1300px;
+		margin: 0 auto;
+	}
+</style>
+
+<header>
+	<h1>VRV Subtitler</h1>
+</header>
+<div class="host">
+    <div class="video-player">
+		<iframe title="video player" src="video.html" allowfullscreen></iframe>
+		<div class="column video-info">
+			<h2>{selectedVideoName}</h2>
+			<div>
+				<input type="checkbox" id="maintain-time" bind:checked={maintainTime}/>
+				<label for="maintain-time">Remember video time on refresh</label>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="column">
+		<VideoSelector videos={videos} bind:selectedVideo={selectedVideo} />
 	</div>
 </div>
+
 <script>
 	import {onMount} from 'svelte';
     import settings from '../settings';
+    import VideoSelector from './VideoSelector.svelte';
 
     const keys = {
     	//if the video player resumes from where it left off after refreshing, useful for debugging specific subtitle effects
@@ -29,7 +67,8 @@
     };
 	let videos = [],
 		maintainTime = settings.get(keys.resume, true),
-		selectedVideo = settings.get(keys.selectedVideo);
+		selectedVideo = settings.get(keys.selectedVideo),
+		selectedVideoName = '';
 
 	onMount(async () => {
 		videos = await fetch('/video-list').then(res => res.json());
@@ -41,5 +80,9 @@
 	});
 
 	$: settings.set(keys.resume, maintainTime);
-	$: settings.set(keys.selectedVideo, selectedVideo)
+	$: {
+		const video = videos.find(video => video.src === selectedVideo);
+		selectedVideoName = video ? video.text : '';
+		settings.set(keys.selectedVideo, selectedVideo)
+	}
 </script>

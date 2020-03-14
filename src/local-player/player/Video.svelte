@@ -11,6 +11,12 @@
 </div>
 
 <style>
+	video {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		left: 0;
+	}
 	.video-controls {
 		display: flex;
 		flex-direction: row;
@@ -23,15 +29,11 @@
 	}
     .times {
 		padding: 0.3rem;
+		line-height: 2rem;
+		cursor: default;
 	}
 	.video-controls input[type=range] {
 		flex: 1;
-	}
-	video {
-		width: 100vw;
-		height: 100vh;
-		position: absolute;
-		left: 0;
 	}
     button {
 		color: white;
