@@ -1,5 +1,10 @@
 <div class="video-player">
 	<video src={src} bind:currentTime={currentTime} bind:duration={totalTime} bind:paused={paused} on:click={togglePause}></video>
+	{#if paused}
+		<div class="pause-alert-container" on:click={togglePause}>
+			<p class="pause-alert">Paused</p>
+		</div>
+	{/if}
 	<div class="video-controls">
         <button on:click={togglePause}>{!paused ? '⯀' : '⯈'}</button>
 		<span class="times">
@@ -16,6 +21,23 @@
 		height: 100%;
 		position: absolute;
 		left: 0;
+	}
+    .pause-alert-container {
+		position: absolute;
+		display: flex;
+		flex-direction: column;
+        height: 100%;
+		justify-content: center;
+		width: 100%;
+	}
+	.pause-alert {
+		font-size: 8vh;
+        background: #111218CC;
+		color: white;
+		border-radius: 0.2rem;
+		padding: 2rem;
+        margin: 0 auto;
+		cursor: default;
 	}
 	.video-controls {
 		display: flex;
