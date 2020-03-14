@@ -37,6 +37,17 @@
 		color: white;
 		background: #2a3450;
 		border: none;
+		padding: 0.3rem 0.6rem;
+	}
+    button:active {
+		border: none;
+	}
+	button:focus {
+		outline: 1px solid #42d1f2;
+        color: #42d1f2;
+	}
+	button::-moz-focus-inner {
+		border: 0;
 	}
 	button:hover {
 		background: #344062;
@@ -63,6 +74,7 @@
 		width: 0.75rem;
 		background: #ffdd00;
 		border-radius: 50%;
+		border: none;
 		margin-top: -0.875rem;
 	}
 
@@ -79,6 +91,7 @@
 		width: 0.75rem;
 		background: #ffdd00;
 		border-radius: 50%;
+		border: none;
 		margin-top: -0.25rem;
 	}
 </style>
