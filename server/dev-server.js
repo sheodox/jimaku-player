@@ -11,7 +11,7 @@ const express = require('express'),
 });
 
 app.use(express.static('./static'));
-app.use(express.static('./videos'));
+app.use('/videos', express.static('./videos'));
 
 app.use(require('./routes/images'));
 app.use(require('./routes/broadcast'));

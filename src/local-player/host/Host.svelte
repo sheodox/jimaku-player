@@ -80,10 +80,12 @@
 	});
 
 	$: settings.set(keys.resume, maintainTime);
-	$: {
-		const video = videos.find(video => video.src === selectedVideo);
+	$: selectVideo(selectedVideo);
+
+	async function selectVideo(path) {
+		const video = await fetch(`/video-info?path=${encodeURIComponent(path)}`).then(res => res.json());
 		selectedVideoName = video ? video.text : '';
-		settings.set(keys.selectedVideo, selectedVideo);
+		settings.set(keys.selectedVideo, path);
 		window.scrollTo(0, 0);
 	}
 </script>
