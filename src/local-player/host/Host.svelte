@@ -1,8 +1,9 @@
 <style>
 	header {
-		background: #42d1f2;
-		color: black;
+		background: #2a3450;
+		color: white;
 		text-align: center;
+		border-bottom: 2px solid #42d1f2;
 	}
 
 	iframe {
@@ -34,7 +35,7 @@
 </style>
 
 <header>
-	<h1>VRV Subtitler</h1>
+	<h1>字幕プレーヤー</h1>
 </header>
 <div class="host">
     <div class="video-player">
