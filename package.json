@@ -4,10 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "release": "webpack --mode production && node dist.js release",
-    "test": "webpack --mode development && node dist.js && xclip -sel clip < dist/vrv-subtitler.user.js",
-    "dev": "webpack --mode development --watch",
-    "dev-server": "nodemon server/dev-server.js"
+    "build": "webpack --mode production",
+    "subtitler-release": "npm run build && node dist.js release",
+    "subtitler-test": "webpack --mode development && node dist.js && xclip -sel clip < dist/vrv-subtitler.user.js",
+    "subtitler-dev": "webpack --mode development --watch",
+    "dev-server": "nodemon server/server.js",
+    "start": "forever start server/server.js",
+    "stop": "forever stop server/server.js",
+    "deploy": "npm stop && git pull && npm i && npm run build && npm start"
   },
   "author": "sheodox",
   "license": "ISC",
