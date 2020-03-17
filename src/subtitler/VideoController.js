@@ -1,3 +1,5 @@
+const userPausedReason = 'user-paused';
+
 export default class VideoController {
 	constructor() {
 		this.video = null;
@@ -9,6 +11,17 @@ export default class VideoController {
 	}
 	//adds a reason to pause the video, allowing multiple things to have a reason to pause the video without them fighting for control
 	addPauser(reason) {
+		//if we've added a pause reason because the user had paused the video themselves, but the video is no longer paused, we need
+		//to remove that reason or we'll never auto-resume playback, clearly that pauser is outdated
+		if (this.reasons.includes(userPausedReason) && !this.video.paused) {
+			this.reasons.splice(this.reasons.indexOf(userPausedReason));
+		}
+		//if the video has already been paused but there are no reasons, assume the user intentionally paused it
+		if (this.reasons.length === 0 && this.video.paused) {
+			//we need to add another reason signifying the user has paused the video themselves, this is a special case
+			//otherwise we'll unpause the video though it shouldn't be.
+			this.reasons.push(userPausedReason)
+		}
 		this.reasons.push(reason);
 		this._checkPause();
 	}
