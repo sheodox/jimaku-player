@@ -51,6 +51,10 @@
 		color: white;
 		padding: 0.2rem;
 	}
+	.history li:last-child a {
+		color: #4b5266;
+		cursor: default;
+	}
 	.history a {
 		color: #42d1f2;
 	}
@@ -59,69 +63,45 @@
 <div id="video-list">
 	<nav class="history">
         <ul>
-			{#if pathHistory.length > 1}
-				{#each pathHistory as path}
+			{#if videoInfo.history.length > 1}
+				{#each videoInfo.history as path}
 					<li>
-						<a href on:click|preventDefault={() => popHistory(path)}>{path.path}</a>
+						<a href on:click|preventDefault={() => selectPath(path)}>{path.name}</a>
 					</li>
 				{/each}
 			{/if}
 		</ul>
 	</nav>
 	<div class="directories grid-list">
-		{#each filteredDirectories as dir}
-			<button class="directory" on:click={() => selectPath(dir.children, dir.path)}>🗀 {dir.path}</button>
+		{#each videoInfo.directories as dir}
+			<button class="directory" on:click={() => selectPath(dir)}>🗀 {dir.name}</button>
 		{/each}
 	</div>
     <div class="videos grid-list">
-		{#each filteredVideos as item}
-			<button class="video" class:selected={selectedVideo === item.src} on:click={() => selectedVideo = item.src}>
-		<span class="video-title">
-			{item.text}
-		</span>
+		{#each videoInfo.videos as item}
+			<button class="video" class:selected={selectedVideoInfo.src === item.src} on:click={() => selectPath(item)}>
+				<span class="video-title">
+					{item.name}
+				</span>
 				<br>
-				<img src={imageSrc(item.imageKey)} alt="image for {item.text}" />
+				<img src={imageSrc(item.imageKey)} alt="image for {item.name}" />
 			</button>
 		{/each}
 	</div>
 </div>
 <script>
-	export let videos = [];
-	export let selectedVideo = '';
+	import page from 'page';
+	export let videoInfo = {videos: [], directories: [], history: []};
+	export let selectedVideoInfo = {src: ''};
 	let filteredPath = [],
 		filteredDirectories = [],
-		filteredVideos = [],
-		pathHistory = [];
-
-	$: {
-		selectPath(videos);
-	}
+		filteredVideos = [];
 
 	function imageSrc(imageKey) {
 		return `/image/medium/${imageKey}`
 	}
 
-	function popHistory(path) {
-		pathHistory = pathHistory.slice(0, pathHistory.indexOf(path) + 1);
-		selectPath(path.children, false);
-	}
-
-	function selectPath(item, pathSegmentName='All Videos') {
-		if (item.length === 0) {
-			return;
-		}
-		//if pathSegmentName === false, we're popping history
-		if (pathSegmentName) {
-			pathHistory.push({
-				type: 'directory',
-				path: pathSegmentName,
-				//save a snapshot of the filtered path
-				children: JSON.parse(JSON.stringify(item))
-			});
-			pathHistory = pathHistory; //trigger svelte change detection
-		}
-		filteredPath = item;
-		filteredDirectories = filteredPath.filter(i => i.type === 'directory');
-		filteredVideos = filteredPath.filter(i => i.type === 'video');
+	function selectPath(item) {
+		page(`/v/${encodeURIComponent(item.src)}`);
 	}
 </script>

@@ -39,19 +39,18 @@
 </header>
 <div class="host">
     <div class="video-player">
-		<iframe title="video player" src="video.html" allowfullscreen></iframe>
+		<iframe title="video player" src="/video.html?{encodeURIComponent(selectedVideoInfo.src)}" allowfullscreen></iframe>
 		<div class="column video-info">
-			<h2>{selectedVideoName}</h2>
+			<h2>{selectedVideoInfo.name}</h2>
 			<div>
-				<input type="checkbox" id="maintain-time" bind:checked={maintainTime}/>
-				<label for="maintain-time">Remember video time on refresh</label>
+				<!-- todo: video info and statistics -->
 			</div>
 		</div>
 	</div>
 
 
 	<div class="column">
-		<VideoSelector videos={videos} bind:selectedVideo={selectedVideo} />
+		<VideoSelector videoInfo={videoInfo} selectedVideoInfo={selectedVideoInfo} />
 	</div>
 </div>
 
@@ -59,34 +58,27 @@
 	import {onMount} from 'svelte';
     import settings from '../settings';
     import VideoSelector from './VideoSelector.svelte';
+    import page from 'page';
 
-    const keys = {
-    	//if the video player resumes from where it left off after refreshing, useful for debugging specific subtitle effects
-    	resume: 'resume-at-same-time',
-		//which video is being played
-		selectedVideo: 'selected-video'
-    };
-	let videos = [],
-		maintainTime = settings.get(keys.resume, true),
-		selectedVideo = settings.get(keys.selectedVideo),
-		selectedVideoName = '';
+	let videoInfo = {videos: [], directories: [], history: []},
+		//info for the video that's currently playing
+		selectedVideoInfo = {src: '', name: ''};
 
-	onMount(async () => {
-		videos = await fetch('/video-list').then(res => res.json());
-		selectedVideo = settings.get(keys.selectedVideo);
+	page('/v/*', async ctx => {
+		updateVideoInfoWithSelection(ctx.pathname.replace(/^\/v\//, ''));
+	});
+	page('*', '/v/videos/');
 
-		if (!selectedVideo && videos.length) {
-			selectedVideo = videos[0].src;
-		}
+	onMount(() => {
+		page();
 	});
 
-	$: settings.set(keys.resume, maintainTime);
-	$: selectVideo(selectedVideo);
+	async function updateVideoInfoWithSelection(videoSrc) {
+		if (!videoSrc) { return; }
 
-	async function selectVideo(path) {
-		const video = await fetch(`/video-info?path=${encodeURIComponent(path)}`).then(res => res.json());
-		selectedVideoName = video ? video.text : '';
-		settings.set(keys.selectedVideo, path);
-		window.scrollTo(0, 0);
+		videoInfo = await fetch(`/video-info?path=${encodeURIComponent(videoSrc)}`).then(res => res.json());
+		if (videoInfo.selectedVideo) {
+			selectedVideoInfo = videoInfo.selectedVideo;
+		}
 	}
 </script>

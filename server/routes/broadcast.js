@@ -22,20 +22,94 @@ router.get('/video-list', async (req, res) => {
 });
 
 router.get('/video-info', async (req, res) => {
-	res.json(await getVideoInfo(req.query.path));
+	const videoPath = req.query.path,
+		videos = await scanVideos(),
+		videoDirs = await scanVideoDirectories(),
+		isValidVideo = videos.includes(`./${videoPath}`),
+		isValidVideoFolder = videoDirs.includes(`./${videoPath}`),
+		response = {};
+
+	if (!isValidVideo && !isValidVideoFolder) {
+		res.status(404);
+		res.json({
+			error: 'invalid path specified'
+		});
+	}
+
+	let focusedPath;
+	if (isValidVideo) {
+		const videoDir = path.dirname(videoPath);
+		response.selectedVideo = await getVideoInfo(videoPath);
+		focusedPath = videoDir;
+	}
+	else if (isValidVideoFolder) {
+		focusedPath = videoPath;
+	}
+	const pathToDirectoryObject = dirPath => {
+		//find the last non-empty part of the path when split on path separators, that's the name of the deepest
+		//directory this path represents
+		const deepestDirName = dirPath.split(path.sep).reduce((lastPath, nextPath) => {
+			return nextPath ? nextPath : lastPath;
+		});
+		return {
+			type: 'directory',
+			src: /\/$/.test(dirPath) ? dirPath : dirPath + '/',
+			name: deepestDirName
+		}
+	};
+	response.directories = (await getDirectoriesInPath(focusedPath)).map(pathToDirectoryObject);
+
+	const videosInPath = await getVideosInPath(focusedPath);
+	response.videos = [];
+	for (const vpath of videosInPath) {
+		response.videos.push(await getVideoInfo(vpath));
+	}
+
+	response.history = [];
+	const pathSegmentsToVideo = focusedPath.replace(/^\.\//, '').split(path.sep);
+	let cumulativePath = '';
+	pathSegmentsToVideo.forEach((segment, index) => {
+		//split will leave us with an empty string at the end of the path segments, because it'll end with a slash
+		if (segment) {
+			cumulativePath = path.join(cumulativePath, segment);
+			const prettySegment = pathToDirectoryObject(cumulativePath);
+			//override the base 'videos' folder name
+			if (index === 0) {
+				prettySegment.name = 'All Videos'
+			}
+			response.history.push(prettySegment);
+		}
+	});
+
+	res.json(response);
 });
 
+async function getVideosInPath(dirPath) {
+	return glob(path.join('./', dirPath, '/*.mp4'));
+}
+
+async function getDirectoriesInPath(dirPath) {
+	return glob(path.join('./', dirPath, '*/'));
+}
+
 async function getVideoInfo(videoPath) {
+	videoPath = (videoPath.indexOf('./') === 0 ? '' : './') + videoPath;
 	return {
 		type: 'video',
 		src: videoPath.replace('./', ''),
-		text: path.basename(videoPath, path.extname(videoPath)),
+		name: path.basename(videoPath, path.extname(videoPath)),
 		imageKey: await imageStore.getIdFromSourceKey(source, videoPath)
 	}
 }
 
 function scanVideos() {
 	return glob('./videos/**/*.mp4');
+}
+async function scanVideoDirectories() {
+	return [
+		'./videos/',
+		...await glob('./videos/**/*/')
+	]
 }
 
 function groupByFolder(videos) {
