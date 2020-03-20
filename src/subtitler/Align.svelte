@@ -22,7 +22,7 @@
 <div class="alignment-buttons">
 	<button class="small-button" on:click={() => dispatch('reselect')}>&circlearrowleft; Reselect Subtitles</button>
 	<div class="row">
-		{#if typeof lastAlignment === 'number'}
+		{#if typeof lastAlignment === 'number' && !isNaN(lastAlignment)}
 			<button on:click={useLastAlignment}>
 				Use the last alignment for <span class="show-name">{showName}</span> ({alignmentHint()})
 			</button>
