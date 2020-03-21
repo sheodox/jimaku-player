@@ -1,7 +1,8 @@
 <style>
 	.tray {
+		width: 40vw;
+		max-width: 40rem;
 		margin-top: 0.5rem;
-		width: 2vw;
 		background: rgba(255, 255, 255, 0.2);
 		position: fixed;
 		right: 0;
@@ -17,8 +18,6 @@
 	}
 
 	.tray:hover {
-		width: 40vw;
-		max-width: 40rem;
 		background: #111218;
 		overflow: auto;
 		border-radius: 3px;
@@ -89,7 +88,7 @@
 	}
 </style>
 
-<div class="tray" on:mouseenter={trayHover(true)} on:mouseleave={trayHover(false)}>
+<div class="tray" on:mouseenter={trayHover(true)} on:mouseleave={trayHover(false)} style="right: {$trayAnim}vw">
 	<h1>VRV Subtitler</h1>
 	{#if mode === 'cancelled'}
 		<button on:click={() => dispatch('restart')}>Select Subtitles</button>
@@ -146,7 +145,17 @@
 <script>
 	import {createEventDispatcher} from 'svelte';
 	import {fly, fade} from 'svelte/transition';
-	const dispatch = createEventDispatcher();
+	import {tweened} from 'svelte/motion';
+	import {cubicOut} from 'svelte/easing';
+	const dispatch = createEventDispatcher(),
+		trayStates = {
+			hidden: -38,
+			shown: 0
+		},
+		trayAnim = tweened(trayStates.hidden,  {
+			duration: 300,
+			easing: cubicOut
+		});
 
 	export let recentSubs = [];
 	export let subtitles = {};
@@ -165,6 +174,7 @@
 
 	function trayHover(isEntering) {
 		return () => {
+			trayAnim.set(isEntering ? trayStates.shown : trayStates.hidden);
 			// only check if we need to add a pauser, controlled by the option, if the tray is being entered, don't
 			// want that to control if we remove a pauser, that's not the point
 			if (!isEntering || pauseOnTray) {
