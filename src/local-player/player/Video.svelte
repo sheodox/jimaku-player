@@ -121,6 +121,8 @@
 	}
 </style>
 
+<svelte:window on:keydown={handleHotkeys} />
+
 <script>
     export let src = '';
     let currentTime = 0,
@@ -147,6 +149,40 @@
 		}
     	else {
     		document.documentElement.requestFullscreen();
+		}
+	}
+
+	function handleHotkeys(e) {
+    	let caught = true;
+    	const smallTimeAdjustment = 5,
+			largeTimeAdjustment = 15;
+
+		switch (e.key) {
+			case 'f':
+				toggleFullscreen();
+				break;
+			case 'ArrowLeft':
+				currentTime -= smallTimeAdjustment;
+				break;
+			case 'ArrowRight':
+				currentTime += smallTimeAdjustment;
+				break;
+			case 'j':
+				currentTime -= largeTimeAdjustment;
+				break;
+			case 'l':
+				currentTime += largeTimeAdjustment;
+				break;
+			case ' ':
+			case 'k':
+				togglePause();
+				break;
+			default:
+				caught = false;
+		}
+		if (caught) {
+			e.preventDefault();
+			e.stopPropagation();
 		}
 	}
 </script>
