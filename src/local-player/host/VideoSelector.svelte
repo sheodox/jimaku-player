@@ -42,8 +42,8 @@
         padding: 0.4rem;
 	}
 	button.directory {
-		background: #42d1f2;
-		color: black;
+		background: #2b303e;
+		color: white;
 		border: none;
 		font-size: 1.2rem;
 		margin: 1rem;
