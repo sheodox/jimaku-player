@@ -92,7 +92,7 @@
 	</div>
     <div class="videos grid-list">
 		{#each videoInfo.videos as item}
-			<button class="video" class:selected={selectedVideoInfo.src === item.src} on:click={() => selectPath(item)}>
+			<button class="video" class:selected={selectedVideoInfo.src === item.src} on:click={() => selectVideo(item)}>
 				<img src={imageSrc(item.imageKey)} alt="image for {item.name}" />
 				<br>
 				<span class="video-title">
@@ -114,6 +114,10 @@
 		return `/image/medium/${imageKey}`
 	}
 
+	function selectVideo(item) {
+		selectPath(item);
+		window.scrollTo(0, 0);
+	}
 	function selectPath(item) {
 		page(`/v/${encodeURIComponent(item.src)}`);
 	}
