@@ -1,7 +1,6 @@
 <style>
 	.tray {
-		width: 40vw;
-		max-width: 40rem;
+		width: 28rem;
 		margin-top: 0.5rem;
 		background: rgba(255, 255, 255, 0.2);
 		position: fixed;
@@ -40,13 +39,13 @@
 	}
 	ul {
 		list-style: none;
+		padding: 0;
 	}
 	a {
 		color: white;
 		transform: scaleY(0);
 		transform-origin: top;
 		transition: transform 0.5s ease;
-		font-size: 1rem;
         text-decoration: none;
 	}
 	a:hover {
@@ -56,11 +55,13 @@
 	}
 	li {
 		padding-bottom: 0.2rem;
+		white-space: pre;
 	}
 	li:not(:first-of-type)::before {
 		content: ' ';
+		height: 0;
 		position: relative;
-		border: 1px solid #7b724e;
+		border: 1px solid #4a4a6a;
 		display: block;
 		margin: 0 auto;
 		border-radius: 4px;
@@ -88,7 +89,7 @@
 	}
 </style>
 
-<div class="tray" on:mouseenter={trayHover(true)} on:mouseleave={trayHover(false)} style="right: {$trayAnim}vw">
+<div class="tray" on:mouseenter={trayHover(true)} on:mouseleave={trayHover(false)} style="right: {$trayAnim}rem">
 	<h1>VRV Subtitler</h1>
 	{#if mode === 'cancelled'}
 		<button on:click={() => dispatch('restart')}>Select Subtitles</button>
@@ -101,8 +102,8 @@
 		<div class="tab" class:tab-active={panel === 'recent'}>
 			<h2>Recent Subtitles</h2>
 			<ul class="recent-subs">
-				{#each recentSubs as sub (sub.text)}
-					<li in:fly={{y: 50, duration: 200}} out:fly={{y:-50, duration: 200}}>
+				{#each recentSubs as sub, i (sub.text)}
+					<li in:fly={{y: 50, duration: 200}} out:fly={{y:-50, duration: 200}} style={recentSubSize(i)}>
 						<a target="_blank" href={`https://jisho.org/search/${encodeURIComponent(sub.text.trim())}`} rel="noopener noreferrer" on:click={() => dispatch('define-pauser')}>{sub.text}</a>
 					</li>
 				{/each}
@@ -149,7 +150,7 @@
 	import {cubicOut} from 'svelte/easing';
 	const dispatch = createEventDispatcher(),
 		trayStates = {
-			hidden: -38,
+			hidden: -26,
 			shown: 0
 		},
 		trayAnim = tweened(trayStates.hidden,  {
@@ -161,6 +162,10 @@
 	export let subtitles = {};
 	export let alignment = 0;
 	export let mode = 'normal';
+
+	function recentSubSize(index) {
+		return `font-size: ${(0.5 + 0.5 * (index / recentSubs.length)) * 20}px`;
+	}
 
 	let panel = 'recent',
 		showSettings = false,
