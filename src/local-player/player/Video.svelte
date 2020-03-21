@@ -42,7 +42,7 @@
 	}
     button {
 		color: white;
-		background: #2a3450;
+		background: none;
 		border: none;
 		padding: 0 0.6rem;
 		line-height: 1.5;
@@ -54,13 +54,13 @@
 	}
 	button:focus {
 		box-shadow: -1px -1px #42d1f2, 1px -1px #42d1f2;
-        color: #42d1f2;
 	}
 	button::-moz-focus-inner {
 		border: 0;
 	}
 	button:hover {
 		background: #344062;
+		color: #42d1f2;
 	}
 
 	input[type=range] {
