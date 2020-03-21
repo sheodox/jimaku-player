@@ -53,6 +53,10 @@
 	button.directory:hover {
 		background: deeppink;
 	}
+	button.directory :global(svg) {
+        display: inline;
+		vertical-align: text-bottom;
+	}
     .history ul {
 		list-style: none;
 	}
@@ -87,7 +91,7 @@
 	</nav>
 	<div class="directories grid-list">
 		{#each videoInfo.directories as dir}
-			<button class="directory" on:click={() => selectPath(dir)}>🗀 {dir.name}</button>
+			<button class="directory" on:click={() => selectPath(dir)}><Icon name="folder" /> {dir.name}</button>
 		{/each}
 	</div>
     <div class="videos grid-list">
@@ -104,6 +108,7 @@
 </div>
 <script>
 	import page from 'page';
+	import Icon from '../Icon.svelte';
 	export let videoInfo = {videos: [], directories: [], history: []};
 	export let selectedVideoInfo = {src: ''};
 	let filteredPath = [],
