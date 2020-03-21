@@ -3,12 +3,14 @@
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
+		justify-content: center;
 	}
 	button {
 		cursor: pointer;
+		box-shadow: 0 0 5px black;
 	}
 	button.video {
-		background: #4b5266;
+		background: #2b303e;
 		border: none;
 		padding: 0;
 		margin: 1rem;
@@ -23,22 +25,26 @@
         max-width: 24rem;
 	}
 	button.selected {
+		outline: 1px solid #42d1f2;
 		box-shadow: 0.5rem 0.5rem #42d1f2;
 	}
 	button.video:not(.selected) {
 		opacity: 0.6;
 	}
 	button.video:not(.selected):hover {
-		opacity: 0.8;
+		opacity: 1;
+	}
+	button.video:not(.selected):hover .video-title {
+		color: #42d1f2;
 	}
 	.video-title {
-		font-size: 1.2rem;
+		font-size: 1rem;
+        padding: 0.4rem;
 	}
 	button.directory {
 		background: #42d1f2;
 		color: black;
 		border: none;
-		border-radius: 0.2rem;
 		font-size: 1.2rem;
 		margin: 1rem;
 		line-height: 2;
@@ -63,7 +69,7 @@
 		cursor: default;
 	}
 	.history a {
-		color: #42d1f2;
+		color: #00c3f2;
 	}
 </style>
 
@@ -73,7 +79,7 @@
 			{#if videoInfo.history.length > 1}
 				{#each videoInfo.history as path}
 					<li>
-						<a href on:click|preventDefault={() => selectPath(path)}>{path.name}</a>
+						<a href={path.src} on:click|preventDefault={() => selectPath(path)}>{path.name}</a>
 					</li>
 				{/each}
 			{/if}
@@ -87,11 +93,11 @@
     <div class="videos grid-list">
 		{#each videoInfo.videos as item}
 			<button class="video" class:selected={selectedVideoInfo.src === item.src} on:click={() => selectPath(item)}>
+				<img src={imageSrc(item.imageKey)} alt="image for {item.name}" />
+				<br>
 				<span class="video-title">
 					{item.name}
 				</span>
-				<br>
-				<img src={imageSrc(item.imageKey)} alt="image for {item.name}" />
 			</button>
 		{/each}
 	</div>
