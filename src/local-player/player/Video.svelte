@@ -21,6 +21,7 @@
 		padding: 2rem;
         margin: 0 auto;
 		cursor: default;
+		text-transform: uppercase;
 	}
 	.video-controls {
 		display: flex;
