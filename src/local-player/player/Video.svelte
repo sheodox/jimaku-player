@@ -1,20 +1,3 @@
-<div class="video-player">
-	<video src={src} bind:currentTime={currentTime} bind:duration={totalTime} bind:paused={paused} on:click={togglePause}></video>
-	{#if paused}
-		<div class="pause-alert-container" on:click={togglePause}>
-			<p class="pause-alert">Paused</p>
-		</div>
-	{/if}
-	<div class="video-controls">
-        <button on:click={togglePause}>{!paused ? '⯀' : '⯈'}</button>
-		<span class="times">
-			{prettyTime(currentTime)} / {prettyTime(totalTime)}
-		</span>
-		<input type="range" bind:value={currentTime} max={totalTime} />
-		<button on:click={toggleFullscreen}>⛶</button>
-	</div>
-</div>
-
 <style>
 	video {
 		width: 100%;
@@ -123,13 +106,46 @@
 	}
 </style>
 
-<svelte:window on:keydown={handleHotkeys} />
+<div class="video-player">
+	<video src={src} bind:currentTime={currentTime} bind:duration={totalTime} bind:paused={paused} on:click={togglePause}></video>
+	{#if paused}
+		<div class="pause-alert-container" on:click={togglePause}>
+			<p class="pause-alert">Paused</p>
+		</div>
+	{/if}
+	{#if showControls || paused}
+		<div class="video-controls" transition:fade={{duration: 100}}>
+			<button on:click={togglePause}>{!paused ? '⯀' : '⯈'}</button>
+			<span class="times">
+				{prettyTime(currentTime)} / {prettyTime(totalTime)}
+			</span>
+			<input type="range" bind:value={currentTime} max={totalTime} />
+			<button on:click={toggleFullscreen}>⛶</button>
+		</div>
+	{/if}
+</div>
+
+<svelte:window on:keydown={handleHotkeys} on:mousemove={active}/>
 
 <script>
+	import {fade} from 'svelte/transition';
     export let src = '';
+    //the amount of time to wait before fading out the video controls
+    const inactivityTimeout = 3000;
     let currentTime = 0,
 		totalTime = 0,
-		paused = true;
+		paused = true,
+		showControls = true;
+
+	let inactiveTimer;
+    function active() {
+		showControls = true;
+
+		clearTimeout(inactiveTimer);
+		inactiveTimer = setTimeout(() => {
+			showControls = false;
+		}, inactivityTimeout);
+	}
 
     function prettyTime(seconds) {
 		const hoursRemainder = seconds % 3600,
@@ -143,6 +159,7 @@
 
     function togglePause() {
     	paused = !paused;
+    	active();
 	}
 
     function toggleFullscreen() {
@@ -186,5 +203,6 @@
 			e.preventDefault();
 			e.stopPropagation();
 		}
+		active();
 	}
 </script>
