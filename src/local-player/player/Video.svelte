@@ -110,7 +110,13 @@
 	<video src={src} bind:currentTime={currentTime} bind:duration={totalTime} bind:paused={paused} on:click={togglePause}></video>
 	{#if paused}
 		<div class="pause-alert-container" on:click={togglePause}>
-			<p class="pause-alert">Paused</p>
+			<p class="pause-alert">
+				{#if src}
+                    Paused
+				{:else}
+					Select a video
+				{/if}
+			</p>
 		</div>
 	{/if}
 	{#if showControls || paused}
