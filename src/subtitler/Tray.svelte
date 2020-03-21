@@ -40,6 +40,8 @@
 	ul {
 		list-style: none;
 		padding: 0;
+		display: flex;
+		flex-direction: column-reverse;
 	}
 	a {
 		color: white;
@@ -57,7 +59,7 @@
 		padding-bottom: 0.2rem;
 		white-space: pre;
 	}
-	li:not(:first-of-type)::before {
+	li:not(:first-of-type)::after {
 		content: ' ';
 		height: 0;
 		position: relative;
@@ -103,7 +105,7 @@
 			<h2>Recent Subtitles</h2>
 			<ul class="recent-subs">
 				{#each recentSubs as sub, i (sub.text)}
-					<li in:fly={{y: 50, duration: 200}} out:fly={{y:-50, duration: 200}} style={recentSubSize(i)}>
+					<li in:fly={{y: -50, duration: 200}} out:fly={{y:50, duration: 200}} animate:flip={{duration: 200}} style={recentSubSize(i)}>
 						<a target="_blank" href={`https://jisho.org/search/${encodeURIComponent(sub.text.trim())}`} rel="noopener noreferrer" on:click={() => dispatch('define-pauser')}>{sub.text}</a>
 					</li>
 				{/each}
@@ -146,6 +148,7 @@
 <script>
 	import {createEventDispatcher} from 'svelte';
 	import {fly, fade} from 'svelte/transition';
+	import {flip} from 'svelte/animate';
 	import {tweened} from 'svelte/motion';
 	import {cubicOut} from 'svelte/easing';
 	const dispatch = createEventDispatcher(),
@@ -164,7 +167,7 @@
 	export let mode = 'normal';
 
 	function recentSubSize(index) {
-		return `font-size: ${(0.5 + 0.5 * (index / recentSubs.length)) * 20}px`;
+		return `font-size: ${(0.5 + 0.5 * ((index + 1) / recentSubs.length)) * 20}px`;
 	}
 
 	let panel = 'recent',
