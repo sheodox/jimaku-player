@@ -4,6 +4,9 @@
 		flex-direction: row;
 		flex-wrap: wrap;
 	}
+	button {
+		cursor: pointer;
+	}
 	button.video {
 		background: #4b5266;
 		border: none;
@@ -39,6 +42,10 @@
 		font-size: 1.2rem;
 		margin: 1rem;
 		line-height: 2;
+		transition: background-color 0.1s;
+	}
+	button.directory:hover {
+		background: deeppink;
 	}
     .history ul {
 		list-style: none;
