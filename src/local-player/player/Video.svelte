@@ -61,7 +61,8 @@
 		color: white;
 		background: #2a3450;
 		border: none;
-		padding: 0.3rem 0.6rem;
+		padding: 0.3rem 1rem;
+        cursor: pointer;
 	}
     button:active {
 		border: none;
