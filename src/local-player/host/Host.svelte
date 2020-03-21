@@ -79,6 +79,7 @@
 		videoInfo = await fetch(`/video-info?path=${encodeURIComponent(videoSrc)}`).then(res => res.json());
 		if (videoInfo.selectedVideo) {
 			selectedVideoInfo = videoInfo.selectedVideo;
+			document.title = `${selectedVideoInfo.name} - 字幕プレーヤー`;
 		}
 	}
 </script>
