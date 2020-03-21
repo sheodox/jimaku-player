@@ -61,14 +61,16 @@
 		color: white;
 		background: #2a3450;
 		border: none;
-		padding: 0.3rem 1rem;
+		padding: 0 0.6rem;
+		line-height: 1.5;
         cursor: pointer;
+		font-size: 2rem;
 	}
     button:active {
 		border: none;
 	}
 	button:focus {
-		outline: 1px solid #42d1f2;
+		box-shadow: -1px -1px #42d1f2, 1px -1px #42d1f2;
         color: #42d1f2;
 	}
 	button::-moz-focus-inner {
