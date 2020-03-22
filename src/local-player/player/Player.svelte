@@ -30,9 +30,9 @@
 					.map(h => h.name)
 					.join('/');
 
-			video.currentTime = viewTimes.get(videoSrc);
+			video.currentTime = viewTimes.get(videoSrc).currentTime;
 			setInterval(() => {
-				viewTimes.set(videoSrc, video.currentTime)
+				viewTimes.set(videoSrc, video.currentTime, video.duration)
 			}, 50);
 		}
 

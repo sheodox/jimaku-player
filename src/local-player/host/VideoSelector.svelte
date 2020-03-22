@@ -96,8 +96,24 @@
 		color: var(--accent-color);
 		font-size: 1.1rem;
 	}
-    .history a:hover {
-
+    progress {
+        -webkit-appearance: none;
+		appearance: none;
+		width: 90%;
+		align-self: center;
+		height: 4px;
+		margin: 0.5rem 1rem 0;
+		border: none;
+		background: #111218;
+	}
+	progress::-webkit-progress-bar {
+		background: #111218;
+	}
+	progress::-moz-progress-bar {
+		background: var(--accent-color);
+	}
+	progress::-webkit-progress-value {
+		background: var(--accent-color);
 	}
 </style>
 
@@ -120,6 +136,7 @@
 		{#each videoInfo.videos as item}
 			<button class="video" class:selected={selectedVideoInfo.src === item.src} on:click={() => selectVideo(item)}>
 				<img src={imageSrc(item.imageKey)} alt="image for {item.name}" />
+				<progress value={item.viewTimes.currentTime} max={item.viewTimes.duration}></progress>
 				<p class="video-title">
 					{item.name}
 				</p>
@@ -130,6 +147,7 @@
 <script>
 	import page from 'page';
 	import Icon from '../Icon.svelte';
+	import viewTimes from '../view-times';
 	export let videoInfo = {videos: [], directories: [], history: []};
 	export let selectedVideoInfo = {src: ''};
 	let filteredPath = [],

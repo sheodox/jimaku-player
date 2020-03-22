@@ -58,6 +58,7 @@
 <script>
 	import {onMount} from 'svelte';
     import settings from '../settings';
+    import viewTimes from '../view-times';
     import VideoSelector from './VideoSelector.svelte';
     import page from 'page';
 
@@ -77,7 +78,15 @@
 	async function updateVideoInfoWithSelection(videoSrc) {
 		if (!videoSrc) { return; }
 
-		videoInfo = await fetch(`/video-info?path=${encodeURIComponent(videoSrc)}`).then(res => res.json());
+		const videos = await fetch(`/video-info?path=${encodeURIComponent(videoSrc)}`).then(res => res.json());
+		//add view time info before triggering a render
+		videos.videos
+			.map(video => {
+				video.viewTimes = viewTimes.get(video.src);
+				return video;
+			});
+		videoInfo = videos;
+
 		if (videoInfo.selectedVideo) {
 			selectedVideoInfo = videoInfo.selectedVideo;
 			document.title = `${selectedVideoInfo.name} - 字幕プレーヤー`;

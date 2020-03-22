@@ -6,15 +6,20 @@ function getLastViewTimes() {
 }
 
 export default {
-	set(videoSrc, time) {
+	set(videoSrc, currentTime, duration) {
 		settings.set(
 			viewTimesKey,
 			Object.assign(getLastViewTimes(), {
-				[videoSrc]: time
+				[videoSrc]: {
+					currentTime,
+					duration
+				}
 			})
 		)
 	},
 	get(videoSrc) {
-		return getLastViewTimes()[videoSrc] || 0
+		return getLastViewTimes()[videoSrc] || {
+			currentTime: 0, maxTime: 1
+		}
 	}
 }
