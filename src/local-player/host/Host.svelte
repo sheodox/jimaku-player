@@ -3,7 +3,7 @@
 		background: #2a3450;
 		color: white;
 		text-align: center;
-		border-bottom: 2px solid #42d1f2;
+		border-bottom: 2px solid var(--accent-color);
 	}
 
 	iframe {
@@ -15,6 +15,7 @@
 
 	h1 {
 		margin: 0;
+		color: white;
 	}
 
 	.video-info {

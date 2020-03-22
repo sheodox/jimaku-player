@@ -54,14 +54,14 @@
 		border: none;
 	}
 	button:focus {
-		box-shadow: -1px -1px #42d1f2, 1px -1px #42d1f2;
+		box-shadow: -1px -1px var(--accent-color), 1px -1px var(--accent-color);
 	}
 	button::-moz-focus-inner {
 		border: 0;
 	}
 	button:hover {
 		background: #344062;
-		color: #42d1f2;
+		color: var(--accent-color);
 	}
 
 	input[type=range] {
@@ -71,11 +71,10 @@
 	}
 	::-moz-range-track {
 		background-color: #4b5266;
-		height: 0.2rem;
 	}
 
 	::-moz-range-progress {
-		background-color: #ffdd00;
+		background-color: var(--accent-color);
 	}
 
 	::-moz-range-thumb {
@@ -83,7 +82,7 @@
 		cursor: pointer;
 		height: 0.75rem;
 		width: 0.75rem;
-		background: #ffdd00;
+		background: var(--accent-color);
 		border-radius: 50%;
 		border: none;
 		margin-top: -0.875rem;
@@ -100,7 +99,7 @@
 		cursor: pointer;
 		height: 0.75rem;
 		width: 0.75rem;
-		background: #ffdd00;
+		background: var(--accent-color);
 		border-radius: 50%;
 		border: none;
 		margin-top: -0.25rem;
