@@ -68,7 +68,7 @@ class ImageStore extends StockPile {
 		}
 
 		const map = this.buildInsertMap({
-			source_id, image_type, source, image_large: image
+			source_id, image_type: 'image/webp', source, image_large: image
 		}, 'imagestore');
 		this.run(`INSERT INTO imagestore ${map.sql}`, map.values);
 
@@ -78,6 +78,7 @@ class ImageStore extends StockPile {
 		for (const size of sizes) {
 			const resized = await sharp(image)
 				.resize(getResizeOptions(size))
+				.toFormat('webp')
 				.toBuffer();
 
 			await this.run(`UPDATE imagestore SET image_${size}=? WHERE source_id=?`, [resized, source_id]);
