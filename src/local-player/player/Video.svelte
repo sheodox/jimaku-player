@@ -5,6 +5,9 @@
 		position: absolute;
 		left: 0;
 	}
+	.video-player.no-cursor {
+		cursor: none;
+	}
     .pause-alert-container {
 		position: absolute;
 		display: flex;
@@ -106,7 +109,7 @@
 	}
 </style>
 
-<div class="video-player">
+<div class="video-player" class:no-cursor={!showControls && !paused}>
 	<video src={src} bind:currentTime={currentTime} bind:duration={totalTime} bind:paused={paused} on:click={togglePause}></video>
 	{#if paused}
 		<div class="pause-alert-container" on:click={togglePause}>
