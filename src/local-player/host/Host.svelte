@@ -33,9 +33,22 @@
 		max-width: 1300px;
 		margin: 0 auto;
 	}
+	header svg {
+		display: inline-block;
+        fill: white;
+		width: 2.5rem;
+		height: 2.5rem;
+		vertical-align: text-bottom;
+	}
+	header h1 {
+		display: inline-block;
+	}
 </style>
 
 <header>
+	<svg viewbox="0 0 100 100">
+		<use xlink:href="/logo.svg#logo"></use>
+	</svg>
 	<h1>字幕プレーヤー</h1>
 </header>
 <div class="host">
