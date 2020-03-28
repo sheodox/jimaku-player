@@ -82,7 +82,7 @@
 		cursor: pointer;
 		height: 0.75rem;
 		width: 0.75rem;
-		background: var(--accent-color);
+		background: var(--accent-gradient) fixed;
 		border-radius: 50%;
 		border: none;
 		margin-top: -0.875rem;
@@ -99,7 +99,7 @@
 		cursor: pointer;
 		height: 0.75rem;
 		width: 0.75rem;
-		background: var(--accent-color);
+		background: var(--accent-gradient) fixed;
 		border-radius: 50%;
 		border: none;
 		margin-top: -0.25rem;
