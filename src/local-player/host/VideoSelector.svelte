@@ -110,10 +110,10 @@
 		background: #111218;
 	}
 	progress::-moz-progress-bar {
-		background: var(--accent-color);
+		background: var(--accent-gradient) fixed;
 	}
 	progress::-webkit-progress-value {
-		background: var(--accent-color);
+		background: var(--accent-gradient) fixed;
 	}
 </style>
 

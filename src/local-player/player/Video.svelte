@@ -74,7 +74,7 @@
 	}
 
 	::-moz-range-progress {
-		background-color: var(--accent-color);
+		background: var(--accent-gradient) fixed;
 	}
 
 	::-moz-range-thumb {

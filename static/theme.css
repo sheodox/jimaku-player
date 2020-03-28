@@ -1,4 +1,6 @@
 :root {
     /*--accent-color: #4ee3d5;*/
     --accent-color: #06acfd;
+    --accent-color-secondary: #e83450;
+    --accent-gradient: linear-gradient(to right, var(--accent-color-secondary), var(--accent-color))
 }

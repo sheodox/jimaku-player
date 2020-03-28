@@ -3,7 +3,6 @@
 		background: #2a3450;
 		color: white;
 		text-align: center;
-		border-bottom: 2px solid var(--accent-color);
 	}
 
 	iframe {
@@ -43,6 +42,11 @@
 	header h1 {
 		display: inline-block;
 	}
+	.line {
+		width: 100%;
+		height: 2px;
+		background: linear-gradient(to right, var(--accent-color-secondary), var(--accent-color));
+	}
 </style>
 
 <header>
@@ -50,6 +54,7 @@
 		<use xlink:href="/logo.svg#logo"></use>
 	</svg>
 	<h1>字幕プレーヤー</h1>
+	<div class="line"></div>
 </header>
 <div class="host">
     <div class="video-player">
