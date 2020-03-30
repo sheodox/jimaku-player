@@ -73,11 +73,13 @@
 		width: 100%;
 	}
 	::-moz-range-track {
-		background-color: #4b5266;
+		background-color: #252732;
+        height: 0.4rem;
 	}
 
 	::-moz-range-progress {
 		background: var(--accent-gradient) fixed;
+		height: 0.4rem;
 	}
 
 	::-moz-range-thumb {
@@ -89,6 +91,7 @@
 		border-radius: 50%;
 		border: none;
 		margin-top: -0.875rem;
+        visibility: hidden;
 	}
 
 	/* chrome doesn't seem to play nicely with comma separated selectors, can't combine with the firefox ones */
