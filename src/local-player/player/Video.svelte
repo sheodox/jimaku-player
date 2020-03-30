@@ -113,7 +113,7 @@
 </style>
 
 <div class="video-player" class:no-cursor={!showControls && !paused}>
-	<video src={src} bind:currentTime={currentTime} bind:duration={totalTime} bind:paused={paused} on:click={togglePause}></video>
+	<video src={src} bind:currentTime={currentTime} bind:duration={totalTime} bind:paused={paused} on:click={togglePause} bind:this={videoElement}></video>
 	{#if paused}
 		<div class="pause-alert-container" on:click={togglePause}>
 			<p class="pause-alert">
@@ -151,7 +151,7 @@
 			paused = true,
 			showControls = true;
 
-	let inactiveTimer;
+	let inactiveTimer, videoElement;
 
 	function active() {
 		showControls = true;
@@ -206,17 +206,18 @@
 			case 'f':
 				toggleFullscreen();
 				break;
+			//svelte seems to be unreliable when changing using currentTime binding, direct DOM usage seems to work better for the next few hotkeys
 			case 'ArrowLeft':
-				currentTime -= smallTimeAdjustment;
+				videoElement.currentTime -= smallTimeAdjustment;
 				break;
 			case 'ArrowRight':
-				currentTime += smallTimeAdjustment;
+				videoElement.currentTime += smallTimeAdjustment;
 				break;
 			case 'j':
-				currentTime -= largeTimeAdjustment;
+				videoElement.currentTime -= largeTimeAdjustment;
 				break;
 			case 'l':
-				currentTime += largeTimeAdjustment;
+				videoElement.currentTime += largeTimeAdjustment;
 				break;
 			case ' ':
 			case 'k':
