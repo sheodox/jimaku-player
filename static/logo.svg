@@ -34,16 +34,14 @@
          offset="1"
          id="stop1342" />
     </linearGradient>
-    <radialGradient
+    <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient1344"
-       id="radialGradient1346"
-       cx="21.520346"
-       cy="290.32559"
-       fx="21.520346"
-       fy="290.32559"
-       r="12.901155"
-       gradientTransform="matrix(2.5994702,0.69652596,-0.70125342,2.6171133,169.53444,-484.74238)"
+       id="linearGradient829"
+       x1="17.983095"
+       y1="289.99261"
+       x2="0.94231331"
+       y2="273.58023"
        gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
@@ -55,7 +53,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="9.995"
      inkscape:cx="65.343446"
-     inkscape:cy="51.968726"
+     inkscape:cy="52.168826"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -109,7 +107,7 @@
      style="display:inline">
     <path
        sodipodi:type="star"
-       style="fill:url(#radialGradient1346);fill-opacity:1;stroke-width:1.19480908"
+       style="fill:url(#linearGradient829);fill-opacity:1;stroke-width:1.19480908"
        id="path1207"
        sodipodi:sides="3"
        sodipodi:cx="12.215874"
