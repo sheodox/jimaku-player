@@ -38,7 +38,7 @@
 	}
     .times {
 		padding: 0.3rem;
-		line-height: 2rem;
+		line-height: 2.5rem;
 		cursor: default;
 	}
 	.video-controls input[type=range] {
@@ -129,7 +129,7 @@
 		<div class="video-controls" transition:fade={{duration: 100}}>
 			<button on:click={togglePause}><Icon name={!paused ? 'pause' : 'play'} /></button>
 			<span class="times">
-				{prettyTime(currentTime)} / {prettyTime(totalTime)}
+				{prettyTime(currentTime, totalTime > 3600)} / {prettyTime(totalTime)}
 			</span>
 			<input type="range" bind:value={currentTime} max={totalTime} />
 			<button on:click={toggleFullscreen}><Icon name="maximize-2" /></button>
@@ -162,13 +162,22 @@
 		}, inactivityTimeout);
 	}
 
-	function prettyTime(seconds) {
+	/**
+	 * Change a number in seconds to mm:ss or hh:mm:ss
+	 * @param seconds - number of seconds, not ms because video elements deal in seconds
+	 * @param forcePadHours - if we should pad 00 for hours regardless of if the time is over an hour,
+	 * if the duration of the video is over an hour the width of the times displayed will change once
+	 * it surpasses that hour mark, causing the range element to change width, which could cause issues
+	 * with seeking.
+	 * @returns {string}
+	 */
+	function prettyTime(seconds, forcePadHours=false) {
 		const hoursRemainder = seconds % 3600,
 				hours = Math.floor((seconds / 3600)),
 				minutesRemainder = hoursRemainder % 60,
 				minutes = Math.floor(hoursRemainder / 60);
 		const pad = num => num.toFixed(0).padStart(2, '0');
-		return (hours > 0 ? [hours, minutes, minutesRemainder] : [minutes, minutesRemainder])
+		return (hours > 0 || forcePadHours ? [hours, minutes, minutesRemainder] : [minutes, minutesRemainder])
 				.map(pad).join(':');
 	}
 
