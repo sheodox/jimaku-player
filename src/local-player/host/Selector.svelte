@@ -5,34 +5,6 @@
 		flex-wrap: wrap;
 		justify-content: center;
 	}
-	a.directory {
-        cursor: pointer;
-        background: transparent;
-        color: var(--accent-color);
-		border: 1px solid var(--accent-color);
-		font-size: 0.9rem;
-		margin: 1rem;
-		line-height: 2;
-		padding: 0.3rem 1rem;
-		border-radius: 1px;
-		text-decoration: none;
-	}
-    a.directory :global(svg) {
-		stroke: var(--accent-color);
-		height: 1.2rem;
-		width: 1.2rem;
-	}
-    a.directory:hover {
-		background: var(--accent-color);
-		color: black;
-	}
-	a.directory:hover :global(svg) {
-		stroke: black;
-	}
-	a.directory :global(svg) {
-        display: inline;
-		vertical-align: text-bottom;
-	}
     .history ul {
 		list-style: none;
 		display: flex;
@@ -69,7 +41,7 @@
 	</nav>
 	<div class="directories grid-list">
 		{#each videoInfo.directories as dir}
-			<a class="directory" href={getRouteToItem(dir)} on:click|preventDefault={() => selectPath(dir)}><Icon name="folder" /> {dir.name}</a>
+			<a class="icon-button" href={getRouteToItem(dir)} on:click|preventDefault={() => selectPath(dir)}><Icon name="folder" /> {dir.name}</a>
 		{/each}
 	</div>
     <div class="videos grid-list">
