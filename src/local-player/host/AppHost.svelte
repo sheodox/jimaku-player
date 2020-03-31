@@ -68,7 +68,7 @@
 
 
 	<div class="column">
-		<VideoSelector videoInfo={videoInfo} selectedVideoInfo={selectedVideoInfo} />
+		<Selector videoInfo={videoInfo} selectedVideoInfo={selectedVideoInfo} />
 	</div>
 </div>
 
@@ -76,7 +76,7 @@
 	import {onMount} from 'svelte';
     import settings from '../settings';
     import viewTimes from '../view-times';
-    import VideoSelector from './VideoSelector.svelte';
+    import Selector from './Selector.svelte';
     import page from 'page';
 
 	let videoInfo = {videos: [], directories: [], history: []},

@@ -1,5 +1,5 @@
 <span class="video-title">{videoTitle}</span>
-<Video src={videoSrc} />
+<Saisei src={videoSrc} />
 {#if videoTitle}
 	<script src="/subtitler.js"></script>
 	<script>
@@ -16,7 +16,7 @@
 <script>
     import {onMount} from 'svelte';
 	import viewTimes from '../view-times';
-	import Video from './Video.svelte';
+	import Saisei from './Saisei.svelte';
 
 	let videoTitle = '';
 	let videoSrc = decodeURIComponent(location.search.replace(/^\?/, ''));
