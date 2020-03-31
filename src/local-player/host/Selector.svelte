@@ -5,50 +5,8 @@
 		flex-wrap: wrap;
 		justify-content: center;
 	}
-	button {
-		cursor: pointer;
-		box-shadow: 0 0 2px black;
-		background: #273351;
-		transition: box-shadow 0.2s;
-	}
-	button.video {
-		border: none;
-		padding: 0;
-		margin: 1rem;
-		color: white;
-        transition: box-shadow 0.2s;
-		display: flex;
-		flex-direction: column;
-		max-width: 24rem;
-	}
-	button.video img {
-		flex: 1;
-        width: 24rem;
-		align-self: center;
-	}
-	button.selected {
-		outline: 1px solid var(--accent-color);
-		box-shadow: 0.5rem 0.5rem var(--accent-color);
-	}
-	button.video:not(.selected) {
-		opacity: 0.7;
-	}
-	button.video:not(.selected):hover {
-		opacity: 1;
-		color: var(--accent-color);
-		outline: 1px solid var(--accent-color);
-	}
-	button.video:not(.selected):hover .video-title {
-		color: var(--accent-color);
-	}
-	.video-title {
-		font-size: 1rem;
-        padding: 0.4rem;
-		text-align: center;
-        margin: 0;
-		width: 100%;
-	}
 	button.directory {
+        cursor: pointer;
         background: transparent;
         color: var(--accent-color);
 		border: 1px solid var(--accent-color);
@@ -96,25 +54,6 @@
 		color: var(--accent-color);
 		font-size: 1.1rem;
 	}
-    progress {
-        -webkit-appearance: none;
-		appearance: none;
-		width: 90%;
-		align-self: center;
-		height: 4px;
-		margin: 0.5rem 1rem 0;
-		border: none;
-		background: #111218;
-	}
-	progress::-webkit-progress-bar {
-		background: #111218;
-	}
-	progress::-moz-progress-bar {
-		background: var(--accent-gradient) fixed;
-	}
-	progress::-webkit-progress-value {
-		background: var(--accent-gradient) fixed;
-	}
 </style>
 
 <div id="video-list">
@@ -134,34 +73,23 @@
 	</div>
     <div class="videos grid-list">
 		{#each videoInfo.videos as item}
-			<button class="video" class:selected={selectedVideoInfo.src === item.src} on:click={() => selectVideo(item)}>
-				<img src={imageSrc(item.imageKey)} alt="image for {item.name}" />
-				<progress value={item.viewTimes.currentTime} max={item.viewTimes.duration}></progress>
-				<p class="video-title">
-					{item.name}
-				</p>
-			</button>
+			<SelectorVideo isSelected={selectedVideoInfo.src === item.src} videoInfo={item} on:selected={e => selectVideo(e.detail)} />
 		{/each}
 	</div>
 </div>
 <script>
 	import page from 'page';
 	import Icon from '../Icon.svelte';
-	import viewTimes from '../view-times';
+	import SelectorVideo from "./SelectorVideo.svelte";
+
 	export let videoInfo = {videos: [], directories: [], history: []};
 	export let selectedVideoInfo = {src: ''};
-	let filteredPath = [],
-		filteredDirectories = [],
-		filteredVideos = [];
-
-	function imageSrc(imageKey) {
-		return `/image/medium/${imageKey}`
-	}
 
 	function selectVideo(item) {
 		selectPath(item);
 		window.scrollTo(0, 0);
 	}
+
 	function selectPath(item) {
 		page(`/v/${encodeURIComponent(item.src)}`);
 	}

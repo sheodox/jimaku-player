@@ -95,14 +95,7 @@
 	async function updateVideoInfoWithSelection(videoSrc) {
 		if (!videoSrc) { return; }
 
-		const videos = await fetch(`/video-info?path=${encodeURIComponent(videoSrc)}`).then(res => res.json());
-		//add view time info before triggering a render
-		videos.videos
-			.map(video => {
-				video.viewTimes = viewTimes.get(video.src);
-				return video;
-			});
-		videoInfo = videos;
+		videoInfo = await fetch(`/video-info?path=${encodeURIComponent(videoSrc)}`).then(res => res.json());
 
 		if (videoInfo.selectedVideo) {
 			selectedVideoInfo = videoInfo.selectedVideo;
