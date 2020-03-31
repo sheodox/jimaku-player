@@ -73,6 +73,7 @@
 </a>
 <script>
 	import {onMount, onDestroy, createEventDispatcher} from 'svelte';
+	import page from 'page';
 	const dispatch = createEventDispatcher();
 	import viewTimes from '../view-times';
 
