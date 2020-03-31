@@ -5,7 +5,7 @@
 		flex-wrap: wrap;
 		justify-content: center;
 	}
-	button.directory {
+	a.directory {
         cursor: pointer;
         background: transparent;
         color: var(--accent-color);
@@ -15,20 +15,21 @@
 		line-height: 2;
 		padding: 0.3rem 1rem;
 		border-radius: 1px;
+		text-decoration: none;
 	}
-    button.directory :global(svg) {
+    a.directory :global(svg) {
 		stroke: var(--accent-color);
 		height: 1.2rem;
 		width: 1.2rem;
 	}
-    button.directory:hover {
+    a.directory:hover {
 		background: var(--accent-color);
 		color: black;
 	}
-	button.directory:hover :global(svg) {
+	a.directory:hover :global(svg) {
 		stroke: black;
 	}
-	button.directory :global(svg) {
+	a.directory :global(svg) {
         display: inline;
 		vertical-align: text-bottom;
 	}
@@ -68,12 +69,12 @@
 	</nav>
 	<div class="directories grid-list">
 		{#each videoInfo.directories as dir}
-			<button class="directory" on:click={() => selectPath(dir)}><Icon name="folder" /> {dir.name}</button>
+			<a class="directory" href={getRouteToItem(dir)} on:click|preventDefault={() => selectPath(dir)}><Icon name="folder" /> {dir.name}</a>
 		{/each}
 	</div>
     <div class="videos grid-list">
-		{#each videoInfo.videos as item}
-			<SelectorVideo isSelected={selectedVideoInfo.src === item.src} videoInfo={item} on:selected={e => selectVideo(e.detail)} />
+		{#each videoInfo.videos as video}
+			<SelectorVideo isSelected={selectedVideoInfo.src === video.src} route={getRouteToItem(video)} video={video} on:selected={e => selectVideo(e.detail)} />
 		{/each}
 	</div>
 </div>
@@ -90,7 +91,11 @@
 		window.scrollTo(0, 0);
 	}
 
+	function getRouteToItem(item) {
+		return `/v/${encodeURIComponent(item.src)}`
+	}
+
 	function selectPath(item) {
-		page(`/v/${encodeURIComponent(item.src)}`);
+		page(getRouteToItem(item));
 	}
 </script>

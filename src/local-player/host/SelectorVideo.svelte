@@ -64,11 +64,11 @@
 	}
 </style>
 
-<a class="video" class:selected={isSelected} href={videoInfo.src} on:click|preventDefault={() => dispatch('selected', videoInfo)}>
-	<img src={imageSrc(videoInfo.imageKey)} alt="image for {videoInfo.name}" />
+<a class="video" class:selected={isSelected} href={route} on:click|preventDefault={() => page(route)}>
+	<img src={imageSrc(video.imageKey)} alt="image for {video.name}" />
 	<progress value={currentTime} max={duration}></progress>
 	<p class="video-title">
-		{videoInfo.name}
+		{video.name}
 	</p>
 </a>
 <script>
@@ -76,8 +76,12 @@
 	const dispatch = createEventDispatcher();
 	import viewTimes from '../view-times';
 
+	//if this is the video that's currently playing
 	export let isSelected = false;
-	export let videoInfo = {};
+	//info about this video, src, name, etc
+	export let video = {};
+	//the route this video is available at
+	export let route = '';
 
 	function imageSrc(imageKey) {
 		return `/image/medium/${imageKey}`
@@ -85,7 +89,7 @@
 
 	let currentTime = 0, duration = 1;
 	function renderUpdatedViewTimes() {
-		const times = viewTimes.get(videoInfo.src);
+		const times = viewTimes.get(video.src);
 		duration = times.duration;
 		currentTime = times.currentTime;
 	}
