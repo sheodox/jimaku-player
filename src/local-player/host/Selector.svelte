@@ -40,12 +40,12 @@
 		</ul>
 	</nav>
 	<div class="directories grid-list">
-		{#each videoInfo.directories as dir}
+		{#each videoInfo.directories as dir (dir.src)}
 			<a class="icon-button" href={getRouteToItem(dir)} on:click|preventDefault={() => selectPath(dir)}><Icon name="folder" /> {dir.name}</a>
 		{/each}
 	</div>
     <div class="videos grid-list">
-		{#each videoInfo.videos as video}
+		{#each videoInfo.videos as video (video.src)}
 			<SelectorVideo isSelected={selectedVideoInfo.src === video.src} route={getRouteToItem(video)} video={video} on:selected={e => selectVideo(e.detail)} />
 		{/each}
 	</div>
