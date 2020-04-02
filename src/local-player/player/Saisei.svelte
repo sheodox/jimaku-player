@@ -52,6 +52,7 @@
 		line-height: 1.5;
         cursor: pointer;
 		font-size: 2rem;
+		width: 5rem;
 	}
     button:active {
 		border: none;
