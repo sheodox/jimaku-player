@@ -33,11 +33,20 @@
 	{:else if phase === 'align'}
 		<Align firstSubtitle={subtitles.firstSubtitle()} on:set-align={align} on:reselect={() => phase = 'prompt'}/>
 	{:else if phase === 'play'}
-		<Subtitles format={subtitles.format} styles={subtitles.styles} current={currentSubtitles} currentTime={currentTime} visible={showSubs} on:define-pauser={definePauser}/>
+		<Subtitles
+				format={subtitles.format}
+				styles={subtitles.styles}
+				current={currentSubtitles}
+				currentTime={currentTime}
+				visible={showSubs}
+				on:define-pauser={definePauser}
+				verticalAlignment={invertVerticalAlignment ? 'inverted' : 'normal'}
+		/>
 		<Tray
 				recentSubs={recentSubs}
 				subtitles={subtitles}
 				alignment={subOffset}
+                bind:invertVerticalAlignment
 				on:restart={restart}
 				on:tray-pauser={trayPauser}
 				on:define-pauser={definePauser}
@@ -69,7 +78,8 @@
 		video = null,
 		subOffset = -1,
 		recentSubs = [],
-		showSubs = true;
+		showSubs = true,
+		invertVerticalAlignment;
 
 	function restart() {
 		phase = 'prompt';

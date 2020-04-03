@@ -126,6 +126,12 @@
 			<br>
 			<input id="pause-on-tray" type="checkbox" bind:checked={pauseOnTray}>
 			<label for="pause-on-tray">Pause when tray is open</label>
+			<br>
+			<input id="invert-subtitle-alignment" type="checkbox" bind:checked={invertVerticalAlignment}>
+			<label for="invert-subtitle-alignment">
+				Invert subtitle vertical alignment (i.e. if subtitles should be near the bottom this will make them show near the top).
+				You'll likely want this enabled if you intend to watch with VRV's subtitles at the same time.
+			</label>
 		</div>
 		<div class="tab" class:tab-active={panel === 'debug'}>
 			<h2>Debug Information</h2>
@@ -166,6 +172,7 @@
 	export let subtitles = {};
 	export let alignment = 0;
 	export let mode = 'normal';
+	export let invertVerticalAlignment = true;
 
 	function recentSubSize(index) {
 		return `font-size: ${(0.5 + 0.5 * ((index + 1) / recentSubs.length)) * 20}px`;

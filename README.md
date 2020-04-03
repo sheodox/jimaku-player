@@ -16,6 +16,8 @@ This is a Tampermonkey userscript that lets you provide your own subtitles to pl
 
 Supported subtitle formats: 
 * [.srt](https://en.wikipedia.org/wiki/SubRip) - supported
+* [.vtt](https://developer.mozilla.org/en-US/docs/Web/API/WebVTT_API) - basic support
+ (positioning, and some forms of alignment)
 * [.ass/.ssa](https://en.wikipedia.org/wiki/SubStation_Alpha) - pretty good support (most general
  font styles like font family, size, colors, outlines, shadows, bold, italic, underline, strikethrough,
  etc), and many overrides are supported (position, outline/shadow colors and widths, fonts and

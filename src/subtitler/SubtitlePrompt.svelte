@@ -1,7 +1,7 @@
 <div class="column">
 	<button class="small-button" on:click={cancelSubbing}>&Cross; Skip Subtitling For This Episode</button>
 	<label for="srt-upload">&equiv; Select a subtitle file to begin</label>
-	<input type="file" id="srt-upload" on:change={uploadSRT} accept=".srt,.ass,.ssa">
+	<input type="file" id="srt-upload" on:change={uploadSRT} accept=".srt,.ass,.ssa,.vtt">
 </div>
 <script>
 	import {createEventDispatcher} from 'svelte';
@@ -16,7 +16,8 @@
 			const constructorClass = {
 					'ass': ASS,
 					'ssa': ASS,
-					'srt': SRT
+					'srt': SRT,
+					'vtt': SRT
 				},
 				[_, extension] = file.name.match(/\.(\w{3})$/);
 

@@ -356,9 +356,10 @@ module.exports = class ASS extends SubtitleFormat {
 				return;
 			}
 
+			sub.phrases = [];
+
 			const removeOverrideText = text => text.replace(/{.*?}/g, '');
 
-			sub.styledText = [];
 			//create a scanner for overrides and the text that immediately follows them
 			const scanner = overrideScanner(sub.text);
 			//with each override block (unless we hit a reset, \r), we're going to be building upon whatever overrides
@@ -570,7 +571,7 @@ module.exports = class ASS extends SubtitleFormat {
 
 
 				styled.inline = cumulativeStyles.join(';');
-				sub.styledText.push(styled);
+				sub.phrases.push(styled);
 				if (containerInline.length) {
 					sub.inline = containerInline.join(';');
 				}
