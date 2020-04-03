@@ -35,6 +35,7 @@
 		color: white;
 		width: 100%;
 		font-size: 1rem;
+		z-index: 100000;
 	}
     .times {
 		padding: 0.3rem;
