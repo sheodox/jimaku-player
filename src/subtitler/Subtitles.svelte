@@ -77,7 +77,7 @@
 			<p style="{genStyles(sub)}" data-sub-style={sub.style} on:click={() => define(sub.text)} title="click to search this phrase on Jisho.org">
 				{#if sub.phrases}
 					{#each sub.phrases as phrase}
-						<span style={genPhraseStyles(phrase)} in:fade={phrase.fadeIn} out:fade={phrase.fadeOut}>{phrase.text}</span>
+						<span style={genPhraseStyles(phrase)} in:fade={{duration: phrase.fadeIn || 0}} out:fade={{duration: phrase.fadeOut || 0}}>{phrase.text}</span>
 					{/each}
 				{:else}
 					{sub.text}
