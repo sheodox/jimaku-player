@@ -38,22 +38,16 @@
 				styles={subtitles.styles}
 				current={currentSubtitles}
 				currentTime={currentTime}
-				visible={showSubs}
 				on:define-pauser={definePauser}
-				bind:subtitleFallbackColor
-				verticalAlignment={invertVerticalAlignment ? 'inverted' : 'normal'}
 		/>
 		<Tray
 				recentSubs={recentSubs}
 				subtitles={subtitles}
 				alignment={subOffset}
-                bind:invertVerticalAlignment
-                bind:subtitleFallbackColor
 				on:restart={restart}
 				on:tray-pauser={trayPauser}
 				on:define-pauser={definePauser}
 				on:realign={() => phase = 'align'}
-				on:show-subs={e => showSubs = e.detail}
 		/>
 	{:else if phase === 'cancelled'}
         <Tray mode="cancelled"
@@ -79,10 +73,7 @@
 		subtitles = null,
 		video = null,
 		subOffset = -1,
-		recentSubs = [],
-		showSubs = true,
-		subtitleFallbackColor = '#FFFFFF',
-		invertVerticalAlignment;
+		recentSubs = [];
 
 	function restart() {
 		phase = 'prompt';

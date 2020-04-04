@@ -13,15 +13,32 @@
 	}
 </style>
 <script>
+	import {onDestroy} from 'svelte';
+	import {
+		showSubtitlesOnVideo,
+		subtitleFallbackColor,
+		invertVerticalAlignment
+	} from './settingsStore';
 	import {createEventDispatcher} from 'svelte';
 	import {fade} from 'svelte/transition';
 	export let current = []; // the subtitles that are currently supposed to be shown
 	export let styles = {}; // base styles from the subtitle file
 	export let format = ''; // subtitle file format that was parsed
-	export let visible = true;
-	export let verticalAlignment = 'inverted';
-	export let subtitleFallbackColor;
 	const dispatch = createEventDispatcher();
+
+	let subColor, verticalAlignment;
+	const unsubs = [
+		subtitleFallbackColor.subscribe(color => {
+			subColor = color;
+		}),
+		invertVerticalAlignment.subscribe(invert => {
+			verticalAlignment = invert ? 'inverted' : 'normal'
+		})
+	];
+
+	onDestroy(() => {
+		unsubs.forEach(unsub => unsub())
+	});
 
 	function define(phrase) {
 		dispatch('define-pauser');
@@ -43,7 +60,7 @@
 	}
 	function genBaseStyles(sub) {
 		let appliedStyles = [
-			`color: ${subtitleFallbackColor}`
+			`color: ${subColor}`
 		];
 		//ASS subtitles inherit their base styles from some style declarations
 		if (format === 'ass' && sub.style in styles) {
@@ -75,7 +92,7 @@
 </script>
 
 <div class="subtitles">
-	{#if visible}
+	{#if $showSubtitlesOnVideo}
 		{#each current as sub}
 			<p style="{genBaseStyles(sub)}" data-sub-style={sub.style} on:click={() => define(sub.text)} title="click to search this phrase on Jisho.org">
 				{#if sub.phrases}

@@ -127,18 +127,18 @@
 			</div>
 			<div class="row">
 				<label for="subtitle-color">Subtitle fallback color:</label>
-				<input type="color" id="subtitle-color" bind:value={subtitleFallbackColor}>
+				<input type="color" id="subtitle-color" bind:value={$subtitleFallbackColor}>
 			</div>
 			<div class="row">
-				<input id="show-subs" type="checkbox" checked on:change={toggleSetting('show-subs')}>
+				<input id="show-subs" type="checkbox" bind:checked={$showSubtitlesOnVideo}>
 				<label for="show-subs">Show subs over video</label>
 			</div>
             <div class="row">
-				<input id="pause-on-tray" type="checkbox" bind:checked={pauseOnTray}>
+				<input id="pause-on-tray" type="checkbox" bind:checked={$pauseWhenTrayOpen}>
 				<label for="pause-on-tray">Pause when tray is open</label>
 			</div>
 			<div class="row">
-				<input id="invert-subtitle-alignment" type="checkbox" bind:checked={invertVerticalAlignment}>
+				<input id="invert-subtitle-alignment" type="checkbox" bind:checked={$invertVerticalAlignment}>
 				<label for="invert-subtitle-alignment">
 					Invert subtitle vertical alignment (i.e. if subtitles should be near the bottom this will make them show near the top).
 					You'll likely want this enabled if you intend to watch with VRV's subtitles at the same time.
@@ -166,6 +166,13 @@
 
 <script>
 	import {createEventDispatcher} from 'svelte';
+	import {get} from 'svelte/store';
+	import {
+		subtitleFallbackColor,
+		showSubtitlesOnVideo,
+		pauseWhenTrayOpen,
+		invertVerticalAlignment
+	} from './settingsStore';
 	import {fly, fade} from 'svelte/transition';
 	import {flip} from 'svelte/animate';
 	import {tweened} from 'svelte/motion';
@@ -184,8 +191,6 @@
 	export let subtitles = {};
 	export let alignment = 0;
 	export let mode = 'normal';
-	export let invertVerticalAlignment = true;
-	export let subtitleFallbackColor;
 
 	function recentSubSize(index) {
 		return `font-size: ${(0.5 + 0.5 * ((index + 1) / recentSubs.length)) * 20}px`;
@@ -206,7 +211,7 @@
 			trayAnim.set(isEntering ? trayStates.shown : trayStates.hidden);
 			// only check if we need to add a pauser, controlled by the option, if the tray is being entered, don't
 			// want that to control if we remove a pauser, that's not the point
-			if (!isEntering || pauseOnTray) {
+			if (!isEntering || get(pauseWhenTrayOpen)) {
 				dispatch('tray-pauser', isEntering);
 			}
 		}
