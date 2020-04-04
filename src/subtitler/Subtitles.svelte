@@ -20,6 +20,7 @@
 	export let format = ''; // subtitle file format that was parsed
 	export let visible = true;
 	export let verticalAlignment = 'inverted';
+	export let subtitleFallbackColor;
 	const dispatch = createEventDispatcher();
 
 	function define(phrase) {
@@ -40,8 +41,10 @@
 			.filter(style => !!style)
 			.join(';');
 	}
-	function genStyles(sub) {
-		let appliedStyles = [];
+	function genBaseStyles(sub) {
+		let appliedStyles = [
+			`color: ${subtitleFallbackColor}`
+		];
 		//ASS subtitles inherit their base styles from some style declarations
 		if (format === 'ass' && sub.style in styles) {
 			appliedStyles.push(styles[sub.style].inline);
@@ -74,7 +77,7 @@
 <div class="subtitles">
 	{#if visible}
 		{#each current as sub}
-			<p style="{genStyles(sub)}" data-sub-style={sub.style} on:click={() => define(sub.text)} title="click to search this phrase on Jisho.org">
+			<p style="{genBaseStyles(sub)}" data-sub-style={sub.style} on:click={() => define(sub.text)} title="click to search this phrase on Jisho.org">
 				{#if sub.phrases}
 					{#each sub.phrases as phrase}
 						<span style={genPhraseStyles(phrase)} in:fade={{duration: phrase.fadeIn || 0}} out:fade={{duration: phrase.fadeOut || 0}}>{phrase.text}</span>

@@ -40,6 +40,7 @@
 				currentTime={currentTime}
 				visible={showSubs}
 				on:define-pauser={definePauser}
+				bind:subtitleFallbackColor
 				verticalAlignment={invertVerticalAlignment ? 'inverted' : 'normal'}
 		/>
 		<Tray
@@ -47,6 +48,7 @@
 				subtitles={subtitles}
 				alignment={subOffset}
                 bind:invertVerticalAlignment
+                bind:subtitleFallbackColor
 				on:restart={restart}
 				on:tray-pauser={trayPauser}
 				on:define-pauser={definePauser}
@@ -79,6 +81,7 @@
 		subOffset = -1,
 		recentSubs = [],
 		showSubs = true,
+		subtitleFallbackColor = '#FFFFFF',
 		invertVerticalAlignment;
 
 	function restart() {

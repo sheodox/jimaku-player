@@ -90,6 +90,9 @@
 		margin: 0.2rem;
 		border-bottom: 2px solid #f47521;
 	}
+    .row:not(:last-child) {
+		margin-bottom: 0.5rem;
+	}
 </style>
 
 <div class="tray" on:mouseenter={trayHover(true)} on:mouseleave={trayHover(false)} style="right: {$trayAnim}rem">
@@ -114,24 +117,33 @@
 		</div>
 		<div class="tab" class:tab-active={panel === 'settings'}>
 			<h2>Settings</h2>
-			<button on:click={() => dispatch('restart')}>
-				Reselect subtitles
-			</button>
-			<button on:click={() => dispatch('realign')}>
-				Realign subtitles
-			</button>
-			<br>
-			<input id="show-subs" type="checkbox" checked on:change={toggleSetting('show-subs')}>
-			<label for="show-subs">Show subs over video</label>
-			<br>
-			<input id="pause-on-tray" type="checkbox" bind:checked={pauseOnTray}>
-			<label for="pause-on-tray">Pause when tray is open</label>
-			<br>
-			<input id="invert-subtitle-alignment" type="checkbox" bind:checked={invertVerticalAlignment}>
-			<label for="invert-subtitle-alignment">
-				Invert subtitle vertical alignment (i.e. if subtitles should be near the bottom this will make them show near the top).
-				You'll likely want this enabled if you intend to watch with VRV's subtitles at the same time.
-			</label>
+            <div class="row">
+				<button on:click={() => dispatch('restart')}>
+					Reselect subtitles
+				</button>
+				<button on:click={() => dispatch('realign')}>
+					Realign subtitles
+				</button>
+			</div>
+			<div class="row">
+				<label for="subtitle-color">Subtitle fallback color:</label>
+				<input type="color" id="subtitle-color" bind:value={subtitleFallbackColor}>
+			</div>
+			<div class="row">
+				<input id="show-subs" type="checkbox" checked on:change={toggleSetting('show-subs')}>
+				<label for="show-subs">Show subs over video</label>
+			</div>
+            <div class="row">
+				<input id="pause-on-tray" type="checkbox" bind:checked={pauseOnTray}>
+				<label for="pause-on-tray">Pause when tray is open</label>
+			</div>
+			<div class="row">
+				<input id="invert-subtitle-alignment" type="checkbox" bind:checked={invertVerticalAlignment}>
+				<label for="invert-subtitle-alignment">
+					Invert subtitle vertical alignment (i.e. if subtitles should be near the bottom this will make them show near the top).
+					You'll likely want this enabled if you intend to watch with VRV's subtitles at the same time.
+				</label>
+			</div>
 		</div>
 		<div class="tab" class:tab-active={panel === 'debug'}>
 			<h2>Debug Information</h2>
@@ -173,6 +185,7 @@
 	export let alignment = 0;
 	export let mode = 'normal';
 	export let invertVerticalAlignment = true;
+	export let subtitleFallbackColor;
 
 	function recentSubSize(index) {
 		return `font-size: ${(0.5 + 0.5 * ((index + 1) / recentSubs.length)) * 20}px`;
