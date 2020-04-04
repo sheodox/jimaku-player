@@ -35,7 +35,7 @@ export default class SRT extends SubtitleFormat {
 					shift();
 				}
 				let [startStr, endStr] = lines[0]
-						//second decimal point could be a comma, make it a period
+						//SRT subtitles use a comma for the decimal point on seconds, make it a period so it can be parsed as a float
 						.replace(/,/g, '.')
 						.match(/^([\d:\.\-> ]*)/)
 						[0].split(/\-\->/),
@@ -102,8 +102,8 @@ export default class SRT extends SubtitleFormat {
 				shift();
 
 				const text = lines.join('\n').replace(/<\/?c.Japanese>/g, '');
-				inlineStyles.push(outlineShadow);
 				inlineStyles.push(`font-size: ${fontSize}vh`);
+				inlineStyles.push(outlineShadow);
 				done.push({
 					start: this.timeToMs(startStr),
 					end: this.timeToMs(endStr),
