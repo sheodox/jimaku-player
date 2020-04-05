@@ -2,9 +2,6 @@
 <Saisei src={videoSrc} />
 {#if videoTitle}
 	<script src="/subtitler.js"></script>
-	<script>
-		console.log("Subtitler App", document.querySelector('.subtitles-app'));
-	</script>
 {/if}
 
 <style>
@@ -27,6 +24,8 @@
 			const videoInfo = await fetch(`/video-info?path=${encodeURIComponent(videoSrc)}`).then(res => res.json());
 
 			videoTitle = videoInfo.history
+					//skip the "All Videos" portion, since it'd be in every path
+					.slice(1)
 					.map(h => h.name)
 					.join('/');
 
