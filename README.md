@@ -1,20 +1,22 @@
-# VRV Subtitler
+# <img src="https://raw.githubusercontent.com/sheodox/vrv-subtitler/master/static/logo.svg?sanitize=true" width="160" height="160" alt="logo" align="right"> 字幕プレーヤー
 
-This is a Tampermonkey userscript that lets you provide your own subtitles to play over anime on VRV,
- to help with learning Japanese.
+This is a [Tampermonkey](https://www.tampermonkey.net/) userscript that lets you provide your own subtitles to play over anime on
+ [VRV](https://vrv.co/), to help with learning Japanese.
 
 [Install (requires Tampermonkey)](https://github.com/sheodox/vrv-subtitler/raw/master/dist/vrv-subtitler.user.js)
 
 ## Features
 
-* Easily choose a subtitle file to use as you start watching an episode.
-* Click a button to 'align' the subtitles.
+* Easily choose a subtitle file to use as you start watching an episode, then align them however
+ you need so timing is never an issue.
+* Click on a subtitle to open a [Jisho.org](https://jisho.org) search for that line (the video
+ will automatically pause, and resume when you return).
+* Choose your own subtitle text color if the subtitles don't specify one.
 * Hover over the right side of the video to see a tray with some options, buttons to select a
- different subtitle file or re-align the current file, and the last ten recent subtitles so you
+ different subtitle file or re-align the current file, and the last ten subtitles so you
  can look back at a line you might have missed without having to rewind.
-* Click on a subtitle to open a [Jisho.org](https://jisho.org) search for that line.
 
-Supported subtitle formats: 
+Currently supported subtitle formats:
 * [.srt](https://en.wikipedia.org/wiki/SubRip) - supported
 * [.vtt](https://developer.mozilla.org/en-US/docs/Web/API/WebVTT_API) - basic support
  (positioning, and some forms of alignment)
@@ -22,6 +24,9 @@ Supported subtitle formats:
  font styles like font family, size, colors, outlines, shadows, bold, italic, underline, strikethrough,
  etc), and many overrides are supported (position, outline/shadow colors and widths, fonts and
   sizing, bold, italic etc.)
+
+If you would like support for other subtitle formats, please create an issue and I'll look into
+ it. I would love to support more subtitle formats and features!
 
 ## Usage
 
