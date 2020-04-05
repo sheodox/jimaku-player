@@ -1,4 +1,4 @@
-# <img src="https://raw.githubusercontent.com/sheodox/vrv-subtitler/master/static/logo.svg?sanitize=true" width="160" height="160" alt="logo" align="right"> 字幕プレーヤー
+# <img src="https://raw.githubusercontent.com/sheodox/vrv-subtitler/master/static/logo.svg?sanitize=true" width="160" height="160" alt="logo"> 字幕プレーヤー
 
 This is a [Tampermonkey](https://www.tampermonkey.net/) userscript that lets you provide your own subtitles to play over anime on
  [VRV](https://vrv.co/), to help with learning Japanese.
