@@ -48,8 +48,10 @@
 		transform: scaleY(0);
 		transform-origin: top;
 		transition: transform 0.5s ease;
-        text-decoration: none;
 		font-family: "Source Han Sans", "源ノ角ゴシック", "Hiragino Sans", "HiraKakuProN-W3", "Hiragino Kaku Gothic ProN W3", "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", "Noto Sans", "Noto Sans CJK JP", "メイリオ", Meiryo, "游ゴシック", YuGothic, "ＭＳ Ｐゴシック", "MS PGothic", "ＭＳ ゴシック", "MS Gothic", sans-serif;
+	}
+	.tab-recent a:not(:hover) {
+		text-decoration: none;
 	}
 	a:hover {
 		color: #0aff8c;
@@ -96,7 +98,7 @@
 </style>
 
 <div class="tray" on:mouseenter={trayHover(true)} on:mouseleave={trayHover(false)} style="right: {$trayAnim}rem">
-	<h1>VRV Subtitler</h1>
+	<h1>字幕プレーヤー</h1>
 	{#if mode === 'cancelled'}
 		<button on:click={() => dispatch('restart')}>Select Subtitles</button>
 	{:else if mode === 'normal'}
@@ -105,7 +107,7 @@
 			<button on:click={() => panel = 'settings'} disabled={panel === 'settings'}>Settings</button>
 			<button on:click={() => panel = 'debug'} disabled={panel === 'debug'}>Debug</button>
 		</div>
-		<div class="tab" class:tab-active={panel === 'recent'}>
+		<div class="tab tab-recent" class:tab-active={panel === 'recent'}>
 			<h2>Recent Subtitles</h2>
 			<ul class="recent-subs">
 				{#each recentSubs as sub, i (sub.text)}
@@ -115,7 +117,7 @@
 				{/each}
 			</ul>
 		</div>
-		<div class="tab" class:tab-active={panel === 'settings'}>
+		<div class="tab tab-settings" class:tab-active={panel === 'settings'}>
 			<h2>Settings</h2>
             <div class="row">
 				<button on:click={() => dispatch('restart')}>
@@ -145,7 +147,7 @@
 				</label>
 			</div>
 		</div>
-		<div class="tab" class:tab-active={panel === 'debug'}>
+		<div class="tab tab-debug" class:tab-active={panel === 'debug'}>
 			<h2>Debug Information</h2>
 			<dl>
 				<dt>Subtitles File</dt>
@@ -159,7 +161,12 @@
 					<dd>{info.detail}</dd>
 				{/each}
 			</dl>
-			<a href={createParsedSubDownloadLink()} download="parsed-subtitles.json">⬇ Download Parsed Subtitles</a>
+			<div class="row">
+				<a href={createParsedSubDownloadLink()} download="parsed-subtitles.json">⬇ Download Parsed Subtitles</a>
+			</div>
+			<div class="row">
+				<a target="_blank" href="https://github.com/sheodox/jimaku-player/issues" rel="noopener noreferrer">Issue? Report it here!</a>
+			</div>
 		</div>
 	{/if}
 </div>

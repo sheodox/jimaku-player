@@ -1,11 +1,12 @@
 <span class="video-title">{videoTitle}</span>
+<span class="video-subtitle">{videoSubtitle}</span>
 <Saisei src={videoSrc} />
 {#if videoTitle}
 	<script src="/subtitler.js"></script>
 {/if}
 
 <style>
-	.video-title {
+	.video-title, .video-subtitle {
 		display: none;
 	}
 </style>
@@ -16,6 +17,7 @@
 	import Saisei from './Saisei.svelte';
 
 	let videoTitle = '';
+	let videoSubtitle = '';
 	let videoSrc = decodeURIComponent(location.search.replace(/^\?/, ''));
 
 	onMount(async () => {
@@ -28,6 +30,8 @@
 					.slice(1)
 					.map(h => h.name)
 					.join('/');
+
+			videoSubtitle = videoInfo.selectedVideo.name;
 
 			video.currentTime = viewTimes.get(videoSrc).currentTime;
 			setInterval(() => {

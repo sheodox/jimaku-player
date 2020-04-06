@@ -1,5 +1,5 @@
 const fs = require('fs'),
-	packagedScriptPath = `./dist/vrv-subtitler.user.js`,
+	packagedScriptPath = `./dist/jimaku-player.user.js`,
 	lastPackagedScript = fs.readFileSync(packagedScriptPath).toString(),
 	script = fs.readFileSync(`./static/subtitler.js`).toString();
 
@@ -15,10 +15,10 @@ else {
 }
 
 const userscript = `// ==UserScript==
-// @name         VRV Subtitler
-// @namespace    http://tampermonkey.net/
+// @name         字幕プレーヤー
+// @namespace    https://github.com/sheodox
 // @version      ${versionBase}
-// @description  Display SRT format subtitles on VRV
+// @description  Study Japanese by using Japanese subtitles on VRV!
 // @author       sheodox
 // @match        https://static.vrv.co/vilos/player.html
 // @grant        GM_getValue

@@ -1,9 +1,10 @@
-# <img src="https://raw.githubusercontent.com/sheodox/vrv-subtitler/master/static/logo.svg?sanitize=true" width="160" height="160" alt="logo"> 字幕プレーヤー
+# <img src="https://raw.githubusercontent.com/sheodox/jimaku-player/master/static/logo.svg?sanitize=true" width="160" height="160" alt="logo"> 字幕プレーヤー
 
 This is a [Tampermonkey](https://www.tampermonkey.net/) userscript that lets you provide your own subtitles to play over anime on
  [VRV](https://vrv.co/), to help with learning Japanese.
 
-[Install (requires Tampermonkey)](https://github.com/sheodox/vrv-subtitler/raw/master/dist/vrv-subtitler.user.js)
+[Install (requires Tampermonkey)](https://github.com/sheodox/jimaku-player/raw/master/dist/vrv
+-subtitler.user.js)
 
 ## Features
 
@@ -34,27 +35,27 @@ If you would like support for other subtitle formats, please create an issue and
 
 Click to open a file selection dialog for the episode's subtitles.
 
-![screenshot](https://raw.githubusercontent.com/sheodox/vrv-subtitler/master/images/select-srt.png)
+![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/select-srt.png)
 
 ### Step 2 - Align subtitles
 
 Click the button when the first line is spoken, so the subtitles appear at the correct time.
 
-![screenshot](https://raw.githubusercontent.com/sheodox/vrv-subtitler/master/images/align-subs.png)
+![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/align-subs.png)
 
 ### Step 3 - Watch!
 
-![screenshot](https://raw.githubusercontent.com/sheodox/vrv-subtitler/master/images/subtitles.png)
+![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/subtitles.png)
 
 ### Settings and recent subs
 
 Hover over the right side of the screen to show some settings and the last few subtitles.
 
-![screenshot](https://raw.githubusercontent.com/sheodox/vrv-subtitler/master/images/tray.png)
+![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/tray.png)
 
 ### Click subtitles to search for words you don't know!
 
-![screenshot](https://raw.githubusercontent.com/sheodox/vrv-subtitler/master/images/click-to-search.png)
+![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/click-to-search.png)
 
 
 ## Alignment
@@ -74,8 +75,8 @@ Some subtitles might have a different start time than VRV does, like if VRV play
 If you have any issues, please let me know! This has worked well for me for a couple of anime,
 but are likely issues I don't know about with parsing, or lack of support for some extra
  formatting that can be present in an subtitle file. Please don't hesitate to 
- [create an issue](https://github.com/sheodox/vrv-subtitler/issues/new)!
+ [create an issue](https://github.com/sheodox/jimaku-player/issues/new)!
  
-Please read the [contributing guide](https://github.com/sheodox/vrv-subtitler/blob/master/CONTRIBUTING.md) if you would like to help out!
+Please read the [contributing guide](https://github.com/sheodox/jimaku-player/blob/master/CONTRIBUTING.md) if you would like to help out!
 
 [Check out my other Japanese learning focused Userscripts!](https://github.com/sheodox/japanese-userscripts#vrv-srt-playeruserjs)
