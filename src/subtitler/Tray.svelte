@@ -83,6 +83,7 @@
 		text-align: left;
 		padding: 2rem;
         background: #1c1825;
+		border-top: 2px solid #f47521;
 	}
 	.tab-active {
 		display: block;
@@ -90,17 +91,26 @@
 	}
 	.tray-tab-buttons {
 		margin: 0.2rem;
-		border-bottom: 2px solid #f47521;
 	}
     .row:not(:last-child) {
 		margin-bottom: 0.5rem;
+	}
+	.tab-cancelled {
+		text-align: center;
 	}
 </style>
 
 <div class="tray" on:mouseenter={trayHover(true)} on:mouseleave={trayHover(false)} style="right: {$trayAnim}rem">
 	<h1>字幕プレーヤー</h1>
 	{#if mode === 'cancelled'}
-		<button on:click={() => dispatch('restart')}>Select Subtitles</button>
+    	<div class="tab tab-active tab-cancelled">
+			<div class="row">
+				<button on:click={() => dispatch('restart')}>Select Subtitles</button>
+			</div>
+			<div class="row">
+				<a target="_blank" href="https://github.com/sheodox/jimaku-player/issues" rel="noopener noreferrer">Issue? Report it here!</a>
+			</div>
+		</div>
 	{:else if mode === 'normal'}
 		<div class="tray-tab-buttons">
 			<button on:click={() => panel = 'recent'} disabled={panel === 'recent'}>Recent Subtitles</button>
@@ -163,9 +173,6 @@
 			</dl>
 			<div class="row">
 				<a href={createParsedSubDownloadLink()} download="parsed-subtitles.json">⬇ Download Parsed Subtitles</a>
-			</div>
-			<div class="row">
-				<a target="_blank" href="https://github.com/sheodox/jimaku-player/issues" rel="noopener noreferrer">Issue? Report it here!</a>
 			</div>
 		</div>
 	{/if}
