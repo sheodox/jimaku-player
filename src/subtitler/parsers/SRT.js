@@ -83,8 +83,8 @@ export default class SRT extends SubtitleFormat {
 					},
 					fontSize = 5;
 
-				let {position, positionAlignment} = getPositionCue(),
-					//TODO do something with align
+				let {position, positionAlignment='center'} = getPositionCue(),
+					//TODO do something with align, fallback to it instead of positionAlignment having a default 'center'
 					align = getTextCue('align') || 'center',
 					//TODO support non-percent line numbers
 					//need to adjust the fallback line setting slightly, if three lines show it'll go off the screen otherwise
