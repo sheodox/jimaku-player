@@ -132,7 +132,8 @@
 		subtitles = e.detail;
 		if (subtitles.subs.length === 0) {
 			console.log('subtitles object failed to parse: ', subtitles);
-			alert(`No subtitles were parsed from the selected .${subtitles.format} file, verify nothing is wrong with the file. If it appears normal please submit a bug report with the episode and the subtitles file you used to the issue tracker!`);
+			alert(`No subtitles were able to be parsed from the selected subtitle file, verify nothing is wrong with the file. If it appears normal please submit a bug report with the episode and the subtitles file you used to the issue tracker (a link can be found in the tray on the right side of the video player)!`);
+			phase = 'cancelled';
 		} else {
 			phase = 'align';
 		}
