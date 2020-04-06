@@ -3,7 +3,7 @@
 This is a [Tampermonkey](https://www.tampermonkey.net/) userscript that lets you provide your own subtitles to play over anime on
  [VRV](https://vrv.co/), to help with learning Japanese.
 
-[Install (requires Tampermonkey)](https://github.com/sheodox/jimaku-player/raw/master/dist/vrv-subtitler.user.js)
+[Install (requires Tampermonkey)](https://github.com/sheodox/jimaku-player/raw/master/dist/jimaku-player.user.js)
 
 ## Features
 
