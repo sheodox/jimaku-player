@@ -8,10 +8,10 @@ This is a [Tampermonkey](https://www.tampermonkey.net/) userscript that lets you
 ## Features
 
 * Easily choose a subtitle file to use as you start watching an episode, then align them however
- you need so timing is never an issue.
+ you need so timing shouldn't be an issue.
 * Click on a subtitle to open a [Jisho.org](https://jisho.org) search for that line (the video
  will automatically pause, and resume when you return).
-* Choose your own subtitle text color if the subtitles don't specify one.
+* Choose your own subtitle text color to use if the subtitles don't specify one.
 * Hover over the right side of the video to see a tray with some options, buttons to select a
  different subtitle file or re-align the current file, and the last ten subtitles so you
  can look back at a line you might have missed without having to rewind.
@@ -34,11 +34,12 @@ If you would like support for other subtitle formats, please create an issue and
 
 Click to open a file selection dialog for the episode's subtitles.
 
-![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/select-srt.png)
+![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/select-subs.png)
 
 ### Step 2 - Align subtitles
 
-Click the button when the first line is spoken, so the subtitles appear at the correct time.
+Click the button when the first line is spoken, so the subtitles appear at the correct time. 
+ There are several other alignment options like to use the previous time you used for that show.
 
 ![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/align-subs.png)
 
@@ -48,9 +49,14 @@ Click the button when the first line is spoken, so the subtitles appear at the c
 
 ### Settings and recent subs
 
-Hover over the right side of the screen to show some settings and the last few subtitles.
+Hover over the right side of the screen to open a tray that shows the last few subtitles. You can
+ click them to open a Jisho search if you missed something.
 
 ![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/tray.png)
+
+There are a several settings you can adjust, and I'm always adding more!
+
+![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/tray-settings.png)
 
 ### Click subtitles to search for words you don't know!
 
@@ -71,7 +77,7 @@ Some subtitles might have a different start time than VRV does, like if VRV play
 
 ## Issues
 
-If you have any issues, please let me know! This has worked well for me for a couple of anime,
+If you have any issues, please let me know! This has worked well for me for several anime,
 but are likely issues I don't know about with parsing, or lack of support for some extra
  formatting that can be present in an subtitle file. Please don't hesitate to 
  [create an issue](https://github.com/sheodox/jimaku-player/issues/new)!
