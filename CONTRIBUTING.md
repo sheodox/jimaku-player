@@ -12,56 +12,69 @@ The UI portions of this userscript are written with [Svelte 3](https://svelte.de
  
 ## Development Workflow
 
-You will need [Node.js](https://nodejs.org/en/) and should be pretty familiar with Javascript
- development. Development mostly centers around testing things on a test webpage that simulates a
- VRV video page. It's very barebones, but the sizing and iframe structure should generally be
- correct.
+You will need [Node.js](https://nodejs.org/en/) and ideally should be pretty familiar with
+ Javascript development. Development mostly centers around testing things on a test webpage that simulates a
+ VRV video page. 
  
 ### Setup
-1. Copy a long mp4 video file to `static/test-video.mp4`, your subtitles will play over this
- video in the simulated environment.
-1. Run `npm run dev` to start Webpack in watch mode
-1. Run `npm run dev-server` to start a test server to serves your video on a test page, along
+1. Fork the repository, create a branch for your feature.
+1. Copy any number of `.mp4` videos to `videos/` (they can be in folders).
+1. Run `npm run build:dev` to start Webpack in watch mode.
+1. Run `npm run server:dev` to start a test server to serves your videos on a test page, along
  with the compiled script, avoiding the need to interact with VRV or Tampermonkey for the bulk of
  the development workflow.
-1. Open a web browser to `http://localhost:3500`
+1. Open a web browser to `http://localhost:3500`, scroll down and select a video.
 
 ### Development
-1. Edit files in `src/`
-1. Refresh your web browser test page and try out your changes
-1. Repeat until you're done with what you're working on
-1. Run `npm test` and paste the code from `dist/vrv-subtitler.user.js` into Tampermonkey and try
- out your changes on VRV, please try to do some general regression testing around anything that
- possibly could be impacted by your changes
-1. Submit a PR!
+1. Edit files in `src/` and save.
+1. Refresh your web browser test page and try out your changes.
+1. Repeat until you're done with the feature you're working on.
+1. Run `npm run build:test` and paste the code from `dist/vrv-subtitler.user.js` into Tampermonkey
+ and try out your changes on VRV, please try to do some general regression testing around anything that
+ possibly could be impacted by your changes.
+1. Submit a PR targeting master from your fork!
 
-When releasing a new build `npm run release` will create a production build of the userscript.
-
-I won't accept PRs that include a new build of the userscript, I will build new releases myself so I
+When releasing a new build `npm run release` will create a production build of the userscript. I
+ won't accept PRs that include a new build of the userscript, I will build new releases myself so I
  can ensure the minified production code hasn't been tampered.
 
-The `test` build command currently has an `xclip` command (a Linux utility). I'm just
- using that to automatically copy the userscript to my clipboard. It was an easy stop-gap solution but can
- definitely be improved.
- 
 ## Files of note
 
-* **src/parsers/** - The files in this folder are parsers for each supported format. It parses
- each raw subtitle file into an array of objects with start/end times in milliseconds, and the
- subtitle text that should show in between those times.
-* **src/VideoController.js** - When opening the tray or when clicking a subtitle (to open a Jisho
- search) the video should be automatically paused. The VideoController class handles when the
+### `src/subtitler/`
+These are the source files for the subtitler itself.
+
+* **parsers/** - The files in this folder are parsers for each supported format. They
+ parse each raw subtitle file into an array of objects with start/end times in milliseconds, and the
+ subtitle text that should show in between those times, along with any specific styling the
+ subtitle format has defined. Most styling is computed here and it generates a bunch of inline
+ styling, with some exceptions for things that need to be dynamic, but it allows the subtitle
+ renderer component (`Subtitles.svelte`) to not need to know much about the subtitle format.
+* **VideoController.js** - When opening the tray or when clicking a subtitle (to
+ open a Jisho search) the video should be automatically paused. The VideoController class handles when the
  video should be paused or resumed. It just maintains an array of reasons why a video should be
  paused, and if no reasons remain it will resume playing the video.
-* **src/main.js** - Creates and mounts the Svelte app.
-* **src/Align.svelte** - Handles subtitle alignments.
-* **src/App.svelte** - The main component that orchestrates everything.
-* **src/SubtitlePrompt.svelte** - Basically just a file input, allows you to select a subtitle file,
+* **main.js** - Creates and mounts the Svelte app.
+* **Align.svelte** - Handles subtitle alignments.
+* **App.svelte** - The main component that orchestrates everything.
+* **SubtitlePrompt.svelte** - Basically just a file input, allows you to select a subtitle file,
  then selects the right parser based on the file extension, and passes the parsed subtitle file
  back up to the App component to handle it from there.
-* **src/Subtitles.svelte** - The component that actually shows the subtitles over the video.
-* **src/Tray.svelte** - The sidebar that contains settings for how the script behaves, and a list of
+* **Subtitles.svelte** - The component that actually shows the subtitles over the video, and
+ assembles styles between what the parser has defined, and what the user has set in the tray.
+* **Tray.svelte** - The sidebar that contains settings for how the script behaves, and a list of
  recent subtitles to easily view if you missed what someone said.
-* **static/{index,video}.html** some test pages that mock VRV's video player, and some
- Tampermonkey API methods, along with serving the userscript already on the page.
+* **settingsStore.js** - This is a collection of Svelte stores that are used for any settings in
+ the tray. The values can be bound to in the tray to set them, then subscribed to (or auto-subscribed
+ to in templates) to use their values. They are also all automatically persisted, so
+ their values will be restored when refreshing. It also avoids having to bind and pass a bunch of
+ variables around between Tray/App.svelte and the other components. Just import the stores when
+ you need them.
 
+
+### `src/local-player`
+
+These files handle a local video player site which is used for the development environment.
+ There are two Svelte apps here, 'host' and 'player'. Similar to VRV, the 'player' app runs
+ inside an iframe and mostly just hosts a video player but it also includes the subtitler script
+ without having to use Tampermonkey. Both apps will get compiled to `static/` which is then
+ served by the Express server.
