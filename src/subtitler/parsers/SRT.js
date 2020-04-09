@@ -103,15 +103,21 @@ export default class SRT extends SubtitleFormat {
 
 				const text = lines.join('\n').replace(/<\/?c.Japanese>/g, '');
 				inlineStyles.push(`font-size: ${fontSize}vh`);
+				//keep this style last, or inspecting styles can become tedious to scroll past a giant text shadow
 				inlineStyles.push(outlineShadow);
+
+				//rough estimate of the padding between each lines, on very small players like crunchyroll the
+				//space between lines takes up a considerable amount of space, and lines can go off the page
+				const paddingEstimatePx = 10,
+					paddingBufferZone = linesOfText * paddingEstimatePx;
 				done.push({
 					start: this.timeToMs(startStr),
 					end: this.timeToMs(endStr),
 					verticalAlignment: {
-						normal: `position: fixed; top: ${line}vh;`,
+						normal: `position: fixed; top: calc(${line}vh - ${paddingBufferZone}px);`,
 						//normally subtitles grow downward unless a (non "start") line alignment is specified (not currently supported)
 						//so for inverted positioning we need to make it grow up, or it'll awkwardly show the subtitle in the center of the video
-						inverted: `position: fixed; top: ${100 - line}vh; transform: translateY(-100%)`
+						inverted: `position: fixed; top: calc(${100 - line}vh + ${paddingBufferZone}px); transform: translateY(-100%)`
 					},
 					text,
 					inline: containerStyles.join('; '),
