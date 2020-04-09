@@ -174,6 +174,9 @@
 			<div class="row">
 				<a href={createParsedSubDownloadLink()} download="parsed-subtitles.json">⬇ Download Parsed Subtitles</a>
 			</div>
+			<div class="row">
+				<a target="_blank" href="https://github.com/sheodox/jimaku-player/issues" rel="noopener noreferrer">Issue? Report it here!</a>
+			</div>
 		</div>
 	{/if}
 </div>
