@@ -24,7 +24,12 @@
 	<div class="row">
 		{#if typeof lastAlignment === 'number' && !isNaN(lastAlignment)}
 			<button on:click={useLastAlignment}>
-				Use the last alignment for <span class="show-name">{showName}</span> ({alignmentHint()})
+				Use the last alignment
+                <!-- if we don't know the show name, then this is just a global remembered alignment, not show specific -->
+				{#if showName}
+					for <span class="show-name">{showName}</span>
+				{/if}
+				({alignmentHint()})
 			</button>
 		{/if}
 		<button on:click={() => align(0)}>No alignment adjustment<br />(use when you know the subtitles are timed properly)</button>

@@ -1,6 +1,7 @@
 <style>
 	.subtitles-app {
 		position: relative;
+		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	}
 	.subtitles-app > :global(*) {
 		z-index: 1000000000;

@@ -10,6 +10,7 @@
 		height: calc(100% - 5rem);
 		display: flex;
 		flex-direction: column;
+        text-align: center;
 	}
 
 	.tray > * {
