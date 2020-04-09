@@ -1,7 +1,8 @@
 # <img src="https://raw.githubusercontent.com/sheodox/jimaku-player/master/static/logo.svg?sanitize=true" width="160" height="160" alt="logo"> 字幕プレーヤー
 
 This is a [Tampermonkey](https://www.tampermonkey.net/) userscript that lets you provide your own subtitles to play over anime on
- [VRV](https://vrv.co/), to help with learning Japanese.
+ [VRV](https://vrv.co/) or [Crunchyroll](https://www.crunchyroll.com/), to help with learning
+  Japanese.
 
 [Install (requires Tampermonkey)](https://github.com/sheodox/jimaku-player/raw/master/dist/jimaku-player.user.js)
 
