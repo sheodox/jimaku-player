@@ -180,6 +180,9 @@
 			</div>
 		</div>
 	{/if}
+	<div class="row">
+		<a target="_blank" href="https://discord.gg/2Mz6BR" rel="noopener noreferrer">Join our Discord for release news and discussion</a>
+	</div>
 </div>
 
 <script>
