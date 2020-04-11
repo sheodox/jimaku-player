@@ -131,10 +131,10 @@
 		<div class="tab tab-settings" class:tab-active={panel === 'settings'}>
 			<h2>Settings</h2>
             <div class="row">
-				<button on:click={() => dispatch('restart')}>
+				<button on:click={() => dispatch('restart')} class="secondary">
 					Reselect subtitles
 				</button>
-				<button on:click={() => dispatch('realign')}>
+				<button on:click={() => dispatch('realign')} class="secondary">
 					Realign subtitles
 				</button>
 			</div>
@@ -165,7 +165,7 @@
 				<dd>{subtitles.fileName}</dd>
 
 				<dt>Alignment</dt>
-				<dd>{alignment > 0 ? '+' : ''}{(alignment / 1000).toFixed(1)} seconds</dd>
+				<dd>{alignment > 0 ? '+' : ''}{(alignment / 1000).toFixed(2)} seconds</dd>
 
 				{#each subtitles.debugInfo() as info}
 					<dt>{info.title}</dt>

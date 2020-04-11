@@ -2,11 +2,12 @@
 	.subtitles-app {
 		position: relative;
 		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+		text-align: center;
 	}
 	.subtitles-app > :global(*) {
 		z-index: 1000000000;
 	}
-	.subtitles-app :global(button) {
+	.subtitles-app :global(button), .subtitles-app :global(.button) {
 		background: #fd0;
 		border: none;
 		padding: 10px;
@@ -19,20 +20,35 @@
 	.subtitles-app :global(.small-button) {
 		font-size: 0.6rem;
 	}
-	.subtitles-app :global(button:disabled) {
+	.subtitles-app :global(button:disabled), .subtitles-app :global(.button:disabled) {
 		background: #2a3450;
-
 	}
-	.subtitles-app :global(button:not(:disabled):hover) {
+	.subtitles-app :global(button.secondary), .subtitles-app :global(.button.secondary) {
+		background: #11121863;
+		border: 1px solid #fd0;
+		color: #fd0;
+	}
+	.subtitles-app :global(button:not(:disabled):hover), .subtitles-app :global(.button:not(:disabled):hover) {
 		background: #ffea6d;
 		cursor: pointer;
+        color: black;
+	}
+
+    /* screenreader only text elements */
+    .subtitles-app :global(.sr) {
+		position:absolute;
+		left:-10000px;
+		top:auto;
+		width:1px;
+		height:1px;
+		overflow:hidden;
 	}
 </style>
 <div class="subtitles-app">
 	{#if phase === 'prompt'}
 		<SubtitlePrompt on:subtitles-loaded={subtitlesLoaded} on:cancel={() => phase = 'cancelled'}/>
 	{:else if phase === 'align'}
-		<Align firstSubtitle={subtitles.firstSubtitle()} on:set-align={align} on:reselect={() => phase = 'prompt'}/>
+		<Align subtitles={subtitles} on:set-align={align} on:reselect={() => phase = 'prompt'}/>
 	{:else if phase === 'play'}
 		<Subtitles
 				format={subtitles.format}
