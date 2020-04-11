@@ -21,7 +21,7 @@
 		font-style: italic;
 	}
 	.alignment-panel {
-		background: rgba(27, 26, 38, 0.8);
+		background: rgba(27, 26, 38, 0.9);
 		align-self: center;
 		padding: 0.5rem;
 		display: flex;
