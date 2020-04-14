@@ -40,6 +40,46 @@ const genFontFamily = fontName => {
 	return `font-family: "${fontName}", "Source Han Sans", "源ノ角ゴシック", "Hiragino Sans", "HiraKakuProN-W3", "Hiragino Kaku Gothic ProN W3", "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", "Noto Sans", "Noto Sans CJK JP", "メイリオ", Meiryo, "游ゴシック", YuGothic, "ＭＳ Ｐゴシック", "MS PGothic", "ＭＳ ゴシック", "MS Gothic", sans-serif`
 };
 
+const genAlignment = (alignmentCode, marginL='0vw', marginR='0vw', marginV='0vh') => {
+	//unless you're using the legacy \a alignment override, the alignments are like the 1-9 keys on the number pad,
+	//so for example 1=bottom left, 5=middle center, 9=top right, that point is its anchor, so the text needs to be
+	//translated to not go off screen or not be in a weird place. so alignment 9 should be translated so its as if
+	//the text grows down and to the left. likewise alignment 1 should be translated to grow upwards and to the right.
+	//
+	//additionally, the margins need to be taken into account to pull the text away from the edges of the screen,
+	//otherwise they'll go off the screen if we just use these positions and add a margin css rule
+	const positions = {
+			1: `top: calc(100vh - ${marginV}); left: ${marginL}; transform: translate(0, -100%)`,
+			2: `top: calc(100vh - ${marginV}); left: 50vw; transform: translate(-50%, -100%)`,
+			3: `top: calc(100vh - ${marginV}); left: calc(100vw - ${marginR}); transform: translate(-100%, -100%)`,
+			4: `top: 50vh; left: ${marginL}; transform: translate(0, -50%)`,
+			5: `top: 50vh; left: 50vw; transform: translate(-50%, -50%)`,
+			6: `top: 50vh; left: calc(100vw - ${marginR}); transform: translate(-100%, -50%)`,
+			//growth in the y direction is the natural way text grows on the web for the top alignments, only need an X correction
+			7: `top: ${marginV}; left: ${marginL}`,
+			8: `top: ${marginV}; left: 50vw; transform: translateX(-50%)`,
+			9: `top: ${marginV}; left: calc(100vw - ${marginR}); transform: translateX(-100%)`,
+		},
+		//to create alignments that can be inverted using the tray option, this is used to flip the alignment vertically
+		invertedAlignments = {
+			1: 7,
+			2: 8,
+			3: 9,
+			4: 4,
+			5: 5,
+			6: 6,
+			7: 1,
+			8: 2,
+			9: 3
+		},
+		genStyle = alignment => `position:fixed;${positions[alignment]}`;
+
+	return {
+		normal: genStyle(alignmentCode),
+		inverted: genStyle(invertedAlignments[alignmentCode])
+	}
+};
+
 /**
  * Generator for parsing out blocks of override tags and the text that follows it.
  * This turns:
@@ -273,15 +313,18 @@ module.exports = class ASS extends SubtitleFormat {
 			//figure out all the inline styles that will be needed to render the sub, do it once now so
 			//Subtitles.svelte doesn't end up doing this on every frame
 			const inlineStyle = [],
-				//for boolean values, ASS considers -1 to be true and 0 to be false
+				//for boolean values within the style declarations ASS considers -1 to be true and 0 to be false,
+				//note this is different in overrides
 				assTrue = '-1',
 				{
 					primaryColour, secondaryColour, outlineColour, backColour, borderStyle, outline,
-					shadow, fontname, fontsize, bold, italic, underline, strikeOut
+					shadow, fontname, fontsize, bold, italic, underline, strikeOut, alignment,
+					marginL, marginR, marginV
 				} = style;
 
+			//these styles might always be defined, so maybe we don't need to safety check any of these
 			if (primaryColour) {
-				inlineStyle.push(`color: ${primaryColour}`)
+				inlineStyle.push(`color: ${primaryColour}`);
 			}
 			if (fontname) {
 				inlineStyle.push(genFontFamily(fontname));
@@ -298,15 +341,21 @@ module.exports = class ASS extends SubtitleFormat {
 				inlineStyle.push(`font-weight: bold`);
 			}
 			if (italic === assTrue) {
-				inlineStyle.push(`font-style: italic`)
+				inlineStyle.push(`font-style: italic`);
 			}
 			if (underline === assTrue || strikeOut === assTrue) {
-				inlineStyle.push(`text-decoration: ${underline === assTrue ? 'underline': ''} ${strikeOut === assTrue ? 'line-through' : ''}`)
+				inlineStyle.push(`text-decoration: ${underline === assTrue ? 'underline': ''} ${strikeOut === assTrue ? 'line-through' : ''}`);
 			}
+			inlineStyle.push(this.genScaledFont(fontsize));
 
 			parsedStyles[style.name] = {
 				inline: inlineStyle.join(';'),
-				...this.genScaledFont(fontsize),
+				verticalAlignment: genAlignment(
+					alignment,
+					this.scaleWidth(marginL),
+					this.scaleWidth(marginR),
+					this.scaleHeight(marginV),
+				),
 				//keep parsed styles as-is for debugging
 				raw: style
 			};
@@ -316,20 +365,9 @@ module.exports = class ASS extends SubtitleFormat {
 	}
 
 	genScaledFont(fontSize) {
-		//it seems the font size numbers are a max size, but the font sizes need to scale when small, or text will overlap
-		return {
-			//if we're using scaled fonts (video player height is lower than script resolution height) use vh scaled units.
-			//font size in ASS defines the line height, not character height, and it seems setting a font height directly
-			//leads to characters that are too large than they're supposed to be, so scale it down a bit extra
-			fontScaled: this.scaleHeight(fontSize * 0.75),
-			//the actual px size font size defined by the style or override tag, this is the biggest the font should be
-			fontMax: `${fontSize}px`,
-			//the player height, below which we will use scaled font sizes, and above which we use the fontMax
-			fontScalingThreshold: +this.info.playResY,
-			//original font size with no units, to be reused when switching styles inline
-			fontRaw: fontSize
-		}
+		return `font-size: ${this.scaleHeight(fontSize * 0.75)}`
 	}
+
 	parseSubOverrideTags() {
 		/**
 		 * Subtitles can have "overrides" which are like the inline-style of .ass subtitles. They apply to that
@@ -348,8 +386,11 @@ module.exports = class ASS extends SubtitleFormat {
 			//keep the unchanged text around for debugging purposes
 			sub.rawText = sub.text;
 
-			//if we don't double escape N, we'll have a newline plus a slash
-			sub.text = sub.text.replace('\\N', '\n');
+			sub.text = sub.text
+				//these characters need to be double escaped
+				.replace(/\\N/g, '\n') //hard new line
+				//subtitles are rendered with `white-space:pre` so just using a space character for a hard space should be enough
+				.replace(/\\h/g, ' '); //hard space
 
 			//just ignore lines with no overrides
 			if (!/{.+?}/.test(sub.text)) {
@@ -369,11 +410,11 @@ module.exports = class ASS extends SubtitleFormat {
 			for (const text of scanner) {
 				const containerInline = [],
 					styled = {
-					text: removeOverrideText(text),
-					fadeIn: 0,
-					fadeOut: 0,
-					inline: ''
-				};
+						text: removeOverrideText(text),
+						fadeIn: 0,
+						fadeOut: 0,
+						inline: ''
+					};
 
 				let overridesMatch = text.match(/{.*?}/),
 					overrides = overridesMatch ? overridesMatch[0] : '';
@@ -416,6 +457,16 @@ module.exports = class ASS extends SubtitleFormat {
 				//overrides, so pretend to process them so they're not in the override string
 				checkOverride('fscx');
 				checkOverride('fscy');
+
+				checkOverride('an', false, alignmentCode => {
+					const srcStyle = this.styles[sub.style];
+					sub.verticalAlignment = genAlignment(
+						alignmentCode,
+						this.scaleWidth(srcStyle.raw.marginL),
+						this.scaleWidth(srcStyle.raw.marginR),
+						this.scaleHeight(srcStyle.raw.marginV),
+					)
+				});
 
 
 				//outline and shadow use a bunch of text-shadows, so they need to all be parsed at once, and their result computed
@@ -515,8 +566,8 @@ module.exports = class ASS extends SubtitleFormat {
 
 
 				checkOverride('fad', true, ([fadeIn, fadeOut]) => {
-					styled.fadeIn = fadeIn;
-					styled.fadeOut = fadeOut;
+					styled.fadeIn = parseInt(fadeIn, 10);
+					styled.fadeOut = parseInt(fadeOut, 10);
 					//svelte will not start animating until the sub is done showing and not before,
 					//so we need to subtract the amount of fadeout time from the subtitle's end time so it works
 					sub.end -= fadeOut;
@@ -527,7 +578,7 @@ module.exports = class ASS extends SubtitleFormat {
 				});
 
 				checkOverride('fs', false, fontSize => {
-					Object.assign(styled, this.genScaledFont(fontSize));
+					cumulativeStyles.push(this.genScaledFont(fontSize));
 				});
 
 				//need to handle underline and strike through decorations at the same time, because it's the same css property
@@ -561,7 +612,6 @@ module.exports = class ASS extends SubtitleFormat {
 					if (style) {
 						const srcStyle = this.styles[style];
 						cumulativeStyles = [srcStyle.inline];
-						Object.assign(styled, this.genScaledFont(srcStyle.fontRaw));
 					}
 					//if we're not switching to another style, just blank out the styles
 					else {

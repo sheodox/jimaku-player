@@ -46,13 +46,6 @@
 		window.open(`https://jisho.org/search/${encodeURIComponent(phrase.trim())}`);
 	}
 
-	function getFontSize(sub) {
-		if (!sub.fontScaled) {
-			return '';
-		}
-		return `font-size: ${window.innerHeight > sub.fontScalingThreshold ? sub.fontMax : sub.fontScaled}`;
-	}
-
 	function joinStyles(stylesArray) {
 		return stylesArray
 			//ensure we're not putting `;undefined;` in the styles
@@ -65,8 +58,9 @@
 		];
 		//ASS subtitles inherit their base styles from some style declarations
 		if (format === 'ass' && sub.style in styles) {
-			appliedStyles.push(styles[sub.style].inline);
-            appliedStyles.push(getFontSize(styles[sub.style]))
+			const style = styles[sub.style];
+			appliedStyles.push(style.inline);
+			appliedStyles.push(style.verticalAlignment[verticalAlignment]);
 		}
 
 		if (sub.verticalAlignment) {
@@ -79,7 +73,6 @@
 		}
 		appliedStyles = appliedStyles.concat([
 			(sub.inline || ''),
-			getFontSize(sub)
 		]);
 
 		return joinStyles(appliedStyles);
@@ -87,18 +80,23 @@
 	function genPhraseStyles(phrase) {
 		return joinStyles([
 			phrase.inline,
-			getFontSize(phrase)
 		]);
+	}
+	function genFade(dur) {
+		if (typeof dur !== 'number') {
+			dur = 0;
+		}
+		return {delay: 0, duration: dur};
 	}
 </script>
 
 <div class="subtitles">
 	{#if $showSubtitlesOnVideo}
-		{#each current as sub}
+		{#each current as sub (sub.text)}
 			<p style="{genBaseStyles(sub)}" data-sub-style={sub.style} on:click={() => define(sub.text)} title="click to search this phrase on Jisho.org">
 				{#if sub.phrases}
 					{#each sub.phrases as phrase}
-						<span style={genPhraseStyles(phrase)} in:fade={{duration: phrase.fadeIn || 0}} out:fade={{duration: phrase.fadeOut || 0}}>{phrase.text}</span>
+						<span style={genPhraseStyles(phrase)} in:fade={genFade(phrase.fadeIn)} out:fade={genFade(phrase.fadeOut)}>{phrase.text}</span>
 					{/each}
 				{:else}
 					{sub.text}
