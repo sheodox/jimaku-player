@@ -35,34 +35,35 @@ If you would like support for other subtitle formats, please create an issue and
 
 Click to open a file selection dialog for the episode's subtitles.
 
-![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/select-subs.png)
+![image showing the subtitle selection phase](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/select-subs.png)
 
 ### Step 2 - Align subtitles
 
-Click the button when the first line is spoken, so the subtitles appear at the correct time. 
- There are several other alignment options like to use the previous time you used for that show.
+If you've aligned a show before, that'll be the first suggestion. Otherwise you're able to
+ automatically adjust the alignment by pressing a button when a line is said. [More info
+  on alignment.](#alignment)
 
-![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/align-subs-remembered.png)
-![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/align-subs-different.png)
+![image showing the last used alignment](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/align-subs-remembered.png)
+![image showing specifying a different alignment](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/align-subs-different.png)
 
 ### Step 3 - Watch!
 
-![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/subtitles.png)
+![image showing subtitles in use](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/subtitles.png)
 
 ### Settings and recent subs
 
 Hover over the right side of the screen to open a tray that shows the last few subtitles. You can
  click them to open a Jisho search if you missed something.
 
-![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/tray.png)
+![image showing the tray open](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/tray.png)
 
 There are a several settings you can adjust, and I'm always adding more!
 
-![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/tray-settings.png)
+![image showing settings in the tray](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/tray-settings.png)
 
 ### Click subtitles to search for words you don't know!
 
-![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/click-to-search.png)
+![image showing hovering over a subtitle](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/click-to-search.png)
 
 
 ## Alignment
@@ -72,9 +73,18 @@ Some subtitles might have a different start time than VRV does, like if VRV play
  instances like that the subtitles would show at the wrong times from when the lines are actually said by
  possibly a considerable amount, and wouldn't be useful at all and is extremely distracting.
  Because of this the first step after selecting a subtitle file for the episode is to align the
- subtitles. A button will appear over the video and show the first line in the subtitles. 
- Just click the button when that first line is spoken and the subtitles should all play at the
- same time.
+ subtitles.
+ 
+By clicking the automatic alignment at the right time the subtitler can figure out the timing
+ discrepancy between the actual video time and the selected subtitle's start time. All subtitles
+ will be adjusted by that timing difference. You can also manually enter the timing discrepancy
+ used with the manual alignment.
+ 
+The first few lines are often just "♪♪〜" or something similarly ambiguous to align with, so
+ you can choose any one of the first 20 lines to try to time against. When using the automatic
+ alignment you can click on the line that's shown to open a dropdown and select a different line.
+ 
+![gif showing choosing a different line to align against](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/align-different-line.gif)
 
 
 ## Issues
