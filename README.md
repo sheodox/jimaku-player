@@ -42,7 +42,8 @@ Click to open a file selection dialog for the episode's subtitles.
 Click the button when the first line is spoken, so the subtitles appear at the correct time. 
  There are several other alignment options like to use the previous time you used for that show.
 
-![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/align-subs.png)
+![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/align-subs-remembered.png)
+![screenshot](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/align-subs-different.png)
 
 ### Step 3 - Watch!
 
