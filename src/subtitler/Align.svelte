@@ -132,7 +132,7 @@
 					<form on:submit|preventDefault={submitManualAlignment} class="column">
 						<label for="manual-alignment">Offset subtitle display times (in seconds):</label>
 						<div class="row">
-							<input type="text" id="manual-alignment" bind:value={manualAlignmentValue} autocomplete="off">
+							<input type="text" id="manual-alignment" bind:value={manualAlignmentValue} autocomplete="off" on:keydown={manualInputKeydown}>
 							<button>Use this</button>
 						</div>
 					</form>
@@ -198,6 +198,16 @@
 		//otherwise go back a phase
 		else {
 			phase = phases.lastAlignment;
+		}
+	}
+
+	function manualInputKeydown(e) {
+		//don't let these events bubble up, VRV's hotkeys are greedy and arrow keys even in an input
+		//will make the video skip around, and the enter key will just pause the video. need to stop
+		//the events right here and manually handle submitting the form if enter is pressed
+		e.stopPropagation();
+		if (e.key === 'Enter') {
+			submitManualAlignment();
 		}
 	}
 
