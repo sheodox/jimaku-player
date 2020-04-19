@@ -16,6 +16,7 @@
 		color: black;
 		text-transform: uppercase;
 		font-size: 0.9rem;
+		margin-bottom: 0.2rem;
 	}
 	.subtitles-app :global(.small-button) {
 		font-size: 0.6rem;
@@ -60,7 +61,7 @@
 		<Tray
 				recentSubs={recentSubs}
 				subtitles={subtitles}
-				alignment={subOffset}
+				bind:alignment={subOffset}
 				on:restart={restart}
 				on:tray-pauser={trayPauser}
 				on:define-pauser={definePauser}
