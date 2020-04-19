@@ -132,7 +132,7 @@
 					<form on:submit|preventDefault={submitManualAlignment} class="column">
 						<label for="manual-alignment">Offset subtitle display times (in seconds):</label>
 						<div class="row">
-							<input type="text" id="manual-alignment" bind:value={manualAlignmentValue} autocomplete="off" on:keydown={manualInputKeydown}>
+							<input type="text" id="manual-alignment" bind:value={manualAlignmentValue} autocomplete="off" on:keydown={manualInputKeydown} use:focusInputOnMount >
 							<button>Use this</button>
 						</div>
 					</form>
@@ -181,7 +181,9 @@
 		alignmentKey = `last-used-alignment-${showName}`,
 		lastAlignment = parseInt(GM_getValue(alignmentKey), 10),
 		hasLastAlignment = !isNaN(lastAlignment),
-		lastAlignmentSeconds = (lastAlignment / 1000).toFixed(2),
+		//toFixed returns a string, parseFloat will remove any insignificant trailing zeroes which makes it easier
+		//to deal with when typing
+		lastAlignmentSeconds = parseFloat((lastAlignment / 1000).toFixed(2)),
 		reactionSubtitleOptions = subtitles.getAlignmentCandidates(),
 		alignmentSignHint = '',
 		phases = {lastAlignment: 'last-alignment', alternatives: 'alternatives'};
@@ -229,6 +231,12 @@
 
 	function useLastAlignment() {
 		align(lastAlignment);
+	}
+
+	// if they're going to use the keyboard, it's more than likely going to be to type a manual alignment
+	function focusInputOnMount(input) {
+		input.focus();
+		input.select();
 	}
 
 	function align(alignment) {
