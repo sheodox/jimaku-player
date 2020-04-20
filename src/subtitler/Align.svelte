@@ -105,7 +105,7 @@
 </style>
 <div class="column">
 	<div class="alignment-panel">
-		{#if phase === phases.lastAlignment || !hasLastAlignment}
+		{#if phase === phases.lastAlignment || !$hasAlignmentStore}
 			<button class="small-button secondary" on:click={() => dispatch('reselect')}>&circlearrowleft; Reselect Subtitles</button>
 		{:else}
 			<button class="small-button secondary" on:click={() => phase = phases.lastAlignment}>← Back</button>
@@ -120,7 +120,7 @@
 					for <span class="show-name">{showName}</span>
 				{/if}
 				<br>
-				({alignmentHint()})
+				({$explainedSecondsStore})
 			</button>
 			<button on:click={() => phase = phases.alternatives} class="secondary">
 				Choose a different alignment...
@@ -132,7 +132,7 @@
 					<form on:submit|preventDefault={submitManualAlignment} class="column">
 						<label for="manual-alignment">Offset subtitle display times (in seconds):</label>
 						<div class="row">
-							<input type="text" id="manual-alignment" bind:value={manualAlignmentValue} autocomplete="off" on:keydown={manualInputKeydown}>
+							<input type="text" id="manual-alignment" bind:value={manualAlignmentValue} autocomplete="off" on:keydown={manualInputKeydown} use:focusInputOnMount >
 							<button>Use this</button>
 						</div>
 					</form>
@@ -173,26 +173,30 @@
 
 <script>
 	import {createEventDispatcher} from 'svelte';
+	import {get} from 'svelte/store'
+	import {
+		showNameStore,
+		alignmentStore,
+		hasAlignmentStore,
+		secondsStore,
+		signedSecondsStore,
+		explainedSecondsStore
+	} from './alignmentStore';
 	export let subtitles;
 
 	const dispatch = createEventDispatcher(),
-		videoTitle = document.querySelector('.video-title'),
-		showName = videoTitle ?  videoTitle.textContent : '',
-		alignmentKey = `last-used-alignment-${showName}`,
-		lastAlignment = parseInt(GM_getValue(alignmentKey), 10),
-		hasLastAlignment = !isNaN(lastAlignment),
-		lastAlignmentSeconds = (lastAlignment / 1000).toFixed(2),
+		showName = get(showNameStore),
 		reactionSubtitleOptions = subtitles.getAlignmentCandidates(),
-		alignmentSignHint = '',
 		phases = {lastAlignment: 'last-alignment', alternatives: 'alternatives'};
 
-	let manualAlignmentValue = hasLastAlignment ? lastAlignmentSeconds : 0,
+	let manualAlignmentValue = get(secondsStore),
 		reactionSubtitle = reactionSubtitleOptions[0],
-		phase = hasLastAlignment ? phases.lastAlignment : phases.alternatives;
+		hasAlignment = get(hasAlignmentStore),
+		phase = hasAlignment ? phases.lastAlignment : phases.alternatives;
 
 	function goBackAPhase() {
 		//if we're as far back as the alignment goes, go back to selecting subtitles
-		if (phase === phases.lastAlignment || !hasLastAlignment) {
+		if (phase === phases.lastAlignment || !hasAlignment) {
 			dispatch('reselect')
 		}
 		//otherwise go back a phase
@@ -218,17 +222,14 @@
 			: alert('Please enter a valid number!');
 	}
 
-	function alignmentHint() {
-		if (lastAlignment === 0) {
-			return `no adjustment`;
-		}
-		return lastAlignment > 0
-			? `delayed by ${lastAlignmentSeconds} seconds`
-			: `hastened by ${Math.abs(lastAlignmentSeconds)} seconds`;
+	function useLastAlignment() {
+		align(get(alignmentStore));
 	}
 
-	function useLastAlignment() {
-		align(lastAlignment);
+	// if they're going to use the keyboard, it's more than likely going to be to type a manual alignment
+	function focusInputOnMount(input) {
+		input.focus();
+		input.select();
 	}
 
 	function align(alignment) {
@@ -238,7 +239,7 @@
 				? alignment
 				: video.currentTime * 1000 - reactionSubtitle.start - 400;
 
-		GM_setValue(alignmentKey, subOffset);
-		dispatch('set-align', subOffset);
+		alignmentStore.set(subOffset);
+		dispatch('set-align');
 	}
 </script>

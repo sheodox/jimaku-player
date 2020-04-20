@@ -99,12 +99,15 @@
 	.tab-cancelled {
 		text-align: center;
 	}
+    .hidden {
+		display: none;
+	}
 </style>
 
-<div class="tray" on:mouseenter={trayHover(true)} on:mouseleave={trayHover(false)} style="right: {$trayAnim}rem">
+<div class="tray" on:mouseenter={trayHover(true)} on:mouseleave={trayHover(false)} style="right: {$trayAnim}rem" class:hidden={fineAdjustDialogVisible}>
 	<h1>字幕プレーヤー</h1>
 	{#if mode === 'cancelled'}
-    	<div class="tab tab-active tab-cancelled">
+		<div class="tab tab-active tab-cancelled">
 			<div class="row">
 				<button on:click={() => dispatch('restart')}>Select Subtitles</button>
 			</div>
@@ -130,12 +133,15 @@
 		</div>
 		<div class="tab tab-settings" class:tab-active={panel === 'settings'}>
 			<h2>Settings</h2>
-            <div class="row">
+			<div class="row">
 				<button on:click={() => dispatch('restart')} class="secondary">
 					Reselect subtitles
 				</button>
 				<button on:click={() => dispatch('realign')} class="secondary">
 					Realign subtitles
+				</button>
+				<button on:click={() => fineAdjustDialogVisible = true} class="secondary">
+					Fine alignment adjustment
 				</button>
 			</div>
 			<div class="row">
@@ -146,7 +152,7 @@
 				<input id="show-subs" type="checkbox" bind:checked={$showSubtitlesOnVideo}>
 				<label for="show-subs">Show subs over video</label>
 			</div>
-            <div class="row">
+			<div class="row">
 				<input id="pause-on-tray" type="checkbox" bind:checked={$pauseWhenTrayOpen}>
 				<label for="pause-on-tray">Pause when tray is open</label>
 			</div>
@@ -165,7 +171,7 @@
 				<dd>{subtitles.fileName}</dd>
 
 				<dt>Alignment</dt>
-				<dd>{alignment > 0 ? '+' : ''}{(alignment / 1000).toFixed(2)} seconds</dd>
+				<dd>{$explainedSecondsStore} ({$signedSecondsStore})</dd>
 
 				{#each subtitles.debugInfo() as info}
 					<dt>{info.title}</dt>
@@ -184,6 +190,9 @@
 		<a target="_blank" href="https://discord.gg/2Mz6BR" rel="noopener noreferrer">Join our Discord for release news and discussion</a>
 	</div>
 </div>
+{#if fineAdjustDialogVisible}
+	<FineAdjust on:close={() => fineAdjustDialogVisible = false} />
+{/if}
 
 <script>
 	import {createEventDispatcher} from 'svelte';
@@ -198,6 +207,12 @@
 	import {flip} from 'svelte/animate';
 	import {tweened} from 'svelte/motion';
 	import {cubicOut} from 'svelte/easing';
+	import FineAdjust from "./FineAdjust.svelte";
+	import {
+		explainedSecondsStore,
+		signedSecondsStore
+	} from './alignmentStore';
+
 	const dispatch = createEventDispatcher(),
 		trayStates = {
 			hidden: -26,
@@ -210,7 +225,6 @@
 
 	export let recentSubs = [];
 	export let subtitles = {};
-	export let alignment = 0;
 	export let mode = 'normal';
 
 	function recentSubSize(index) {
@@ -218,6 +232,7 @@
 	}
 
 	let panel = 'recent',
+		fineAdjustDialogVisible = false,
 		showSettings = false,
 		showSubs = true,
 		pauseOnTray = true;

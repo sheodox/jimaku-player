@@ -16,6 +16,7 @@
 		color: black;
 		text-transform: uppercase;
 		font-size: 0.9rem;
+		margin-bottom: 0.2rem;
 	}
 	.subtitles-app :global(.small-button) {
 		font-size: 0.6rem;
@@ -60,7 +61,6 @@
 		<Tray
 				recentSubs={recentSubs}
 				subtitles={subtitles}
-				alignment={subOffset}
 				on:restart={restart}
 				on:tray-pauser={trayPauser}
 				on:define-pauser={definePauser}
@@ -80,6 +80,10 @@
 	import VideoController from './VideoController';
 	import SubtitlePrompt from "./SubtitlePrompt.svelte";
 	import Align from "./Align.svelte";
+	import {
+		showNameStore,
+		alignmentStore
+	} from './alignmentStore';
 
 	const alignmentKey = 'last-used-alignment',
 		videoController = new VideoController();
@@ -91,6 +95,8 @@
 		video = null,
 		subOffset = -1,
 		recentSubs = [];
+
+	alignmentStore.subscribe(val => subOffset = val);
 
 	function restart() {
 		phase = 'prompt';
@@ -106,7 +112,8 @@
 		});
 
 		//poll for video changes, and restart the sub process if a different video is selected
-		let lastSrc = '';
+		let lastSrc = '',
+			lastTitle = '';
 		setInterval(() => {
 			//query the video each time, in case the video gets deleted and replaced
 			const curSrc = document.querySelector('video').getAttribute('src');
@@ -114,13 +121,20 @@
 				lastSrc = curSrc;
 				restart();
 			}
+			//monitor for title changes, if it changes the adjustments will change, it depend
+			//on the show name so it can remember the last alignment for different shows
+			const titleElement = document.querySelector('.video-title'),
+				videoTitle = titleElement ? titleElement.textContent : '';
+			if (videoTitle !== lastTitle) {
+				lastTitle = videoTitle;
+				showNameStore.set(videoTitle);
+			}
 		}, 50);
 	});
 
-	function align(e) {
+	function align() {
 		video = document.querySelector('video');
 		videoController.setVideo(video);
-		subOffset = e.detail;
 		recentSubs = [];
 		phase = 'play';
 		renderSubs();
