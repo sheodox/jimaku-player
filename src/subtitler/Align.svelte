@@ -101,7 +101,9 @@
 		left: 0;
 		opacity: 0;
 	}
-
+	h3 {
+		margin: 0;
+	}
 </style>
 <div class="column">
 	<div class="alignment-panel">
@@ -140,6 +142,14 @@
 						Positive numbers will delay subtitles.
 						Negative numbers will show the subtitles earlier.
 					</p>
+					{#if historicalAlignments.length}
+						<h3>History</h3>
+						<div>
+							{#each historicalAlignments as history}
+								<button on:click={() => align(history.alignment)} class="secondary">{history.signed}</button>
+							{/each}
+						</div>
+					{/if}
 				</div>
 				<div class="column alternate-alignment-choice">
 					<h2>Automatic Timing</h2>
@@ -172,11 +182,12 @@
 </div>
 
 <script>
-	import {createEventDispatcher} from 'svelte';
+	import {createEventDispatcher, onDestroy} from 'svelte';
 	import {get} from 'svelte/store'
 	import {
 		showNameStore,
 		alignmentStore,
+		alignmentHistoryStore,
 		hasAlignmentStore,
 		secondsStore,
 		signedSecondsStore,
@@ -192,7 +203,18 @@
 	let manualAlignmentValue = get(secondsStore),
 		reactionSubtitle = reactionSubtitleOptions[0],
 		hasAlignment = get(hasAlignmentStore),
-		phase = hasAlignment ? phases.lastAlignment : phases.alternatives;
+		phase = hasAlignment ? phases.lastAlignment : phases.alternatives,
+		historicalAlignments = [],
+		subscriptions = [
+				alignmentHistoryStore.subscribe(history => {
+					const lastAlignment = get(alignmentStore);
+					historicalAlignments = history.filter(hist => hist.alignment !== lastAlignment);
+				})
+			];
+
+	onDestroy(() => {
+		subscriptions.forEach(unsub => unsub());
+	});
 
 	function goBackAPhase() {
 		//if we're as far back as the alignment goes, go back to selecting subtitles
