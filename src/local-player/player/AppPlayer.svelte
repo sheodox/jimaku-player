@@ -1,7 +1,7 @@
 <span class="video-title">{videoTitle}</span>
 <span class="video-subtitle">{videoSubtitle}</span>
 <Saisei src={videoSrc} />
-{#if videoTitle}
+{#if videoSrc}
 	<script src="/subtitler.js"></script>
 {/if}
 

@@ -18,7 +18,7 @@
 	<p>
 		Play the video and use these adjustment buttons until the subtitles show at the right time.
 		<br>
-		<strong>Alignment: {$explainedSecondsStore}</strong>
+		<strong>Subtitles are {$explainedSecondsStore}</strong>
 	</p>
 	<p>
 		Do the subtitles show...
