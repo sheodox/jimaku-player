@@ -86,6 +86,11 @@ The first few lines are often just "♪♪〜" or something similarly ambiguous 
  
 ![gif showing choosing a different line to align against](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/align-different-line.gif)
 
+If the alignment is a little off, you can use the fine alignment dialog, found in the Settings
+ tab of the tray, which will let you tweak the timing while watching the video until they're
+ perfect without having to retry automatic timing or guess at a different manual timing.
+ 
+![image showing the fine adjustment dialog](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/fine-adjustment.png)
 
 ## Issues
 
