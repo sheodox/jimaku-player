@@ -8,31 +8,36 @@ const getAlignmentKey = () => `last-used-alignment-${show}`,
 let show = '';
 
 //the current alignment
-export const alignmentStore = writable(0);
+export const alignmentStore = writable(null);
 //whether an alignment has ever been set for this show
 export const hasAlignmentStore = writable(false);
 //the last few alignments used for this show
-export const alignmentHistoryStore = writable(0);
+export const alignmentHistoryStore = writable([]);
 
 export const showNameStore = writable('');
 showNameStore.subscribe(sn => {
 	show = sn;
 	const lastAlignment = GM_getValue(getAlignmentKey());
-	alignmentHistoryStore.set(GM_getValue(getHistoryKey(), [createHistoryEntry(0)]));
-	alignmentStore.set(lastAlignment || 0);
+	alignmentHistoryStore.set(GM_getValue(getHistoryKey(), []));
+	alignmentStore.set(lastAlignment);
 	hasAlignmentStore.set(lastAlignment !== null);
 });
 
 //store any alignment change
 alignmentStore.subscribe(alignment => {
 	GM_setValue(getAlignmentKey(), alignment);
+
+	//don't store the initial blank value of the alignment in the history
+	if (alignment === null) {
+		return;
+	}
+
 	alignmentHistoryStore.update((history = []) => {
-		return history.find(hist => hist.alignment === alignment)
-			? history
-			: [
-				createHistoryEntry(alignment),
-				...history
-			].slice(0, HISTORY_MAX);
+		//even if this was in the history, reinsert it at the front so something in use doesn't fall off the history
+		return [
+			createHistoryEntry(alignment),
+			...history.filter(historyItem => historyItem.alignment !== alignment)
+		].slice(0, HISTORY_MAX);
 	})
 });
 alignmentHistoryStore.subscribe(history => {
