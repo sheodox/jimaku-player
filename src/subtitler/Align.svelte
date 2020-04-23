@@ -191,7 +191,8 @@
 		hasAlignmentStore,
 		secondsStore,
 		signedSecondsStore,
-		explainedSecondsStore
+		explainedSecondsStore,
+		saveAlignmentToHistory
 	} from './alignmentStore';
 	export let subtitles;
 
@@ -262,6 +263,7 @@
 				: video.currentTime * 1000 - reactionSubtitle.start - 400;
 
 		alignmentStore.set(subOffset);
+		saveAlignmentToHistory(subOffset);
 		dispatch('set-align');
 	}
 </script>

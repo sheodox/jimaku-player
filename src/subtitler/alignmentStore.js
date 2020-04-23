@@ -26,7 +26,10 @@ showNameStore.subscribe(sn => {
 //store any alignment change
 alignmentStore.subscribe(alignment => {
 	GM_setValue(getAlignmentKey(), alignment);
+});
 
+//the history store shouldn't be mutated directly, use this function
+export const saveAlignmentToHistory = alignment => {
 	//don't store the initial blank value of the alignment in the history
 	if (alignment === null) {
 		return;
@@ -39,7 +42,8 @@ alignmentStore.subscribe(alignment => {
 			...history.filter(historyItem => historyItem.alignment !== alignment)
 		].slice(0, HISTORY_MAX);
 	})
-});
+};
+
 alignmentHistoryStore.subscribe(history => {
 	GM_setValue(getHistoryKey(), history);
 });
