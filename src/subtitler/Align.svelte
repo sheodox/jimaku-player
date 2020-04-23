@@ -142,10 +142,10 @@
 						Positive numbers will delay subtitles.
 						Negative numbers will show the subtitles earlier.
 					</p>
-					{#if historicalAlignments.length}
+					{#if $alignmentHistoryStore.length}
 						<h3>History</h3>
 						<div>
-							{#each historicalAlignments as history}
+							{#each $alignmentHistoryStore as history}
 								<button on:click={() => align(history.alignment)} class="secondary">{history.signed}</button>
 							{/each}
 						</div>
@@ -182,7 +182,7 @@
 </div>
 
 <script>
-	import {createEventDispatcher, onDestroy} from 'svelte';
+	import {createEventDispatcher} from 'svelte';
 	import {get} from 'svelte/store'
 	import {
 		showNameStore,
@@ -204,18 +204,7 @@
 	let manualAlignmentValue = get(secondsStore),
 		reactionSubtitle = reactionSubtitleOptions[0],
 		hasAlignment = get(hasAlignmentStore),
-		phase = hasAlignment ? phases.lastAlignment : phases.alternatives,
-		historicalAlignments = [],
-		subscriptions = [
-				alignmentHistoryStore.subscribe(history => {
-					const lastAlignment = get(alignmentStore);
-					historicalAlignments = history.filter(hist => hist.alignment !== lastAlignment);
-				})
-			];
-
-	onDestroy(() => {
-		subscriptions.forEach(unsub => unsub());
-	});
+		phase = hasAlignment ? phases.lastAlignment : phases.alternatives;
 
 	function goBackAPhase() {
 		//if we're as far back as the alignment goes, go back to selecting subtitles

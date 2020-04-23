@@ -15,7 +15,11 @@ export const hasAlignmentStore = writable(false);
 //the last few alignments used for this show
 const historyStore = writable([]);
 //mirror the history store in a way that can't be mutated without using the exported 'saveAlignmentToHistory'
-export const alignmentHistoryStore = derived(historyStore, history => history);
+export const alignmentHistoryStore = derived(historyStore, history => {
+	//the history store moves the most recent alignment to index 0, so everything beyond that
+	//is the history beyond the current/in-use alignment
+	return history.slice(1);
+});
 
 export const showNameStore = writable('');
 showNameStore.subscribe(sn => {
