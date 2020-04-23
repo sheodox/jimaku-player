@@ -11,14 +11,17 @@ let show = '';
 export const alignmentStore = writable(null);
 //whether an alignment has ever been set for this show
 export const hasAlignmentStore = writable(false);
+
 //the last few alignments used for this show
-export const alignmentHistoryStore = writable([]);
+const historyStore = writable([]);
+//mirror the history store in a way that can't be mutated without using the exported 'saveAlignmentToHistory'
+export const alignmentHistoryStore = derived(historyStore, history => history);
 
 export const showNameStore = writable('');
 showNameStore.subscribe(sn => {
 	show = sn;
 	const lastAlignment = GM_getValue(getAlignmentKey());
-	alignmentHistoryStore.set(GM_getValue(getHistoryKey(), []));
+	historyStore.set(GM_getValue(getHistoryKey(), []));
 	alignmentStore.set(lastAlignment);
 	hasAlignmentStore.set(lastAlignment !== null);
 });
@@ -35,7 +38,7 @@ export const saveAlignmentToHistory = alignment => {
 		return;
 	}
 
-	alignmentHistoryStore.update((history = []) => {
+	historyStore.update((history = []) => {
 		//even if this was in the history, reinsert it at the front so something in use doesn't fall off the history
 		return [
 			createHistoryEntry(alignment),
@@ -44,7 +47,7 @@ export const saveAlignmentToHistory = alignment => {
 	})
 };
 
-alignmentHistoryStore.subscribe(history => {
+historyStore.subscribe(history => {
 	GM_setValue(getHistoryKey(), history);
 });
 
