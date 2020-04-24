@@ -142,14 +142,8 @@
 						Positive numbers will delay subtitles.
 						Negative numbers will show the subtitles earlier.
 					</p>
-					{#if historicalAlignments.length}
-						<h3>History</h3>
-						<div>
-							{#each historicalAlignments as history}
-								<button on:click={() => align(history.alignment)} class="secondary">{history.signed}</button>
-							{/each}
-						</div>
-					{/if}
+                    <h3>Recently Used</h3>
+					<RecentAlignments on:aligned={done} />
 				</div>
 				<div class="column alternate-alignment-choice">
 					<h2>Automatic Timing</h2>
@@ -182,7 +176,7 @@
 </div>
 
 <script>
-	import {createEventDispatcher, onDestroy} from 'svelte';
+	import {createEventDispatcher} from 'svelte';
 	import {get} from 'svelte/store'
 	import {
 		showNameStore,
@@ -191,8 +185,10 @@
 		hasAlignmentStore,
 		secondsStore,
 		signedSecondsStore,
-		explainedSecondsStore
+		explainedSecondsStore,
+		saveAlignmentToHistory
 	} from './alignmentStore';
+	import RecentAlignments from './RecentAlignments.svelte';
 	export let subtitles;
 
 	const dispatch = createEventDispatcher(),
@@ -203,18 +199,7 @@
 	let manualAlignmentValue = get(secondsStore),
 		reactionSubtitle = reactionSubtitleOptions[0],
 		hasAlignment = get(hasAlignmentStore),
-		phase = hasAlignment ? phases.lastAlignment : phases.alternatives,
-		historicalAlignments = [],
-		subscriptions = [
-				alignmentHistoryStore.subscribe(history => {
-					const lastAlignment = get(alignmentStore);
-					historicalAlignments = history.filter(hist => hist.alignment !== lastAlignment);
-				})
-			];
-
-	onDestroy(() => {
-		subscriptions.forEach(unsub => unsub());
-	});
+		phase = hasAlignment ? phases.lastAlignment : phases.alternatives;
 
 	function goBackAPhase() {
 		//if we're as far back as the alignment goes, go back to selecting subtitles
@@ -262,6 +247,12 @@
 				: video.currentTime * 1000 - reactionSubtitle.start - 400;
 
 		alignmentStore.set(subOffset);
-		dispatch('set-align');
+		saveAlignmentToHistory(subOffset);
+		done();
+	}
+
+	//called when you're finished aligning, so the app goes onto subtitling as normal
+	function done() {
+		dispatch('done');
 	}
 </script>

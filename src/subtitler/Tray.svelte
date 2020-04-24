@@ -102,6 +102,9 @@
     .hidden {
 		display: none;
 	}
+	h3 {
+		margin: 0;
+	}
 </style>
 
 <div class="tray" on:mouseenter={trayHover(true)} on:mouseleave={trayHover(false)} style="right: {$trayAnim}rem" class:hidden={fineAdjustDialogVisible}>
@@ -118,8 +121,8 @@
 	{:else if mode === 'normal'}
 		<div class="tray-tab-buttons">
 			<button on:click={() => panel = 'recent'} disabled={panel === 'recent'}>Recent Subtitles</button>
+			<button on:click={() => panel = 'setup'} disabled={panel === 'setup'}>Setup</button>
 			<button on:click={() => panel = 'settings'} disabled={panel === 'settings'}>Settings</button>
-			<button on:click={() => panel = 'debug'} disabled={panel === 'debug'}>Debug</button>
 		</div>
 		<div class="tab tab-recent" class:tab-active={panel === 'recent'}>
 			<h2>Recent Subtitles</h2>
@@ -131,19 +134,27 @@
 				{/each}
 			</ul>
 		</div>
-		<div class="tab tab-settings" class:tab-active={panel === 'settings'}>
-			<h2>Settings</h2>
+		<div class="tab" class:tab-active={panel === 'setup'}>
+			<h2>Start Over</h2>
 			<div class="row">
 				<button on:click={() => dispatch('restart')} class="secondary">
 					Reselect subtitles
 				</button>
+			</div>
+			<h2>Alignment</h2>
+			<div class="row">
 				<button on:click={() => dispatch('realign')} class="secondary">
 					Realign subtitles
 				</button>
 				<button on:click={() => fineAdjustDialogVisible = true} class="secondary">
-					Fine alignment adjustment
+					Fine adjustment
 				</button>
 			</div>
+			<h3>Switch to a previous alignment</h3>
+			<RecentAlignments />
+		</div>
+		<div class="tab tab-settings" class:tab-active={panel === 'settings'}>
+			<h2>Settings</h2>
 			<div class="row">
 				<label for="subtitle-color">Subtitle fallback color:</label>
 				<input type="color" id="subtitle-color" bind:value={$subtitleFallbackColor}>
@@ -163,8 +174,6 @@
 					You'll likely want this enabled if you intend to watch with VRV's subtitles at the same time.
 				</label>
 			</div>
-		</div>
-		<div class="tab tab-debug" class:tab-active={panel === 'debug'}>
 			<h2>Debug Information</h2>
 			<dl>
 				<dt>Subtitles File</dt>
@@ -212,16 +221,17 @@
 		explainedSecondsStore,
 		signedSecondsStore
 	} from './alignmentStore';
+	import RecentAlignments from "./RecentAlignments.svelte";
 
 	const dispatch = createEventDispatcher(),
-		trayStates = {
-			hidden: -26,
-			shown: 0
-		},
-		trayAnim = tweened(trayStates.hidden,  {
-			duration: 300,
-			easing: cubicOut
-		});
+			trayStates = {
+				hidden: -26,
+				shown: 0
+			},
+			trayAnim = tweened(trayStates.hidden, {
+				duration: 300,
+				easing: cubicOut
+			});
 
 	export let recentSubs = [];
 	export let subtitles = {};
@@ -232,10 +242,10 @@
 	}
 
 	let panel = 'recent',
-		fineAdjustDialogVisible = false,
-		showSettings = false,
-		showSubs = true,
-		pauseOnTray = true;
+			fineAdjustDialogVisible = false,
+			showSettings = false,
+			showSubs = true,
+			pauseOnTray = true;
 
 	function createParsedSubDownloadLink() {
 		const downloadBlob = new Blob([subtitles.serialize()], {type: 'application/json'});

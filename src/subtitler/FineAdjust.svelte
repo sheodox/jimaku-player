@@ -28,13 +28,15 @@
 	<button on:click={changeAlignment(fineAdjustAmount)} class="secondary">Too early?</button>
 	<button on:click={changeAlignment(coarseAdjustAmount)} class="secondary">Way too early?</button>
 	<br>
-	<button on:click={() => dispatch('close')}>Done</button>
+	<button on:click={done}>Done</button>
 </div>
 <script>
 	import {createEventDispatcher} from 'svelte';
+	import {get} from 'svelte/store';
 	import {
 		alignmentStore,
-		explainedSecondsStore
+		explainedSecondsStore,
+		saveAlignmentToHistory
 	} from './alignmentStore';
 
 	const changeAlignment = (change) => () => {
@@ -45,4 +47,9 @@
 		//ms that alignment is adjusted by with each click
 		coarseAdjustAmount = 1000,
 		fineAdjustAmount = 200;
+
+	function done() {
+		saveAlignmentToHistory(get(alignmentStore));
+		dispatch('close')
+	}
 </script>
