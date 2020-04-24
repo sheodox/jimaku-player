@@ -49,7 +49,7 @@
 	{#if phase === 'prompt'}
 		<SubtitlePrompt on:subtitles-loaded={subtitlesLoaded} on:cancel={() => phase = 'cancelled'}/>
 	{:else if phase === 'align'}
-		<Align subtitles={subtitles} on:set-align={align} on:reselect={() => phase = 'prompt'}/>
+		<Align subtitles={subtitles} on:done={align} on:reselect={() => phase = 'prompt'}/>
 	{:else if phase === 'play'}
 		<Subtitles
 				format={subtitles.format}

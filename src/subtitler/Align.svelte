@@ -142,14 +142,8 @@
 						Positive numbers will delay subtitles.
 						Negative numbers will show the subtitles earlier.
 					</p>
-					{#if $alignmentHistoryStore.length}
-						<h3>History</h3>
-						<div>
-							{#each $alignmentHistoryStore as history}
-								<button on:click={() => align(history.alignment)} class="secondary">{history.signed}</button>
-							{/each}
-						</div>
-					{/if}
+                    <h3>Recently Used</h3>
+					<RecentAlignments on:aligned={done} />
 				</div>
 				<div class="column alternate-alignment-choice">
 					<h2>Automatic Timing</h2>
@@ -194,6 +188,7 @@
 		explainedSecondsStore,
 		saveAlignmentToHistory
 	} from './alignmentStore';
+	import RecentAlignments from './RecentAlignments.svelte';
 	export let subtitles;
 
 	const dispatch = createEventDispatcher(),
@@ -253,6 +248,11 @@
 
 		alignmentStore.set(subOffset);
 		saveAlignmentToHistory(subOffset);
-		dispatch('set-align');
+		done();
+	}
+
+	//called when you're finished aligning, so the app goes onto subtitling as normal
+	function done() {
+		dispatch('done');
 	}
 </script>
