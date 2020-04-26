@@ -2,6 +2,7 @@
 	.column {
 		display: flex;
 		flex-direction: column;
+        text-align: center;
 	}
 	button {
 		margin: 0.5rem;
@@ -32,17 +33,12 @@
 	.alignment-panel > :not(select):not(button) {
 		color: white;
 	}
-    h1, h2 {
+    h1 {
 		margin: 0;
 	}
     h1 {
 		font-size: 1.3rem;
 		border-bottom: 2px solid #f47521;
-	}
-    h2 {
-		font-size: 1.1rem;
-		border-bottom: 2px solid #733a12;
-		margin-bottom: 0.2rem;
 	}
 	.alternate-alignment-choice + .alternate-alignment-choice {
 		/* draw a line separating the columns */
@@ -60,13 +56,10 @@
 		width: 5rem;
 		align-self: center;
 	}
-    .alternate-alignment-choice:not(:hover) {
-		opacity: 0.6;
-	}
 
 	/* crunchyroll has a really small viewport sometimes, just shrink everything in that case */
 	@media (max-width: 700px) {
-		button, input, label, pre {
+		button, input, label {
 			font-size: 0.7rem !important;
 		}
         .alignment-sign-hint {
@@ -76,45 +69,42 @@
 			padding: 4px;
 		}
 	}
+    .subtitle-preview {
+		white-space: pre-wrap;
+        line-height: 1.1;
+	}
 
-	#reaction-subtitle-chooser {
-		position: relative;
-		cursor: pointer;
-	}
-	#reaction-subtitle-chooser pre, span {
-		align-self: center;
-		pointer-events: none;
-	}
-	#reaction-subtitle-chooser span {
-		margin-left: 1rem;
-	}
-	#reaction-subtitle-chooser pre {
-		z-index: 1;
-		position: relative;
-		margin: 0;
-		font-size: 1.1rem;
-	}
-	#reaction-subtitle-chooser select {
-		height: 100%;
-		position: absolute;
-		top: 0;
-		left: 0;
-		opacity: 0;
-	}
 	h3 {
 		margin: 0;
+	}
+	p {
+		align-self: center;
+	}
+	#subtitle-options {
+		max-height: 20rem;
+		overflow: auto;
+	}
+    #subtitle-options label {
+		text-align: left;
+        margin-bottom: 0.5rem;
+        font-size: 0.8rem;
+	}
+	hr {
+		width: 90%;
 	}
 </style>
 <div class="column">
 	<div class="alignment-panel">
-		{#if phase === phases.lastAlignment || !$hasAlignmentStore}
-			<button class="small-button secondary" on:click={() => dispatch('reselect')}>&circlearrowleft; Reselect Subtitles</button>
-		{:else}
-			<button class="small-button secondary" on:click={() => phase = phases.lastAlignment}>← Back</button>
-		{/if}
+		<button class="small-button secondary" on:click={goBackAPhase}>
+			{#if phase === phases.entry}
+				&circlearrowleft; Reselect Subtitles
+			{:else}
+				← Back
+			{/if}
+		</button>
 		<h1>Alignment Adjustment</h1>
 
-		{#if phase === phases.lastAlignment}
+		{#if phase === phases.entry}
 			<button on:click={useLastAlignment}>
 				Use the last alignment
 				<!-- if we don't know the show name, then this is just a global alignment, not show specific -->
@@ -124,52 +114,61 @@
 				<br>
 				({$explainedSecondsStore})
 			</button>
-			<button on:click={() => phase = phases.alternatives} class="secondary">
+			<h3>Other Recently Used Alignments</h3>
+			<RecentAlignments on:aligned={done} />
+			<button on:click={() => phase = phases.automatic} class="secondary">
 				Choose a different alignment...
 			</button>
-		{:else if phase === phases.alternatives}
+		{:else if phase === phases.automatic}
 			<div class="row">
 				<div class="column alternate-alignment-choice">
-                    <h2>Manual Timing</h2>
-					<form on:submit|preventDefault={submitManualAlignment} class="column">
-						<label for="manual-alignment">Offset subtitle display times (in seconds):</label>
-						<div class="row">
-							<input type="text" id="manual-alignment" bind:value={manualAlignmentValue} autocomplete="off" on:keydown={manualInputKeydown} use:focusInputOnMount >
-							<button>Use this</button>
-						</div>
-					</form>
-					<p class="alignment-sign-hint">
-						Positive numbers will delay subtitles.
-						Negative numbers will show the subtitles earlier.
-					</p>
-                    <h3>Recently Used</h3>
-					<RecentAlignments on:aligned={done} />
-				</div>
-				<div class="column alternate-alignment-choice">
-					<h2>Automatic Timing</h2>
-					<div id="reaction-subtitle-chooser">
-                        <div class="selection-preview row button secondary">
-							<div class="column">
-								<pre>{reactionSubtitle.text}</pre>
-							</div>
-                            <span class="column">
-								▼
-							</span>
-						</div>
-						<label for="reaction-subtitle-choice" class="sr">Select a subtitle to align against</label>
-						<select id="reaction-subtitle-choice" bind:value={reactionSubtitle}>
-							{#each reactionSubtitleOptions as option}
-								<option value={option}>
-									{option.text.trim()}
-								</option>
-							{/each}
-						</select>
-					</div>
+					<div class="row">
+						<div class="column">
+                            <fieldset>
+								<legend>Select a line of dialog you hear</legend>
 
-					<button on:click={align}>
-						Play the video and click here when the selected line is said
-					</button>
+								<div id="subtitle-options" class="column">
+									{#each reactionSubtitleOptions as option}
+										<label>
+											<input type="radio" value={option} bind:group={reactionSubtitle} />
+											{option.text.trim()}
+										</label>
+									{/each}
+								</div>
+
+								<hr>
+								<label>
+									Not there? Search all subtitles:
+									<br>
+									<input type="text" bind:value={subtitleSearchText} placeholder="type something you heard">
+								</label>
+							</fieldset>
+						</div>
+						<div class="column">
+							<button on:click={align}>
+								Click when you hear this line:
+                                <br>
+								<p class="subtitle-preview">{reactionSubtitle.text}</p>
+							</button>
+
+							<button on:click={() => phase = phases.manual} class="secondary">Or manually enter an offset...</button>
+						</div>
+					</div>
 				</div>
+			</div>
+		{:else if phase === phases.manual}
+			<div class="column alternate-alignment-choice">
+				<form on:submit|preventDefault={submitManualAlignment} class="column">
+					<label for="manual-alignment">Offset subtitle display times (in seconds):</label>
+					<div class="row">
+						<input type="text" id="manual-alignment" bind:value={manualAlignmentValue} autocomplete="off" on:keydown={manualInputKeydown} use:focusInputOnMount >
+						<button>Use this</button>
+					</div>
+				</form>
+				<p class="alignment-sign-hint">
+					Positive numbers will delay subtitles.
+					Negative numbers will show the subtitles earlier.
+				</p>
 			</div>
 		{/if}
 	</div>
@@ -193,23 +192,32 @@
 
 	const dispatch = createEventDispatcher(),
 		showName = get(showNameStore),
-		reactionSubtitleOptions = subtitles.getAlignmentCandidates(),
-		phases = {lastAlignment: 'last-alignment', alternatives: 'alternatives'};
+		//all phases as an enum-like variable
+		phases = {
+			entry: 'entry',
+			manual: 'manual',
+			automatic: 'automatic'
+		};
 
-	let manualAlignmentValue = get(secondsStore),
+	let reactionSubtitleOptions = subtitles.getAlignmentCandidates(),
+		manualAlignmentValue = get(secondsStore),
 		reactionSubtitle = reactionSubtitleOptions[0],
 		hasAlignment = get(hasAlignmentStore),
-		phase = hasAlignment ? phases.lastAlignment : phases.alternatives;
+		phase = phases.entry,
+		subtitleSearchText = '';
+
+	$: {
+		reactionSubtitleOptions = subtitles.getAlignmentCandidates(subtitleSearchText);
+	}
 
 	function goBackAPhase() {
 		//if we're as far back as the alignment goes, go back to selecting subtitles
-		if (phase === phases.lastAlignment || !hasAlignment) {
-			dispatch('reselect')
+		if (phase === phases.entry) {
+			dispatch('reselect');
+			return;
 		}
 		//otherwise go back a phase
-		else {
-			phase = phases.lastAlignment;
-		}
+		phase = phase === phases.automatic ? phases.entry : phases.automatic;
 	}
 
 	function manualInputKeydown(e) {

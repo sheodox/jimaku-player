@@ -22,12 +22,17 @@ module.exports = class SubtitleFormat {
 
 		return (+hours * MS_HOUR) + (+minutes * MS_MINUTE) + (parseFloat(seconds) * 1000);
 	}
-	getAlignmentCandidates() {
+	getAlignmentCandidates(searchText) {
 		return this.subs
 			//the array of subtitles are filtered by time anyway, so sorting in-place by start time shouldn't have any issues
 			.sort((a, b) => {
 				return a.start - b.end;
 			})
+			.filter(({text}) => {
+				//if they're searching for something, return all with that in it
+				return !searchText || text.includes(searchText);
+			})
+			//limit the results to a manageable amount
 			.slice(0, MAX_ALIGNMENT_CANDIDATES);
 	}
 };
