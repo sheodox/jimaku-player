@@ -35,6 +35,16 @@
         color: black;
 	}
 
+	.subtitles-app :global(input[type=text]), .subtitles-app :global(input:not([type])) {
+		color: white;
+		background: #0b0b26;
+		border: 1px solid #364962;
+		padding: 0.2rem;
+	}
+	.subtitles-app :global(input[type=text]):focus, .subtitles-app :global(input:not([type])):focus {
+		border-color: #00bcd4;
+	}
+
     /* screenreader only text elements */
     .subtitles-app :global(.sr) {
 		position:absolute;
