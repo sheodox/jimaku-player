@@ -40,12 +40,6 @@
 		font-size: 1.3rem;
 		border-bottom: 2px solid #f47521;
 	}
-	.alternate-alignment-choice + .alternate-alignment-choice {
-		/* draw a line separating the columns */
-		margin-left: 0.5rem;
-		padding-left: 0.5rem;
-		border-left: 1px solid white;
-	}
 	p, label {
 		max-width: 14rem;
 	}
@@ -59,8 +53,9 @@
 
 	/* crunchyroll has a really small viewport sometimes, just shrink everything in that case */
 	@media (max-width: 700px) {
-		button, input, label {
+		button, input, label, legend {
 			font-size: 0.7rem !important;
+			margin: 0.2rem;
 		}
         .alignment-sign-hint {
 			font-size: 0.6rem;
@@ -68,29 +63,22 @@
 		button {
 			padding: 4px;
 		}
+		h1 {
+			font-size: 1rem;
+		}
+        h2 {
+			font-size: 0.9rem;
+		}
 	}
-    .subtitle-preview {
-		white-space: pre-wrap;
-        line-height: 1.1;
-	}
-
-	h3 {
+	h2 {
 		margin: 0;
 	}
 	p {
 		align-self: center;
 	}
 	#subtitle-options {
-		max-height: 20rem;
+		max-height: 30vh;
 		overflow: auto;
-	}
-    #subtitle-options label {
-		text-align: left;
-        margin-bottom: 0.5rem;
-        font-size: 0.8rem;
-	}
-	hr {
-		width: 90%;
 	}
 </style>
 <div class="column">
@@ -114,50 +102,36 @@
 				<br>
 				({$explainedSecondsStore})
 			</button>
-			<h3>Other Recently Used Alignments</h3>
+			<h2>Other Recently Used Alignments</h2>
 			<RecentAlignments on:aligned={done} />
 			<button on:click={() => phase = phases.automatic} class="secondary">
 				Choose a different alignment...
 			</button>
 		{:else if phase === phases.automatic}
 			<div class="row">
-				<div class="column alternate-alignment-choice">
-					<div class="row">
-						<div class="column">
-                            <fieldset>
-								<legend>Select a line of dialog you hear</legend>
-
-								<div id="subtitle-options" class="column">
-									{#each reactionSubtitleOptions as option}
-										<label>
-											<input type="radio" value={option} bind:group={reactionSubtitle} />
-											{option.text.trim()}
-										</label>
-									{/each}
-								</div>
-
-								<hr>
-								<label>
-									Not there? Search all subtitles:
-									<br>
-									<input type="text" bind:value={subtitleSearchText} placeholder="type something you heard">
-								</label>
-							</fieldset>
+				<div class="column">
+                    <fieldset>
+						<legend>Click a button when you hear that line</legend>
+						<div id="subtitle-options" class="column">
+							{#each reactionSubtitleOptions as option}
+								<button on:click={() => alignToSubtitle(option)}>
+									{option.text.trim()}
+								</button>
+							{/each}
 						</div>
-						<div class="column">
-							<button on:click={align}>
-								Click when you hear this line:
-                                <br>
-								<p class="subtitle-preview">{reactionSubtitle.text}</p>
-							</button>
 
-							<button on:click={() => phase = phases.manual} class="secondary">Or manually enter an offset...</button>
-						</div>
-					</div>
+						<label>
+							Not there? Search all subtitles:
+							<br>
+							<input type="text" bind:value={subtitleSearchText} placeholder="type something you heard">
+						</label>
+					</fieldset>
+
+					<button on:click={() => phase = phases.manual} class="secondary">Or manually enter an offset...</button>
 				</div>
 			</div>
 		{:else if phase === phases.manual}
-			<div class="column alternate-alignment-choice">
+			<div class="column">
 				<form on:submit|preventDefault={submitManualAlignment} class="column">
 					<label for="manual-alignment">Offset subtitle display times (in seconds):</label>
 					<div class="row">
@@ -245,6 +219,11 @@
 	function focusInputOnMount(input) {
 		input.focus();
 		input.select();
+	}
+
+	function alignToSubtitle(sub) {
+		reactionSubtitle = sub;
+		align();
 	}
 
 	function align(alignment) {
