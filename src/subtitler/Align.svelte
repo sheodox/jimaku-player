@@ -44,6 +44,9 @@
 		font-size: 1.3rem;
 		border-bottom: 2px solid #f47521;
 	}
+	h2 {
+		font-size: 0.9rem;
+	}
 	p, label {
 		max-width: 14rem;
 	}
