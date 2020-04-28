@@ -27,13 +27,13 @@ showNameStore.subscribe(sn => {
 	const lastAlignment = GM_getValue(getAlignmentKey());
 	historyStore.set(GM_getValue(getHistoryKey(), []));
 	alignmentStore.set(lastAlignment);
-	hasAlignmentStore.set(lastAlignment !== null);
+	hasAlignmentStore.set(typeof lastAlignment === 'number');
 });
 
 //store any alignment change
 alignmentStore.subscribe(alignment => {
 	GM_setValue(getAlignmentKey(), alignment);
-	hasAlignmentStore.set(alignment !== null);
+	hasAlignmentStore.set(typeof alignment === 'number');
 });
 
 //the history store shouldn't be mutated directly, use this function
