@@ -42,7 +42,7 @@
 		padding: 0.2rem;
 	}
 	.subtitles-app :global(input[type=text]):focus, .subtitles-app :global(input:not([type])):focus {
-		border-color: #00bcd4;
+		border-color: #fd0;
 	}
 
     /* screenreader only text elements */
