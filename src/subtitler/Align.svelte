@@ -30,6 +30,11 @@
 		border-radius: 4px;
 		justify-content: center;
 		max-height: 80vh;
+		/* center the panel in a way that doesn't interfere with clicking the background on either side to toggle pause,
+		   just letting this be centered within the parent flex container leaves click stealing margins on either side */
+		left: 50vw;
+		transform: translateX(-50%);
+		position: absolute;
 	}
 	fieldset {
 		overflow: auto;
