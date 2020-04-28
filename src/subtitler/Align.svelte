@@ -33,7 +33,6 @@
 	}
 	fieldset {
 		overflow: auto;
-        border-color: #4a4b6c;
 	}
 	.alignment-panel > :not(select):not(button) {
 		color: white;
@@ -108,17 +107,29 @@
 		<h1>Alignment Adjustment</h1>
 
 		{#if phase === phases.entry}
-			<button on:click={useLastAlignment}>
-				Use the last alignment
-				<!-- if we don't know the show name, then this is just a global alignment, not show specific -->
-				{#if showName}
-					for <span class="show-name">{showName}</span>
-				{/if}
-				<br>
-				({$explainedSecondsStore})
-			</button>
-			<h2>Other Recently Used Alignments</h2>
-			<RecentAlignments on:aligned={done} />
+			{#if $hasAlignmentStore}
+				<button on:click={useLastAlignment}>
+					Use the last alignment
+					<!-- if we don't know the show name, then this is just a global alignment, not show specific -->
+					{#if showName}
+						for <span class="show-name">{showName}</span>
+					{/if}
+					<br>
+					({$explainedSecondsStore})
+				</button>
+			{:else}
+            	<p>
+					You haven't set an alignment for this show before
+				</p>
+				<button on:click={() => align(0)}>
+					 Assume subtitles are properly timed
+				</button>
+			{/if}
+
+			{#if $alignmentHistoryStore.length}
+				<h2>Other Recently Used Alignments</h2>
+				<RecentAlignments on:aligned={done} />
+			{/if}
 			<button on:click={() => phase = phases.automatic} class="secondary">
 				Choose a different alignment...
 			</button>
@@ -206,7 +217,6 @@
 	let reactionSubtitleOptions = subtitles.getAlignmentCandidates(),
 		manualAlignmentValue = get(secondsStore),
 		reactionSubtitle = reactionSubtitleOptions[0],
-		hasAlignment = get(hasAlignmentStore),
 		phase = phases.entry,
 		subtitleSearchText = '';
 
