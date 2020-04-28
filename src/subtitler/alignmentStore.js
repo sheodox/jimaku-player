@@ -33,6 +33,7 @@ showNameStore.subscribe(sn => {
 //store any alignment change
 alignmentStore.subscribe(alignment => {
 	GM_setValue(getAlignmentKey(), alignment);
+	hasAlignmentStore.set(alignment !== null);
 });
 
 //the history store shouldn't be mutated directly, use this function
