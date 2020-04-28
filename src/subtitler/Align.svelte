@@ -29,6 +29,11 @@
 		flex-direction: column;
 		border-radius: 4px;
 		justify-content: center;
+		max-height: 80vh;
+	}
+	fieldset {
+		overflow: auto;
+        border-color: #4a4b6c;
 	}
 	.alignment-panel > :not(select):not(button) {
 		color: white;
@@ -53,7 +58,7 @@
 
 	/* crunchyroll has a really small viewport sometimes, just shrink everything in that case */
 	@media (max-width: 700px) {
-		button, input, label, legend {
+		button, input, label, legend, p {
 			font-size: 0.7rem !important;
 			margin: 0.2rem;
 		}
@@ -69,6 +74,9 @@
         h2 {
 			font-size: 0.9rem;
 		}
+		#subtitle-options {
+			max-height: 30vh;
+		}
 	}
 	h2 {
 		margin: 0;
@@ -76,9 +84,16 @@
 	p {
 		align-self: center;
 	}
-	#subtitle-options {
-		max-height: 30vh;
-		overflow: auto;
+	.search-match:not(:last-child) {
+		margin-bottom: 1rem;
+	}
+    .search-match legend {
+		white-space: pre;
+        margin: 0 auto;
+	}
+    #subtitle-search {
+		align-self: center;
+		max-width: 100%;
 	}
 </style>
 <div class="column">
@@ -108,28 +123,43 @@
 				Choose a different alignment...
 			</button>
 		{:else if phase === phases.automatic}
-			<div class="row">
-				<div class="column">
-                    <fieldset>
-						<legend>Click a button when you hear that line</legend>
-						<div id="subtitle-options" class="column">
-							{#each reactionSubtitleOptions as option}
-								<button on:click={() => alignToSubtitle(option)}>
-									{option.text.trim()}
-								</button>
-							{/each}
-						</div>
-
-						<label>
-							Not there? Search all subtitles:
-							<br>
-							<input type="text" bind:value={subtitleSearchText} placeholder="type something you heard">
-						</label>
-					</fieldset>
-
-					<button on:click={() => phase = phases.manual} class="secondary">Or manually enter an offset...</button>
+			<label id="subtitle-search">
+				Can't find a line? Search all subtitles:
+				<br>
+				<input type="text" bind:value={subtitleSearchText} placeholder="type something you heard">
+			</label>
+			<fieldset>
+				<legend>Click a subtitle as soon as you hear it said</legend>
+				<div id="subtitle-options" class="column">
+					{#if reactionSubtitleOptions.length === 0}
+						<p>No subtitles matching "{subtitleSearchText}".</p>
+					{/if}
+					{#each reactionSubtitleOptions as option}
+						{#if option.type === 'search-match'}
+							<div class="search-match">
+								<fieldset>
+									<legend>
+										{option.sub.text.trim()}
+									</legend>
+                                    <div class="column">
+										{#each option.subsequent as subsequent}
+											<button on:click={() => alignToSubtitle(subsequent)}>
+												({subsequent.offset})<br>{subsequent.text.trim()}
+											</button>
+										{/each}
+									</div>
+								</fieldset>
+							</div>
+						{:else}
+							<button on:click={() => alignToSubtitle(option)}>
+								({option.offset})<br>{option.text.trim()}
+							</button>
+						{/if}
+					{/each}
 				</div>
-			</div>
+			</fieldset>
+
+			<button on:click={() => phase = phases.manual} class="secondary">Or manually enter an offset...</button>
 		{:else if phase === phases.manual}
 			<div class="column">
 				<form on:submit|preventDefault={submitManualAlignment} class="column">
@@ -227,10 +257,10 @@
 	}
 
 	function align(alignment) {
-		//assume decent reaction time, subtract by a bit so they don't have to perfectly predict
         const video = document.querySelector('video'),
 			subOffset = typeof alignment === 'number'
 				? alignment
+				//assume decent reaction time, subtract by a bit so they don't have to perfectly time it
 				: video.currentTime * 1000 - reactionSubtitle.start - 400;
 
 		alignmentStore.set(subOffset);
