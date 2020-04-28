@@ -129,13 +129,14 @@
 				</button>
 			{/if}
 
+			<button on:click={() => phase = phases.automatic} class="secondary">
+				Choose a different alignment...
+			</button>
+
 			{#if $alignmentHistoryStore.length}
 				<h2>Other Recently Used Alignments</h2>
 				<RecentAlignments on:aligned={done} />
 			{/if}
-			<button on:click={() => phase = phases.automatic} class="secondary">
-				Choose a different alignment...
-			</button>
 		{:else if phase === phases.automatic}
 			<label id="subtitle-search">
 				Can't find a line? Search all subtitles:
