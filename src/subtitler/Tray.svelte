@@ -143,6 +143,9 @@
 			</div>
 			<h2>Alignment</h2>
 			<div class="row">
+				<p>{$explainedSecondsStore} ({$signedSecondsStore})</p>
+			</div>
+			<div class="row">
 				<button on:click={() => dispatch('realign')} class="secondary">
 					Realign subtitles
 				</button>
