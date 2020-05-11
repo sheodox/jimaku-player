@@ -143,6 +143,9 @@
 			</div>
 			<h2>Alignment</h2>
 			<div class="row">
+				<p>{$explainedSecondsStore} ({$signedSecondsStore})</p>
+			</div>
+			<div class="row">
 				<button on:click={() => dispatch('realign')} class="secondary">
 					Realign subtitles
 				</button>
@@ -196,7 +199,7 @@
 		</div>
 	{/if}
 	<div class="row">
-		<a target="_blank" href="https://discord.gg/2Mz6BR" rel="noopener noreferrer">Join our Discord for release news and discussion</a>
+		<a target="_blank" href="https://discord.gg/Vyjjyj4" rel="noopener noreferrer">Release notes and discussion here on Discord!</a>
 	</div>
 </div>
 {#if fineAdjustDialogVisible}
