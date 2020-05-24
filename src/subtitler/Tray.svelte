@@ -129,7 +129,9 @@
 			<ul class="recent-subs">
 				{#each recentSubs as sub, i (sub.text)}
 					<li in:fly={{y: -50, duration: 200}} out:fly={{y:50, duration: 200}} animate:flip={{duration: 200}} style={recentSubSize(i)}>
-						<a target="_blank" href={`https://jisho.org/search/${encodeURIComponent(sub.text.trim())}`} rel="noopener noreferrer" on:click={() => dispatch('define-pauser')}>{sub.text}</a>
+						<a target="_blank" href={`https://jisho.org/search/${encodeURIComponent(sub.text.trim())}`} rel="noopener noreferrer" on:click={() => dispatch('define-pauser')}>
+							{(sub.text || '').trim()}
+						</a>
 					</li>
 				{/each}
 			</ul>
