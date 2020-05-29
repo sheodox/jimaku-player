@@ -22,7 +22,12 @@ export default class VideoController {
 			//otherwise we'll unpause the video though it shouldn't be.
 			this.reasons.push(userPausedReason)
 		}
-		this.reasons.push(reason);
+
+		//add the new pauser, but don't allow it to be added more than once. there are currently no pausers that would be valid to have
+		//more than once
+		if (!this.reasons.includes(reason)) {
+			this.reasons.push(reason);
+		}
 		this._checkPause();
 	}
 	removePauser(reason) {

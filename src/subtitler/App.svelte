@@ -59,13 +59,12 @@
 	{#if phase === 'prompt'}
 		<SubtitlePrompt on:subtitles-loaded={subtitlesLoaded} on:cancel={() => phase = 'cancelled'}/>
 	{:else if phase === 'align'}
-		<Align subtitles={subtitles} on:done={align} on:reselect={() => phase = 'prompt'}/>
+		<Align subtitles={subtitles} on:done={aligned} on:reselect={() => phase = 'prompt'}/>
 	{:else if phase === 'play'}
 		<Subtitles
 				format={subtitles.format}
 				styles={subtitles.styles}
-				current={currentSubtitles}
-				currentTime={currentTime}
+				current={$subtitleStore}
 				on:define-pauser={definePauser}
 		/>
 		<Tray
@@ -94,6 +93,7 @@
 		showNameStore,
 		alignmentStore
 	} from './alignmentStore';
+	import {createSubtitleTimer, setSubtitles as setTimerSubtitles} from "./subtitleTimer";
 
 	const alignmentKey = 'last-used-alignment',
 		videoController = new VideoController();
@@ -104,7 +104,9 @@
 		subtitles = null,
 		video = null,
 		subOffset = -1,
-		recentSubs = [];
+		recentSubs = [],
+		subtitleStore,
+		subtitleUnsubscribe;
 
 	alignmentStore.subscribe(val => subOffset = val);
 
@@ -142,12 +144,21 @@
 		}, 50);
 	});
 
-	function align() {
+	function aligned() {
 		video = document.querySelector('video');
 		videoController.setVideo(video);
 		recentSubs = [];
 		phase = 'play';
-		renderSubs();
+
+		if (subtitleUnsubscribe) {
+			subtitleUnsubscribe();
+		}
+
+		setTimerSubtitles(subtitles);
+		subtitleStore = createSubtitleTimer(alignmentStore)
+		subtitleUnsubscribe = subtitleStore.subscribe(currentSubs => {
+			mergeSubsWithRecent(currentSubs);
+		})
 	}
 
 	function mergeSubsWithRecent(subs) {
@@ -164,7 +175,6 @@
 	function renderSubs() {
 		if (phase === 'play') {
 			currentSubtitles = subtitles.getSubs(video.currentTime * 1000 - subOffset);
-			mergeSubsWithRecent(currentSubtitles);
 			requestAnimationFrame(renderSubs);
 		}
 	}

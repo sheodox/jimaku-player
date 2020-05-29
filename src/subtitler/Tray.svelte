@@ -61,6 +61,8 @@
 	}
 	li {
 		padding-bottom: 0.2rem;
+	}
+    li a {
 		white-space: pre;
 	}
 	li:not(:first-of-type)::after {
@@ -104,6 +106,9 @@
 	}
 	h3 {
 		margin: 0;
+	}
+	#resume-button {
+		width: 100%;
 	}
 </style>
 
@@ -156,7 +161,11 @@
 				</button>
 			</div>
 			<h3>Switch to a previous alignment</h3>
-			<RecentAlignments />
+			{#if $pauseWhenTrayOpen}
+				<!-- without a way to resume the video, with this setting on you wouldn't be able to watch for the subtitles changing, the video would be paused -->
+				<button id="resume-button" class="secondary" on:click={playVideo}>Resume Video</button>
+			{/if}
+			<RecentAlignments showPreviews={true} />
 		</div>
 		<div class="tab tab-settings" class:tab-active={panel === 'settings'}>
 			<h2>Settings</h2>
@@ -241,6 +250,11 @@
 	export let recentSubs = [];
 	export let subtitles = {};
 	export let mode = 'normal';
+
+	//used to resume the video while looking at recent subs (so they can watch the recent subs previewing subtitles)
+	function playVideo() {
+		document.querySelector('video').play();
+	}
 
 	function recentSubSize(index) {
 		return `font-size: ${(0.5 + 0.5 * ((index + 1) / recentSubs.length)) * 20}px`;
