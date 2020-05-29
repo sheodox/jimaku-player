@@ -20,8 +20,8 @@ const userscript = `// ==UserScript==
 // @version      ${versionBase}
 // @description  Study Japanese by using Japanese subtitles on VRV!
 // @author       sheodox
-// @match        https://static.vrv.co/vilos/player.html
-// @match        https://static.crunchyroll.com/vilos-v2/web/vilos/player.html
+// @match        https://static.vrv.co/vilos/player.html*
+// @match        https://static.crunchyroll.com/vilos-v2/web/vilos/player.html*
 // @grant        GM_getValue
 // @grant        GM_setValue
 // ==/UserScript==
