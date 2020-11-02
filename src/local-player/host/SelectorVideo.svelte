@@ -22,19 +22,19 @@
 		align-self: center;
 	}
 	a.selected {
-		outline: 1px solid var(--accent-color);
-		box-shadow: 0.5rem 0.5rem var(--accent-color);
+		outline: 1px solid var(--accent-blue);
+		box-shadow: 0.5rem 0.5rem var(--accent-blue);
 	}
 	a.video:not(.selected) {
 		opacity: 0.7;
 	}
 	a.video:not(.selected):hover {
 		opacity: 1;
-		color: var(--accent-color);
-		outline: 1px solid var(--accent-color);
+		color: var(--accent-blue);
+		outline: 1px solid var(--accent-blue);
 	}
 	a.video:not(.selected):hover .video-title {
-		color: var(--accent-color);
+		color: var(--accent-blue);
 	}
 	.video-title {
 		font-size: 1rem;

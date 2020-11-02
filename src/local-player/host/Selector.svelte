@@ -25,7 +25,7 @@
 		border-color: transparent !important;
 	}
 	.history a {
-		color: var(--accent-color);
+		color: var(--accent-blue);
 		font-size: 1.1rem;
 	}
 	.directories a {

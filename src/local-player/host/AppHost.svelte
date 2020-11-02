@@ -6,17 +6,14 @@
 		border: 0;
 	}
 
+	.video-player {
+        background: #111218;
+	}
 	.video-info {
 		padding: 0 1rem 1rem 1rem;
-        background: #111218;
 	}
 	.video-info:empty {
 		display: none;
-	}
-
-	.column {
-		max-width: 1300px;
-		margin: 0 auto;
 	}
 </style>
 
@@ -28,7 +25,7 @@
 <div class="host">
     <div class="video-player">
 		<iframe title="video player" src="/video.html?{encodeURIComponent(selectedVideoInfo.src)}" allowfullscreen></iframe>
-		<div class="f-column justify-content-center video-info">
+		<div class="video-info page-content">
 			{#if selectedVideoInfo.name}
 				<h2>{selectedVideoInfo.name}</h2>
 				<div>
@@ -42,7 +39,7 @@
 	</div>
 
 
-	<div class="column">
+	<div class="page-content">
 		<Selector videoInfo={videoInfo} selectedVideoInfo={selectedVideoInfo} />
 	</div>
 </div>

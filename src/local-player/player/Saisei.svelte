@@ -27,8 +27,6 @@
 		text-transform: uppercase;
 	}
 	.video-controls {
-		display: flex;
-		flex-direction: row;
 		background: rgba(28, 24, 37, 0.79);
 		position: absolute;
 		bottom: 0;
@@ -39,36 +37,19 @@
 	}
     .times {
 		padding: 0.3rem;
-		line-height: 2.5rem;
 		cursor: default;
 	}
 	.video-controls input[type=range] {
 		flex: 1;
 	}
     button {
-		color: white;
-		background: none;
-		border: none;
 		padding: 0 0.6rem;
 		line-height: 1.5;
         cursor: pointer;
 		font-size: 2rem;
 		width: 5rem;
+		color: var(--accent-purple);
 	}
-    button:active {
-		border: none;
-	}
-	button:focus {
-		box-shadow: -1px -1px var(--accent-color), 1px -1px var(--accent-color);
-	}
-	button::-moz-focus-inner {
-		border: 0;
-	}
-	button:hover {
-		background: #344062;
-		color: var(--accent-color);
-	}
-
 	input[type=range] {
 		-webkit-appearance: none;
 		background: none !important;
@@ -131,7 +112,7 @@
 		</div>
 	{/if}
 	{#if showControls || paused}
-		<div class="video-controls" transition:fade={{duration: 100}}>
+		<div class="video-controls f-row align-items-center" transition:fade={{duration: 100}}>
 			<button on:click={togglePause}><Icon icon={!paused ? 'pause' : 'play_arrow'} /></button>
 			<span class="times">
 				{prettyTime(currentTime, totalTime > 3600)} / {prettyTime(totalTime)}
