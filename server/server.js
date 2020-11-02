@@ -20,8 +20,5 @@ app.use(require('./routes/broadcast'));
 app.get('/v/*', (req, res) => {
 	res.sendFile(path.join(__dirname, '../static/index.html'));
 });
-app.get('/feather-sprite.svg', (req, res) => {
-	res.sendFile(path.join(__dirname, '../node_modules/feather-icons/dist/feather-sprite.svg'));
-});
 app.listen(port, () => console.log(`dev server listening on port ${port}`));
 

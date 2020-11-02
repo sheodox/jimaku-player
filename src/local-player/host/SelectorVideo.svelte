@@ -2,7 +2,7 @@
 	a {
 		cursor: pointer;
 		box-shadow: 0 0 2px black;
-		background: #273351;
+		background: var(--panel-bg);
 		transition: box-shadow 0.2s;
 		text-decoration: none;
 	}

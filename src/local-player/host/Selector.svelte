@@ -21,11 +21,15 @@
 	.history li:last-child a {
 		color: white;
 		cursor: default;
-		text-decoration: none;
+		text-decoration: none !important;
+		border-color: transparent !important;
 	}
 	.history a {
 		color: var(--accent-color);
 		font-size: 1.1rem;
+	}
+	.directories a {
+		margin: 0.5rem;
 	}
 </style>
 
@@ -41,7 +45,7 @@
 	</nav>
 	<div class="directories grid-list">
 		{#each videoInfo.directories as dir (dir.src)}
-			<a class="icon-button" href={getRouteToItem(dir)} on:click|preventDefault={() => selectPath(dir)}><Icon name="folder" /> {dir.name}</a>
+			<a class="button" href={getRouteToItem(dir)} on:click|preventDefault={() => selectPath(dir)}><Icon icon="folder" /> {dir.name}</a>
 		{/each}
 	</div>
     <div class="videos grid-list">
@@ -52,7 +56,7 @@
 </div>
 <script>
 	import page from 'page';
-	import Icon from '../Icon.svelte';
+	import {Icon} from 'sheodox-ui';
 	import SelectorVideo from "./SelectorVideo.svelte";
 
 	export let videoInfo = {videos: [], directories: [], history: []};

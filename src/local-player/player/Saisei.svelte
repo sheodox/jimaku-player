@@ -112,6 +112,9 @@
 		border: none;
 		margin-top: -0.25rem;
 	}
+	.video-player :global(i) {
+		font-size: 1.5rem;
+	}
 </style>
 
 <div class="video-player" class:no-cursor={!showControls && !paused}>
@@ -129,12 +132,12 @@
 	{/if}
 	{#if showControls || paused}
 		<div class="video-controls" transition:fade={{duration: 100}}>
-			<button on:click={togglePause}><Icon name={!paused ? 'pause' : 'play'} /></button>
+			<button on:click={togglePause}><Icon icon={!paused ? 'pause' : 'play_arrow'} /></button>
 			<span class="times">
 				{prettyTime(currentTime, totalTime > 3600)} / {prettyTime(totalTime)}
 			</span>
 			<input type="range" bind:value={currentTime} max={totalTime} />
-			<button on:click={toggleFullscreen}><Icon name="maximize-2" /></button>
+			<button on:click={toggleFullscreen}><Icon icon="fullscreen" /></button>
 		</div>
 	{/if}
 </div>
@@ -143,7 +146,7 @@
 
 <script>
 	import {fade} from 'svelte/transition';
-	import Icon from "../Icon.svelte";
+	import {Icon} from 'sheodox-ui';
 
 	export let src = '';
 	//the amount of time to wait before fading out the video controls

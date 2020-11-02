@@ -3,34 +3,11 @@
 <head>
 	<title>字幕プレーヤー</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<style>
-		body {
-			display: flex;
-			justify-content: center;
-		}
-		html {
-			background: #1b1a26;
-			color: white;
-			font-family: sans-serif;
-		}
-		html, body {
-			padding: 0;
-			margin: 0;
-			width: 100%;
-			height: 100%;
-		}
-		#host-root {
-			width: 100%;
-		}
-		* {
-			box-sizing: border-box;
-		}
-	</style>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 	<link rel="icon" href="/logo.png">
-	<link rel="stylesheet" href="/theme.css">
 </head>
-<body>
-<div id="host-root"></div>
-<script src="/host.js"></script>
+<body class="f-column justify-content-center">
+	<div id="app-root" class="f-column"></div>
+	<script src="/host.js"></script>
 </body>
 </html>
