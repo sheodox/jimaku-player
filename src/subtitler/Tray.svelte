@@ -110,6 +110,17 @@
 	#resume-button {
 		width: 100%;
 	}
+	kbd {
+		color: white;
+		background: #2f2d2d;
+		border: 1px solid #444;
+		border-radius: 0.2rem;
+		padding: 0 0.2rem;
+		font-family: monospace;
+	}
+	.muted {
+		color: #5b5c6f;
+	}
 </style>
 
 <div class="tray" on:mouseenter={trayHover(true)} on:mouseleave={trayHover(false)} style="right: {$trayAnim}rem" class:hidden={fineAdjustDialogVisible}>
@@ -175,7 +186,7 @@
 			</div>
 			<div class="row">
 				<input id="show-subs" type="checkbox" bind:checked={$showSubtitlesOnVideo}>
-				<label for="show-subs">Show subs over video</label>
+				<label for="show-subs">Show subs over video (<kbd title="Hotkey: h">H</kbd>)</label>
 			</div>
 			<div class="row">
 				<input id="pause-on-tray" type="checkbox" bind:checked={$pauseWhenTrayOpen}>
@@ -184,8 +195,8 @@
 			<div class="row">
 				<input id="invert-subtitle-alignment" type="checkbox" bind:checked={$invertVerticalAlignment}>
 				<label for="invert-subtitle-alignment">
-					Invert subtitle vertical alignment (i.e. if subtitles should be near the bottom this will make them show near the top).
-					You'll likely want this enabled if you intend to watch with VRV's subtitles at the same time.
+					Invert subtitle vertical alignment (<kbd title="Hotkey: i">I</kbd>) <span class="muted">(i.e. if subtitles should be near the bottom this will make them show near the top).
+					You'll likely want this enabled if you intend to watch with VRV's subtitles at the same time.</span>
 				</label>
 			</div>
 			<h2>Debug Information</h2>

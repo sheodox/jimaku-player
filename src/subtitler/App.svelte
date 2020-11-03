@@ -82,6 +82,8 @@
 	{/if}
 </div>
 
+<Hotkeys />
+
 <script>
 	import {onMount} from 'svelte';
 	import Tray from "./Tray.svelte";
@@ -94,6 +96,7 @@
 		alignmentStore
 	} from './alignmentStore';
 	import {createSubtitleTimer, setSubtitles as setTimerSubtitles} from "./subtitleTimer";
+	import Hotkeys from "./Hotkeys.svelte";
 
 	const alignmentKey = 'last-used-alignment',
 		videoController = new VideoController();
