@@ -5,27 +5,13 @@
 		flex-wrap: wrap;
 		justify-content: center;
 	}
-    .history ul {
-		list-style: none;
-		display: flex;
-		justify-content: center;
-	}
-	.history li {
-		display: inline-block;
-	}
-    .history li:not(:last-child)::after {
-		content: '→';
-		color: #4b5266;
-		padding: 0.2rem;
-	}
 	.history li:last-child a {
 		color: white;
 		cursor: default;
 		text-decoration: none !important;
 		border-color: transparent !important;
 	}
-	.history a {
-		color: var(--accent-blue);
+	.history a:last-of-type {
 		font-size: 1.1rem;
 	}
 	.directories a {
@@ -35,13 +21,16 @@
 
 <div id="video-list">
 	<nav class="history">
-        <ul>
-			{#each videoInfo.history as path}
+        <ol class="f-row justify-content-center">
+			{#each videoInfo.history as path, index}
 				<li>
 					<a href={path.src} on:click|preventDefault={() => selectPath(path)}>{path.name}</a>
+					{#if index !== videoInfo.history.length - 1}
+						<Icon icon="keyboard_arrow_right" />
+					{/if}
 				</li>
 			{/each}
-		</ul>
+		</ol>
 	</nav>
 	<div class="directories grid-list">
 		{#each videoInfo.directories as dir (dir.src)}

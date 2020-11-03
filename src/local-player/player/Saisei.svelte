@@ -48,7 +48,7 @@
         cursor: pointer;
 		font-size: 2rem;
 		width: 5rem;
-		color: var(--accent-purple);
+		color: white;
 	}
 	input[type=range] {
 		-webkit-appearance: none;
@@ -113,12 +113,12 @@
 	{/if}
 	{#if showControls || paused}
 		<div class="video-controls f-row align-items-center" transition:fade={{duration: 100}}>
-			<button on:click={togglePause}><Icon icon={!paused ? 'pause' : 'play_arrow'} /></button>
+			<button on:click={togglePause}><Icon icon={!paused ? 'pause' : 'play_arrow'} variant="outlined" /></button>
 			<span class="times">
 				{prettyTime(currentTime, totalTime > 3600)} / {prettyTime(totalTime)}
 			</span>
 			<input type="range" bind:value={currentTime} max={totalTime} />
-			<button on:click={toggleFullscreen}><Icon icon="fullscreen" /></button>
+			<button on:click={toggleFullscreen}><Icon icon="fullscreen" variant="outlined" /></button>
 		</div>
 	{/if}
 </div>
