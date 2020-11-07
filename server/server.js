@@ -12,6 +12,7 @@ const express = require('express'),
 });
 
 app.use(express.static('./static'));
+app.use('/fontawesome', express.static('./node_modules/@fortawesome/fontawesome-free'));
 app.use('/videos', express.static('./videos'));
 
 app.use(require('./routes/images'));

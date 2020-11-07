@@ -113,12 +113,12 @@
 	{/if}
 	{#if showControls || paused}
 		<div class="video-controls f-row align-items-center" transition:fade={{duration: 100}}>
-			<button on:click={togglePause}><Icon icon={!paused ? 'pause' : 'play_arrow'} variant="outlined" /></button>
+			<button on:click={togglePause}><Icon icon={!paused ? 'pause' : 'play'} /></button>
 			<span class="times">
 				{prettyTime(currentTime, totalTime > 3600)} / {prettyTime(totalTime)}
 			</span>
 			<input type="range" bind:value={currentTime} max={totalTime} />
-			<button on:click={toggleFullscreen}><Icon icon="fullscreen" variant="outlined" /></button>
+			<button on:click={toggleFullscreen}><Icon icon="expand" /></button>
 		</div>
 	{/if}
 </div>

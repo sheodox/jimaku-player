@@ -6,13 +6,13 @@
 		<ul>
 			<li>
 				<ExternalLink href="https://github.com/sheodox/jimaku-player">
-					<Icon icon="code" />
+					<Icon icon="github" variant="brand" />
 					Github
 				</ExternalLink>
 			</li>
 			<li>
 				<ExternalLink href="https://discord.gg/Vyjjyj4">
-					<Icon icon="chat" />
+					<Icon icon="discord" variant="brand" />
 					Discord
 				</ExternalLink>
 			</li>

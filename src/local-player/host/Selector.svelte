@@ -26,7 +26,7 @@
 				<li>
 					<a href={path.src} on:click|preventDefault={() => selectPath(path)}>{path.name}</a>
 					{#if index !== $videoInfo.history.length - 1}
-						<Icon icon="keyboard_arrow_right" />
+						<Icon icon="chevron-right" />
 					{/if}
 				</li>
 			{/each}

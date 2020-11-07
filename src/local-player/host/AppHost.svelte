@@ -34,7 +34,7 @@
 				<h2>{selectedVideoInfo.name}</h2>
 				<div>
 					<button class="icon-button" on:click={scrollToSelectedVideo}>
-						<Icon icon="read_more" /> Show in list
+						<Icon icon="angle-double-down" /> Show in list
 					</button>
 					<!-- todo: video info and statistics -->
 				</div>

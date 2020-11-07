@@ -144,7 +144,7 @@
 			<h2>Recent Subtitles</h2>
 			<ul class="recent-subs">
 				{#each recentSubs as sub, i (sub.text)}
-					<li in:fly={{y: -50, duration: 200}} out:fly={{y:50, duration: 200}} animate:flip={{duration: 200}} style={recentSubSize(i)}>
+					<li in:fly={{y: -50, duration: 200}} out:fly={{y:50, duration: 200}} animate:flip={{duration: 200}}>
 						<a target="_blank" href={`https://jisho.org/search/${encodeURIComponent(sub.text.trim())}`} rel="noopener noreferrer" on:click={() => dispatch('define-pauser')}>
 							{(sub.text || '').trim()}
 						</a>
@@ -249,14 +249,14 @@
 	import RecentAlignments from "./RecentAlignments.svelte";
 
 	const dispatch = createEventDispatcher(),
-			trayStates = {
-				hidden: -26,
-				shown: 0
-			},
-			trayAnim = tweened(trayStates.hidden, {
-				duration: 300,
-				easing: cubicOut
-			});
+		trayStates = {
+			hidden: -26,
+			shown: 0
+		},
+		trayAnim = tweened(trayStates.hidden, {
+			duration: 300,
+			easing: cubicOut
+		});
 
 	export let recentSubs = [];
 	export let subtitles = {};
@@ -267,15 +267,11 @@
 		document.querySelector('video').play();
 	}
 
-	function recentSubSize(index) {
-		return `font-size: ${(0.5 + 0.5 * ((index + 1) / recentSubs.length)) * 20}px`;
-	}
-
 	let panel = 'recent',
-			fineAdjustDialogVisible = false,
-			showSettings = false,
-			showSubs = true,
-			pauseOnTray = true;
+		fineAdjustDialogVisible = false,
+		showSettings = false,
+		showSubs = true,
+		pauseOnTray = true;
 
 	function createParsedSubDownloadLink() {
 		const downloadBlob = new Blob([subtitles.serialize()], {type: 'application/json'});
