@@ -15,6 +15,10 @@
 	.video-info:empty {
 		display: none;
 	}
+
+	.host {
+		flex: 1;
+	}
 </style>
 
 <Header appName="字幕プレーヤー" slim={true}>
@@ -22,7 +26,7 @@
 		<image xlink:href="/logo.svg"></image>
 	</svg>
 </Header>
-<div class="host">
+<div class="host f-column">
     <div class="video-player">
 		<iframe title="video player" src="/video.html?{encodeURIComponent(selectedVideoInfo.src)}" allowfullscreen></iframe>
 		<div class="video-info page-content">
@@ -40,19 +44,22 @@
 
 
 	<div class="page-content">
-		<Selector videoInfo={videoInfo} selectedVideoInfo={selectedVideoInfo} />
+		<Selector selectedVideoInfo={selectedVideoInfo} />
 	</div>
 </div>
+
+<Footer />
 
 <script>
 	import {onMount} from 'svelte';
 	import Selector from './Selector.svelte';
 	import page from 'page';
 	import {Header, Icon} from 'sheodox-ui';
+	import Footer from "./Footer.svelte";
+	import {videoInfo} from '../videos-store';
 
-	let videoInfo = {videos: [], directories: [], history: []},
-			//info for the video that's currently playing
-			selectedVideoInfo = {src: '', name: ''};
+	//info for the video that's currently playing
+	let selectedVideoInfo = {src: '', name: ''};
 
 	page('/v/*', async ctx => {
 		updateVideoInfoWithSelection(ctx.pathname.replace(/^\/v\//, ''));
@@ -68,10 +75,11 @@
 			return;
 		}
 
-		videoInfo = await fetch(`/video-info?path=${encodeURIComponent(videoSrc)}`).then(res => res.json());
+		const info = await fetch(`/video-info?path=${encodeURIComponent(videoSrc)}`).then(res => res.json());
+		videoInfo.set(info);
 
-		if (videoInfo.selectedVideo) {
-			selectedVideoInfo = videoInfo.selectedVideo;
+		if (info.selectedVideo) {
+			selectedVideoInfo = info.selectedVideo;
 			document.title = `${selectedVideoInfo.name} - 字幕プレーヤー`;
 			window.scrollTo({
 				top: 0,

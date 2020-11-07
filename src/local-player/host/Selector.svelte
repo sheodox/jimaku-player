@@ -22,10 +22,10 @@
 <div id="video-list">
 	<nav class="history">
         <ol class="f-row justify-content-center">
-			{#each videoInfo.history as path, index}
+			{#each $videoInfo.history as path, index}
 				<li>
 					<a href={path.src} on:click|preventDefault={() => selectPath(path)}>{path.name}</a>
-					{#if index !== videoInfo.history.length - 1}
+					{#if index !== $videoInfo.history.length - 1}
 						<Icon icon="keyboard_arrow_right" />
 					{/if}
 				</li>
@@ -33,12 +33,12 @@
 		</ol>
 	</nav>
 	<div class="directories grid-list">
-		{#each videoInfo.directories as dir (dir.src)}
+		{#each $videoInfo.directories as dir (dir.src)}
 			<a class="button" href={getRouteToItem(dir)} on:click|preventDefault={() => selectPath(dir)}><Icon icon="folder" /> {dir.name}</a>
 		{/each}
 	</div>
     <div class="videos grid-list">
-		{#each videoInfo.videos as video (video.src)}
+		{#each $videoInfo.videos as video (video.src)}
 			<SelectorVideo isSelected={selectedVideoInfo.src === video.src} route={getRouteToItem(video)} video={video} on:selected={e => selectVideo(e.detail)} />
 		{/each}
 	</div>
@@ -47,8 +47,8 @@
 	import page from 'page';
 	import {Icon} from 'sheodox-ui';
 	import SelectorVideo from "./SelectorVideo.svelte";
+	import {videoInfo} from "../videos-store";
 
-	export let videoInfo = {videos: [], directories: [], history: []};
 	export let selectedVideoInfo = {src: ''};
 
 	function selectVideo(item) {

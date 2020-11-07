@@ -24,7 +24,7 @@
     "page": "^1.11.5",
     "sass-loader": "^10.0.4",
     "sharp": "^0.25.1",
-    "sheodox-ui": "0.0.5",
+    "sheodox-ui": "0.0.7",
     "sqlite3": "^4.1.1",
     "style-loader": "^2.0.0",
     "svelte": "^3.29.4",
