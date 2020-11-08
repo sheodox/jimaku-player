@@ -10,7 +10,7 @@
 	.subtitles-app :global(button), .subtitles-app :global(.button) {
 		background: #fd0;
 		border: none;
-		padding: 10px;
+		padding: 0.4rem;
 		line-height: 1;
 		font-weight: bold;
 		color: black;
@@ -20,6 +20,7 @@
 	}
 	.subtitles-app :global(.small-button) {
 		font-size: 0.6rem;
+		padding: 0.2rem;
 	}
 	.subtitles-app :global(button:disabled), .subtitles-app :global(.button:disabled) {
 		background: #2a3450;
