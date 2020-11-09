@@ -5,3 +5,4 @@ static/player.js
 node_modules
 videos
 data
+.env

@@ -1,0 +1,8 @@
+version: '3.7'
+services:
+  app:
+    volumes:
+      - ./.env:/usr/src/app/.env
+      - ./server:/usr/src/app/server
+      - ./static:/usr/src/app/static
+      - ./ormconfig.js:/usr/src/app/ormconfig.js

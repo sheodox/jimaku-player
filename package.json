@@ -8,10 +8,9 @@
     "build:release": "npm run build && node dist.js release",
     "build:test": "webpack --mode development && node dist.js",
     "build:dev": "webpack --mode development --watch",
-    "server:dev": "nodemon server/server.js",
-    "start": "forever start server/server.js",
-    "stop": "forever stop server/server.js",
-    "deploy": "npm stop && git pull && npm i && npm run build && npm start"
+    "build-server:dev": "tsc --watch",
+    "build-server:prod": "tsc",
+    "server:dev": "nodemon server/server.js"
   },
   "author": "sheodox",
   "license": "ISC",
@@ -19,10 +18,13 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.1",
     "css-loader": "^5.0.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "glob": "^7.1.6",
     "node-sass": "^4.14.1",
     "page": "^1.11.5",
+    "pg": "^8.4.2",
+    "reflect-metadata": "^0.1.13",
     "sass-loader": "^10.0.4",
     "sharp": "^0.25.1",
     "sheodox-ui": "0.0.8",
@@ -30,7 +32,16 @@
     "style-loader": "^2.0.0",
     "svelte": "^3.29.4",
     "svelte-loader": "^2.13.6",
+    "typeorm": "^0.2.29",
+    "typescript": "^4.0.5",
     "webpack": "^4.41.6",
     "webpack-cli": "^3.3.11"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.8",
+    "@types/node": "^14.14.6",
+    "@types/sharp": "^0.26.0",
+    "@types/sqlite3": "^3.1.6",
+    "nodemon": "^2.0.6"
   }
 }

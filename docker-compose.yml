@@ -1,0 +1,30 @@
+version: '3.7'
+services:
+  app:
+    build:
+      context: .
+      target: dev
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    ports:
+      - 3500:3500
+    volumes:
+      - type: bind
+        source: ./videos
+        target: /usr/src/app/videos
+  postgres:
+    image: postgres:13-alpine
+#    ports:
+#      - "$PGPORT:5432"
+    environment:
+      POSTGRES_USER: $PGUSER
+      POSTGRES_PASSWORD: $PGPASSWORD
+      POSTGRES_DB: $PGDATABASE
+    volumes:
+      - type: volume
+        source: postgres
+        target: /var/lib/postgresql/data
+    restart: unless-stopped
+volumes:
+  postgres:

@@ -1,33 +1,46 @@
-const imageStore = require('../db/imagestore'),
-	fs = require('fs'),
-	path = require('path'),
-	child_process = require('child_process'),
-	{promisify} = require('util'),
-	readFile = promisify(fs.readFile),
+import {ImageService} from "../ImageService";
+import fs from 'fs';
+import path from 'path';
+import child_process from 'child_process';
+import {promisify} from "util";
+import {Router} from 'express';
+import {imageRepository} from "../entity";
+
+const readFile = promisify(fs.readFile),
 	readdir = promisify(fs.readdir),
 	glob = promisify(require('glob')),
 	exec = promisify(child_process.exec),
-	router = require('express').Router(),
-	source = 'broadcast';
+	router = Router();
 
-router.get('/video-list', async (req, res) => {
-	const videoPaths = await scanVideos(),
-		videos = [];
+// metadata about a video or a directory
+interface VideoMetadata {
+	type: 'video'
+	src: string
+	name: string
+	imageKey: number
+}
 
-	for (const videoPath of videoPaths) {
-		videos.push(await getVideoInfo(videoPath));
-	}
+interface DirectoryMetadata {
+	type: 'directory'
+	src: string
+	name: string
+}
 
-	res.json(groupByFolder(videos));
-});
+interface VideoInfo {
+	selectedVideo?: VideoMetadata
+	directories?: DirectoryMetadata[]
+	videos?: VideoMetadata[]
+	history?: DirectoryMetadata[]
+}
 
 router.get('/video-info', async (req, res) => {
-	const videoPath = req.query.path,
+	const videoPath = req.query.path as string,
 		videos = await scanVideos(),
 		videoDirs = await scanVideoDirectories(),
+		// make sure the video requested is actually a path of a real video or directory
 		isValidVideo = videos.includes(`./${videoPath}`),
 		isValidVideoFolder = videoDirs.includes(`./${videoPath}`),
-		response = {};
+		response: VideoInfo = {};
 
 	if (!isValidVideo && !isValidVideoFolder) {
 		res.status(404);
@@ -45,7 +58,7 @@ router.get('/video-info', async (req, res) => {
 	else if (isValidVideoFolder) {
 		focusedPath = videoPath;
 	}
-	const pathToDirectoryObject = dirPath => {
+	const pathToDirectoryObject = (dirPath: string): DirectoryMetadata => {
 		//find the last non-empty part of the path when split on path separators, that's the name of the deepest
 		//directory this path represents
 		const deepestDirName = dirPath.split(path.sep).reduce((lastPath, nextPath) => {
@@ -84,70 +97,57 @@ router.get('/video-info', async (req, res) => {
 	res.json(response);
 });
 
-async function getVideosInPath(dirPath) {
+/**
+ * Get videos within the selected folder.
+ * @param dirPath
+ */
+async function getVideosInPath(dirPath: string) {
 	return glob(path.join('./', dirPath, '/*.mp4'));
 }
 
-async function getDirectoriesInPath(dirPath) {
+/**
+ * Get directories within the selected path.
+ * @param dirPath
+ */
+async function getDirectoriesInPath(dirPath: string) {
 	return glob(path.join('./', dirPath, '*/'));
 }
 
-async function getVideoInfo(videoPath) {
+/**
+ * Get some metadata about the video in question
+ * @param videoPath
+ */
+async function getVideoInfo(videoPath: string): Promise<VideoMetadata> {
 	videoPath = (videoPath.indexOf('./') === 0 ? '' : './') + videoPath;
 	return {
 		type: 'video',
 		src: videoPath.replace('./', ''),
 		name: path.basename(videoPath, path.extname(videoPath)),
-		imageKey: await imageStore.getIdFromSourceKey(source, videoPath)
+		imageKey: await ImageService.findId(videoPath)
 	}
 }
 
-function scanVideos() {
+/**
+ * Get all the videos available.
+ */
+function scanVideos(): Promise<string[]> {
 	return glob('./videos/**/*.mp4');
 }
-async function scanVideoDirectories() {
+
+/**
+ * Get all the directories in the video folder
+ */
+async function scanVideoDirectories(): Promise<string[]> {
 	return [
 		'./videos/',
 		...await glob('./videos/**/*/')
 	]
 }
 
-function groupByFolder(videos) {
-	const grouped = [],
-		findGroup = (groups, paths) => {
-			//if there are no more paths to process, we're done
-			if (paths.length === 1) {
-				return groups;
-			}
-			else {
-				const [thisPath, ...nextPaths] = paths;
-
-				let nextGroup = groups.find(g => g.path === thisPath);
-				if (!nextGroup) {
-					nextGroup = {
-						path: thisPath,
-						type: 'directory',
-						children: []
-					};
-					groups.push(nextGroup);
-				}
-
-				return findGroup(nextGroup.children, nextPaths);
-			}
-		};
-
-	videos.forEach(video => {
-		//slice(1) removes 'videos' from the path, it's not important because everything is in there
-		findGroup(grouped, video.src.split(path.sep).slice(1))
-			.push(video);
-	});
-	return grouped;
-}
-
 async function generateMissingImages() {
 	const imageGeneratePath = './data/temp/broadcast-generated.png',
 		videoPaths = await scanVideos(),
-		videosWithoutImages = await imageStore.findMissingImages(source, videoPaths);
+		videosWithoutImages = await ImageService.findMissingImages(videoPaths);
 
 	if (!videosWithoutImages.length) {
 		return;
@@ -155,20 +155,19 @@ async function generateMissingImages() {
 	console.log(`Videos - generating ${videosWithoutImages.length} images`);
 
 	for (const video of videosWithoutImages) {
+		// extract one frame of video to the temp image path
 		await exec(`ffmpeg -ss 00:05:00.000 -i "${video}" -vframes 1 ${imageGeneratePath} -y`);
-		const image = await readFile(imageGeneratePath);
-		await imageStore.generate({
-			image,
-			source,
-			image_type: 'image/png',
-			source_key: video
-		})
+
+		await ImageService.generate(
+			await readFile(imageGeneratePath),
+			video
+		);
 	}
 	console.log(`Videos - done generating images for ${videosWithoutImages.length} videos`)
 }
 
 
-imageStore.onReady(async () => {
+imageRepository.then(async () => {
 	await generateMissingImages();
 
 	setInterval(generateMissingImages, 5 * 60 * 1000);
