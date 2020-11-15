@@ -8,8 +8,6 @@ module.exports = {
 	password: process.env.PGPASSWORD,
 	database: process.env.PGDATABASE,
 	synchronize: false,
-	logging: process.env.NODE_ENV === 'development' ?
-		['query', 'error'] : ['error'],
 	entities: [
 		'server/entity/**/*.js'
 	],

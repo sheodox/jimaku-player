@@ -43,7 +43,7 @@
 		flex: 1;
 	}
     button {
-		padding: 0 0.6rem;
+		padding: 0 0em;
 		line-height: 1.5;
         cursor: pointer;
 		font-size: 2rem;
@@ -80,7 +80,7 @@
 	/* chrome doesn't seem to play nicely with comma separated selectors, can't combine with the firefox ones */
 	::-webkit-slider-runnable-track {
 		background-color: #4b5266;
-		height: 0.2rem;
+		height: 0.4rem;
 	}
 
 	::-webkit-slider-thumb {
@@ -99,7 +99,14 @@
 </style>
 
 <div class="video-player" class:no-cursor={!showControls && !paused}>
-	<video src={src} bind:currentTime={currentTime} bind:duration={totalTime} bind:paused={paused} on:click={togglePause} bind:this={videoElement}></video>
+	<video
+		{src}
+		bind:currentTime={currentTime}
+		bind:duration={totalTime}
+		bind:paused={paused}
+		on:click={togglePause}
+		bind:this={videoElement}
+	></video>
 	{#if paused}
 		<div class="pause-alert-container" on:click={togglePause}>
 			<p class="pause-alert">
@@ -118,24 +125,50 @@
 				{prettyTime(currentTime, totalTime > 3600)} / {prettyTime(totalTime)}
 			</span>
 			<input type="range" bind:value={currentTime} max={totalTime} />
-			<button on:click={toggleFullscreen}><Icon icon="expand" /></button>
+			<button on:click={() => showSettings = !showSettings}>
+				<Icon icon="cog" />
+				<span class="sr-only">Video settings</span>
+			</button>
+			<button on:click={toggleFullscreen}>
+				<Icon icon="expand" />
+				<span class="sr-only">Toggle fullscreen</span>
+			</button>
 		</div>
 	{/if}
 </div>
+
+{#if showSettings}
+	<Modal bind:visible={showSettings} title="Video Settings">
+		<SaiseiSettings on:switchVideo={switchVideo} videos={metadata.videos} {selectedVideoIndex} />
+	</Modal>
+{/if}
 
 <svelte:window on:keydown={handleHotkeys} on:mousemove={active}/>
 
 <script>
 	import {fade} from 'svelte/transition';
-	import {Icon} from 'sheodox-ui';
+	import {onMount, tick} from 'svelte';
+	import {Icon, Modal} from 'sheodox-ui';
+	import SaiseiSettings from "./SaiseiSettings.svelte";
+	import viewTimes from "../view-times";
 
-	export let src = '';
+	export let metadata;
+	export let resourceBase;
+
 	//the amount of time to wait before fading out the video controls
 	const inactivityTimeout = 3000;
 	let currentTime = 0,
-			totalTime = 0,
-			paused = true,
-			showControls = true;
+		showSettings = false,
+		totalTime = 0,
+		paused = true,
+		showControls = true,
+		selectedVideoIndex = 0;
+
+	$: src = getSrc(selectedVideoIndex);
+
+	function getSrc(metadataVideoIndex) {
+		return `${resourceBase}/${metadata.videos[metadataVideoIndex].fileName}`
+	}
 
 	let inactiveTimer, videoElement;
 
@@ -148,6 +181,26 @@
 		}, inactivityTimeout);
 	}
 
+	async function switchVideo(e) {
+		const lastTime = currentTime,
+			lastPaused = paused;
+		//need to store the currentTime on the video so we can go back to there after switching it
+		//otherwise the video will start from the beginning again
+		selectedVideoIndex = e.detail;
+
+		await tick();
+
+		function resume() {
+			currentTime = lastTime;
+			if (!lastPaused) {
+				videoElement.play();
+			}
+
+			videoElement.removeEventListener('canplay', resume)
+		}
+		videoElement.addEventListener('canplay', resume);
+	}
+
 	/**
 	 * Change a number in seconds to mm:ss or hh:mm:ss
 	 * @param seconds - number of seconds, not ms because video elements deal in seconds
@@ -157,14 +210,14 @@
 	 * with seeking.
 	 * @returns {string}
 	 */
-	function prettyTime(seconds, forcePadHours=false) {
+	function prettyTime(seconds, forcePadHours = false) {
 		const hoursRemainder = seconds % 3600,
-				hours = Math.floor((seconds / 3600)),
-				minutesRemainder = hoursRemainder % 60,
-				minutes = Math.floor(hoursRemainder / 60);
+			hours = Math.floor((seconds / 3600)),
+			minutesRemainder = hoursRemainder % 60,
+			minutes = Math.floor(hoursRemainder / 60);
 		const pad = num => num.toFixed(0).padStart(2, '0');
 		return (hours > 0 || forcePadHours ? [hours, minutes, minutesRemainder] : [minutes, minutesRemainder])
-				.map(pad).join(':');
+			.map(pad).join(':');
 	}
 
 	function togglePause() {
@@ -186,7 +239,7 @@
 	function handleHotkeys(e) {
 		let caught = true;
 		const smallTimeAdjustment = 5,
-				largeTimeAdjustment = 15;
+			largeTimeAdjustment = 15;
 
 		switch (e.key) {
 			case 'f':
@@ -218,4 +271,16 @@
 		}
 		active();
 	}
+	onMount(() => {
+		// the full path to this video
+		const videoIdentifier = resourceBase + '/' + metadata.name;
+
+		currentTime = viewTimes.get(videoIdentifier).currentTime;
+		setInterval(() => {
+			const video = document.querySelector('video');
+			if (video) {
+				viewTimes.set(videoIdentifier, video.currentTime, video.duration)
+			}
+		}, 50);
+	})
 </script>

@@ -1,14 +1,12 @@
 import {ImageService} from "../ImageService";
-import fs from 'fs';
 import path from 'path';
 import child_process from 'child_process';
 import {promisify} from "util";
 import {Router} from 'express';
 import {imageRepository} from "../entity";
+const fs = require('fs').promises;
 
-const readFile = promisify(fs.readFile),
-	readdir = promisify(fs.readdir),
-	glob = promisify(require('glob')),
+const glob = promisify(require('glob')),
 	exec = promisify(child_process.exec),
 	router = Router();
 
@@ -27,14 +25,30 @@ interface DirectoryMetadata {
 }
 
 interface VideoInfo {
+    metadata?: MetadataFile,
 	selectedVideo?: VideoMetadata
 	directories?: DirectoryMetadata[]
 	videos?: VideoMetadata[]
 	history?: DirectoryMetadata[]
 }
 
+interface MetadataFile {
+	name: string,
+	videos: {
+		language: string,
+		title?: string,
+		fileName: string
+	}[],
+	subtitles: {
+		format: string,
+		language: string,
+		title: string,
+		content: string
+	}[]
+}
+
 router.get('/video-info', async (req, res) => {
-	const videoPath = req.query.path as string,
+	const videoPath = (req.query.path as string),
 		videos = await scanVideos(),
 		videoDirs = await scanVideoDirectories(),
 		// make sure the video requested is actually a path of a real video or directory
@@ -47,12 +61,14 @@ router.get('/video-info', async (req, res) => {
 		res.json({
 			error: 'invalid path specified'
 		});
+		return;
 	}
 
 	let focusedPath;
 	if (isValidVideo) {
 		const videoDir = path.dirname(videoPath);
 		response.selectedVideo = await getVideoInfo(videoPath);
+		response.metadata = await getMetadataFile(videoPath);
 		focusedPath = videoDir;
 	}
 	else if (isValidVideoFolder) {
@@ -98,11 +114,25 @@ router.get('/video-info', async (req, res) => {
 });
 
 /**
+ * Videos are scanned for by looking for a metadata file, but that's an ugly path to show the browser,
+ * this removes that ugly portion of the path so we can ignore that on the front end and only
+ * care about the metadata stuff in code.
+ * @param paths
+ */
+function deMetaPaths(paths: string[]) {
+	return paths.map(p => p.replace(/-metadata\.json$/, ''));
+}
+
+/**
  * Get videos within the selected folder.
  * @param dirPath
  */
 async function getVideosInPath(dirPath: string) {
-	return glob(path.join('./', dirPath, '/*.mp4'));
+	return deMetaPaths(await glob(path.join('./', dirPath, '/*-metadata.json')));
+}
+
+async function getMetadataFile(videoSlug: string) {
+	return JSON.parse((await fs.readFile(videoSlug + '-metadata.json')).toString());
 }
 
 /**
@@ -130,8 +160,8 @@ async function getVideoInfo(videoPath: string): Promise<VideoMetadata> {
 /**
  * Get all the videos available.
  */
-function scanVideos(): Promise<string[]> {
-	return glob('./videos/**/*.mp4');
+async function scanVideos(): Promise<string[]> {
+	return deMetaPaths(await glob('./videos/**/*-metadata.json'));
 }
 
 /**
@@ -154,13 +184,16 @@ async function generateMissingImages() {
 	}
 	console.log(`Videos - generating ${videosWithoutImages.length} images`);
 
-	for (const video of videosWithoutImages) {
+	for (const videoBase of videosWithoutImages) {
+		const metadata: MetadataFile = JSON.parse((await fs.readFile(`${videoBase}-metadata.json`)).toString()),
+			videoPath = path.join(path.dirname(videoBase), metadata.videos[0].fileName);
+
 		// extract one frame of video to the temp image path
-		await exec(`ffmpeg -ss 00:05:00.000 -i "${video}" -vframes 1 ${imageGeneratePath} -y`);
+		await exec(`ffmpeg -ss 00:05:00.000 -i "${videoPath}" -vframes 1 ${imageGeneratePath} -y`);
 
 		await ImageService.generate(
-			await readFile(imageGeneratePath),
-			video
+			await fs.readFile(imageGeneratePath),
+			videoBase
 		);
 	}
 	console.log(`Videos - done generating images for ${videosWithoutImages.length} videos`)
