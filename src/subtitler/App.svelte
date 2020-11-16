@@ -184,13 +184,18 @@
 	}
 
 	function subtitlesLoaded(e) {
-		subtitles = e.detail;
+		subtitles = e.detail.subtitles;
 		if (subtitles.subs.length === 0) {
 			console.log('subtitles object failed to parse: ', subtitles);
 			alert(`No subtitles were able to be parsed from the selected subtitle file, verify nothing is wrong with the file. If it appears normal please submit a bug report with the episode and the subtitles file you used to the issue tracker (a link can be found in the tray on the right side of the video player)!`);
 			phase = 'cancelled';
-		} else {
+		}
+		else if (!e.detail.skipAlignment) {
 			phase = 'align';
+		}
+		else {
+			alignmentStore.set(0);
+			aligned();
 		}
 	}
 

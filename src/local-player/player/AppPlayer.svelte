@@ -25,6 +25,7 @@
 		if (videoSlug) {
 			const videoInfo = await fetch(`/video-info?path=${encodeURIComponent(videoSlug)}`).then(res => res.json());
 			metadata = videoInfo.metadata;
+			window.jimakuProvidedSubtitles = metadata.subtitles;
 			console.log(metadata);
 
 			//on vrv something like this would be the show name, which the jimaku-player subtitler uses

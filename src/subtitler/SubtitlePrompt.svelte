@@ -1,7 +1,14 @@
 <div class="column">
 	<button class="small-button secondary" on:click={cancelSubbing}>&Cross; Skip Subtitling For This Episode</button>
 	<label for="srt-upload">&equiv; Select a subtitle file to begin</label>
-	<input type="file" id="srt-upload" on:change={uploadSRT} accept=".srt,.ass,.ssa,.vtt">
+	<input type="file" id="srt-upload" on:change={loadSubtitleFile} accept=".srt,.ass,.ssa,.vtt">
+
+	<!-- if used with the local player in, some ingested subtitles could be present, offer to use those instead of selecting a file -->
+	{#each (window.jimakuProvidedSubtitles || []) as providedSubtitles}
+		<button class="secondary" on:click={() => loadProvidedSubtitles(providedSubtitles)}>
+			{providedSubtitles.title} ({providedSubtitles.language})
+		</button>
+	{/each}
 </div>
 <script>
 	import {createEventDispatcher} from 'svelte';
@@ -9,21 +16,33 @@
 	import SRT from "./parsers/SRT";
 	const dispatch = createEventDispatcher();
 
-	function uploadSRT(e) {
+	function loadSubtitleFile(e) {
 		const file = e.target.files[0],
 				reader = new FileReader();
 		reader.onload = (readEvent) => {
-			const constructorClass = {
-					'ass': ASS,
-					'ssa': ASS,
-					'srt': SRT,
-					'vtt': SRT
-				},
-				[_, extension] = file.name.match(/\.(\w{3})$/);
-
-			dispatch('subtitles-loaded', new constructorClass[extension](readEvent.target.result, file.name));
+			const [_, extension] = file.name.match(/\.(\w{3})$/);
+			createSubtitleClass(extension, readEvent.target.result, file.name);
 		};
 		reader.readAsText(file);
+	}
+
+	function loadProvidedSubtitles(subtitles) {
+		createSubtitleClass(subtitles.format, subtitles.content, subtitles.title, true);
+	}
+
+	function createSubtitleClass(format, content, fileName, skipAlignment=false) {
+		const constructorClasses = {
+			'ass': ASS,
+			'ssa': ASS,
+			'srt': SRT,
+			'vtt': SRT
+		};
+		dispatch('subtitles-loaded', {
+			//if using provided subtitles they should be aligned at 0, not worth
+			//aligning something that came from the video file in the first place.
+			skipAlignment,
+			subtitles: new constructorClasses[format](content, fileName)
+		})
 	}
 
 	function cancelSubbing() {
