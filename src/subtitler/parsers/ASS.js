@@ -21,11 +21,9 @@ const parseColor = assColor => {
 
 const genOutlineStyles = (outlineColor, outlineWidth, shadowColor='transparent', shadowDepth=0, blur=0) => {
 	const color = outlineColor || shadowColor;
-	shadowDepth *= 2;
 	blur = `${blur}px`;
 
-	//make the outline a bit stronger, seems to need it when comparing to VLC's rendered subtitles
-	outlineWidth = (typeof outlineWidth === 'undefined' ? 1 : outlineWidth) * 2;
+	outlineWidth = (typeof outlineWidth === 'undefined' ? 1 : outlineWidth);
 	const outlines = [];
 	//make a ton of stacking shadows, because otherwise thicker outlines won't appear smooth
 	for (let i = -1 * outlineWidth; i <= outlineWidth; i++) {
@@ -387,6 +385,9 @@ module.exports = class ASS extends SubtitleFormat {
 			sub.rawText = sub.text;
 
 			sub.text = sub.text
+				//\n is a soft line break where the subtitle renderer can choose if it needs a line break here,
+				//essentially a <wbr> but it's easier to ignore that for now and treat it as a space
+				.replace(/\\n/g, ' ')
 				//these characters need to be double escaped
 				.replace(/\\N/g, '\n') //hard new line
 				//subtitles are rendered with `white-space:pre` so just using a space character for a hard space should be enough
