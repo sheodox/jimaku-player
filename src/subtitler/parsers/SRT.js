@@ -111,6 +111,7 @@ export default class SRT extends SubtitleFormat {
 				const paddingEstimatePx = 10,
 					paddingBufferZone = linesOfText * paddingEstimatePx;
 				done.push({
+					_id: this.genId(),
 					start: this.timeToMs(startStr),
 					end: this.timeToMs(endStr),
 					verticalAlignment: {
@@ -122,6 +123,7 @@ export default class SRT extends SubtitleFormat {
 					text,
 					inline: containerStyles.join('; '),
 					phrases: [{
+						_id: this.genId(),
 						text,
 						inline: inlineStyles.join('; '),
 					}],

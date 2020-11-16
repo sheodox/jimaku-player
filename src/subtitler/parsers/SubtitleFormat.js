@@ -15,6 +15,14 @@ module.exports = class SubtitleFormat {
 		this.format = format;
 		this.fileName = fileName;
 		this.subs = [];
+		this.generatedIdBase = 0;
+	}
+
+	genId() {
+		//for accurate tracking of the iteration keys svelte needs something guaranteed to be unique,
+		//otherwise it will lose track of subtitles and the text wont' disappear. this is used everywhere
+		//that a subtitle is iterated to have unique ID instead of hoping the subtitle text is unique
+		return `generated-id-${this.generatedIdBase++}`;
 	}
 
 	getSubs(ms) {

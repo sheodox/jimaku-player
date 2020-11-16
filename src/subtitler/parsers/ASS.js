@@ -282,6 +282,7 @@ module.exports = class ASS extends SubtitleFormat {
 
 			// sometimes *Default === Default, just make anything here and in styles that use either just be "Default"
 			zipped.style = zipped.style === '*Default' ? 'Default' : zipped.style;
+			zipped._id = this.genId();
 			done.push(zipped);
 
 			return done;
@@ -411,6 +412,7 @@ module.exports = class ASS extends SubtitleFormat {
 			for (const text of scanner) {
 				const containerInline = [],
 					styled = {
+						_id: this.genId(),
 						text: removeOverrideText(text),
 						fadeIn: 0,
 						fadeOut: 0,
