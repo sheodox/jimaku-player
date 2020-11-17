@@ -143,7 +143,8 @@
 	</Modal>
 {/if}
 
-<svelte:window on:keydown={handleHotkeys} on:mousemove={active}/>
+<svelte:window on:keydown={handleHotkeys} on:mousemove={active} />
+<svelte:body on:mouseleave={inactive} />
 
 <script>
 	import {fade} from 'svelte/transition';
@@ -179,6 +180,12 @@
 		inactiveTimer = setTimeout(() => {
 			showControls = false;
 		}, inactivityTimeout);
+	}
+
+	// can be used to immediately consider the user inactive (mouse leave from the player)
+	function inactive() {
+		clearTimeout(inactiveTimer);
+		showControls = false;
 	}
 
 	async function switchVideo(e) {
