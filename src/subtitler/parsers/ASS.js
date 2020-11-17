@@ -84,7 +84,7 @@ const genAlignment = (alignmentCode, marginL='0vw', marginR='0vw', marginV='0vh'
  * {\fs12}Some small text {\fs24}Some big text
  * Into:
  * yields: {\fs12}Some small text
- * yields: {\f24}Some big text
+ * yields: {\fs24}Some big text
  * @param subtitleText
  * @returns {Generator<*, void, ?>}
  */
@@ -371,8 +371,11 @@ module.exports = class ASS extends SubtitleFormat {
 		/**
 		 * Subtitles can have "overrides" which are like the inline-style of .ass subtitles. They apply to that
 		 * single line of subtitles, and are cumulative for the line unless they're reset or overridden by another
-		 * setting for the same
+		 * value of the same type of override tag.
 		 *
+		 * Because these overrides apply to subsections of the subtitle the parsing and styling is done in two stages,
+		 * first the overall subtitle (a "Dialogue" line in the ASS file) called "sub" here, and each chunk of text and
+		 * its styling between override tags within the sub called "phrases" here.
 		 *
 		 * Assume we've got the following subtitles:
 		 * {\b1}いいよ。{\i1}というかなんで
@@ -422,6 +425,18 @@ module.exports = class ASS extends SubtitleFormat {
 				let overridesMatch = text.match(/{.*?}/),
 					overrides = overridesMatch ? overridesMatch[0] : '';
 
+				/**
+				 * If the override passed as 'code' exists in the phrase, its value will be passed to the function given.
+				 * Since the parser is fairly dumb and doesn't know when an override tag ends and the value begins
+				 * it's recommended that overrides are checked for in order from most specific name to least specific,
+				 * i.e. look for a 'fscx' before a 'fs' override, if you didn't you might get a value of 'cx' instead of the
+				 * font size you were expecting to get. If an override is found it's removed from the overrides yet to be
+				 * processed for this phrase and won't be considered next time checkOverride is called (hence why you can look
+				 * for 'fscx' then safely look for 'fs', 'fscx' won't be in the overrides anymore)
+				 * @param code - something like 'fs', an ASS override tag
+				 * @param isComplex - if the override tag takes multiple parameters, like positions: \pos(X,Y)
+				 * @param fn - a function to call with the value of the override if it exists
+				 */
 				function checkOverride(code, isComplex=false, fn=()=>{}) {
 					const results = getOverride(overrides, code, isComplex);
 					if (results) {
@@ -455,22 +470,6 @@ module.exports = class ASS extends SubtitleFormat {
 
 				//todo - parse more tags
 				//http://docs.aegisub.org/3.2/ASS_Tags/
-
-				//not actually handling these yet, but they can interfere with other
-				//overrides, so pretend to process them so they're not in the override string
-				checkOverride('fscx');
-				checkOverride('fscy');
-
-				checkOverride('an', false, alignmentCode => {
-					const srcStyle = this.styles[sub.style];
-					sub.verticalAlignment = genAlignment(
-						alignmentCode,
-						this.scaleWidth(srcStyle.raw.marginL),
-						this.scaleWidth(srcStyle.raw.marginR),
-						this.scaleHeight(srcStyle.raw.marginV),
-					)
-				});
-
 
 				//outline and shadow use a bunch of text-shadows, so they need to all be parsed at once, and their result computed
 				let outlineColor,
@@ -511,40 +510,66 @@ module.exports = class ASS extends SubtitleFormat {
 					}
 				}
 
-				checkMultipleOverrides(['pos', 'an', 'org'], [true, false, true], (pos, an='5', org) => {
-					if (pos) {
-						const [x, y] = pos;
-						//positioning applies to the line, and if we just put it on this span it might get put in the right space, but the
-						//containing paragraph elements will stack, possibly overlapping the video controls if
-						containerInline.push(`position: fixed; left: ${this.scaleWidth(x)}; top: ${this.scaleHeight(y)}`);
+				checkMultipleOverrides(
+					['pos', 'an', 'org', 'fscx', 'fscy'],
+					[true, false, true, false, false],
+					(pos, an='5', org, fscx, fscy) => {
+						let transforms = [];
+						if (pos) {
+							const [x, y] = pos;
+							//positioning applies to the line, and if we just put it on this span it might get put in the right space, but the
+							//containing paragraph elements will stack, possibly overlapping the video controls if
+							containerInline.push(`position: fixed; left: ${this.scaleWidth(x)}; top: ${this.scaleHeight(y)}`);
 
-						//CSS positioning moves as if it's \an7
-						//but by .ass positionings seem to work like \an5,
-						//so we need to first reconcile the difference in movement by adding
-						//an extra -50%, -50%, so that's why these numbers look weird, without
-						//that adjustment all positioned subtitles are too far down and right
-						const origin = {
-							'1': '50%, -150%',
-							'2': '-50%, -150%',
-							'3': '-150%, -150%',
-							'4': '50%, -50%',
-							'5': '-50%, -50%',
-							'6': '-150%, -50%',
-							'7': '50%, 50%',
-							'8': '-50%, 50%',
-							'9': '-150%, 50%'
-						}[an];
-						containerInline.push(`transform: translate(${origin})`);
+							//CSS positioning moves as if it's \an7
+							//but by .ass positionings seem to work like \an5,
+							//so we need to first reconcile the difference in movement by adding
+							//an extra -50%, -50%, so that's why these numbers look weird, without
+							//that adjustment all positioned subtitles are too far down and right
+							const origin = {
+								'1': '50%, -150%',
+								'2': '-50%, -150%',
+								'3': '-150%, -150%',
+								'4': '50%, -50%',
+								'5': '-50%, -50%',
+								'6': '-150%, -50%',
+								'7': '50%, 50%',
+								'8': '-50%, 50%',
+								'9': '-150%, 50%'
+							}[an];
+							transforms.push(`translate(${origin})`);
 
-						if (org) {
-							const [orgX, orgY] = org;
-							cumulativeStyles.push(`transform-origin: ${this.scaleWidth(orgX)} ${this.scaleHeight(orgY)}`);
+							if (org) {
+								const [orgX, orgY] = org;
+								cumulativeStyles.push(`transform-origin: ${this.scaleWidth(orgX)} ${this.scaleHeight(orgY)}`);
+							}
 						}
-					}
-					else if (an) {
+						else if (an) {
+							const srcStyle = this.styles[sub.style];
+							sub.verticalAlignment = genAlignment(
+								an,
+								this.scaleWidth(srcStyle.raw.marginL),
+								this.scaleWidth(srcStyle.raw.marginR),
+								this.scaleHeight(srcStyle.raw.marginV),
+							)
+						}
 
-					}
-				});
+						if (fscx || fscy) {
+							//without position absolute the text won't actually stretch
+							cumulativeStyles.push('position: absolute');
+						}
+
+						if (fscx) {
+							transforms.push(`scaleX(${fscx}%)`);
+						}
+						if (fscy) {
+							transforms.push(`scaleY(${fscy}%)`);
+						}
+
+						if (transforms.length) {
+							cumulativeStyles.push(`transform: ${transforms.join(' ')}`);
+						}
+					});
 
 				checkMultipleOverrides(['frx', 'fry', 'frz'], false, (xRot, yRot, zRot) => {
 					const rotations = [];
