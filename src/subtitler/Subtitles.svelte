@@ -93,10 +93,10 @@
 <div class="subtitles">
 	{#if $showSubtitlesOnVideo}
 		{#each current as sub (sub._id)}
-			<p style="{genBaseStyles(sub)}" data-sub-style={sub.style} on:click={() => define(sub.text)} title="click to search this phrase on Jisho.org">
+			<p style="{genBaseStyles(sub)}" data-sub-style={sub.style} data-sub-id={sub._id} on:click={() => define(sub.text)} title="click to search this phrase on Jisho.org">
 				{#if sub.phrases}
 					{#each sub.phrases as phrase (phrase._id)}
-						<span style={genPhraseStyles(phrase)} in:fade={genFade(phrase.fadeIn)} out:fade={genFade(phrase.fadeOut)}>{phrase.text}</span>
+						<span style={genPhraseStyles(phrase)} in:fade={genFade(phrase.fadeIn)} out:fade={genFade(phrase.fadeOut)} data-phrase-id={phrase._id}>{phrase.text}</span>
 					{/each}
 				{:else}
 					{sub.text}
