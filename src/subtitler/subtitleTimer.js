@@ -1,9 +1,11 @@
-import {readable} from "svelte/store";
+import {readable, writable} from "svelte/store";
 
 let subs;
 export const setSubtitles = subtitleObject => {
 	subs = subtitleObject;
 }
+
+export const subtitleTime = writable(0);
 
 /**
  * Create a readable store for subtitles that should show over the video on the page given the specified offset.
@@ -23,7 +25,9 @@ export const createSubtitleTimer = offsetOrStore => readable([], set => {
 	}
 	const video = document.querySelector('video'),
 		update = () => {
-			set(subs.getSubs(video.currentTime * 1000 - offset))
+			const time = video.currentTime * 1000 - offset
+			subtitleTime.set(time);
+			set(subs.getSubs(time))
 			af = requestAnimationFrame(update);
 		};
 

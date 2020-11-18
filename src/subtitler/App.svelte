@@ -63,18 +63,18 @@
 		<Align subtitles={subtitles} on:done={aligned} on:reselect={() => phase = 'prompt'}/>
 	{:else if phase === 'play'}
 		<Subtitles
-				format={subtitles.format}
-				styles={subtitles.styles}
-				current={$subtitleStore}
-				on:define-pauser={definePauser}
+			format={subtitles.format}
+			styles={subtitles.styles}
+			current={$subtitleStore}
+			on:define-pauser={definePauser}
 		/>
 		<Tray
-				recentSubs={recentSubs}
-				subtitles={subtitles}
-				on:restart={restart}
-				on:tray-pauser={trayPauser}
-				on:define-pauser={definePauser}
-				on:realign={() => phase = 'align'}
+			{recentSubs}
+			{subtitles}
+			on:restart={restart}
+			on:tray-pauser={trayPauser}
+			on:define-pauser={definePauser}
+			on:realign={() => phase = 'align'}
 		/>
 	{:else if phase === 'cancelled'}
         <Tray mode="cancelled"
@@ -173,13 +173,6 @@
 		}
 		if (recentSubs.length > 10) {
 			recentSubs = recentSubs.slice(recentSubs.length - 10);
-		}
-	}
-
-	function renderSubs() {
-		if (phase === 'play') {
-			currentSubtitles = subtitles.getSubs(video.currentTime * 1000 - subOffset);
-			requestAnimationFrame(renderSubs);
 		}
 	}
 

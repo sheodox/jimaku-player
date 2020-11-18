@@ -133,8 +133,12 @@ export default class SRT extends SubtitleFormat {
 		}, []);
 	}
 
-	serialize() {
-		return JSON.stringify(this.subs, null, 4);
+	serialize(atTime) {
+		return JSON.stringify(
+			typeof atTime === 'number' ? this.getSubs(atTime) : this.subs,
+			null,
+			4
+		);
 	}
 
 	debugInfo() {

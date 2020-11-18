@@ -214,7 +214,10 @@
 				{/each}
 			</dl>
 			<div class="row">
-				<a href={createParsedSubDownloadLink()} download="parsed-subtitles.json">⬇ Download Parsed Subtitles</a>
+				<button on:click={() => downloadParsedSubtitles()}>⬇ Download parsed subtitles</button>
+			</div>
+			<div class="row">
+				<button on:click={() => downloadParsedSubtitles($subtitleTime)}>⬇ Download currently visible parsed subtitles</button>
 			</div>
 			<div class="row">
 				<a target="_blank" href="https://github.com/sheodox/jimaku-player/issues" rel="noopener noreferrer">Issue? Report it here!</a>
@@ -249,6 +252,7 @@
 		signedSecondsStore
 	} from './alignmentStore';
 	import RecentAlignments from "./RecentAlignments.svelte";
+	import {subtitleTime} from "./subtitleTimer";
 
 	const dispatch = createEventDispatcher(),
 		trayStates = {
@@ -275,9 +279,14 @@
 		showSubs = true,
 		pauseOnTray = true;
 
-	function createParsedSubDownloadLink() {
-		const downloadBlob = new Blob([subtitles.serialize()], {type: 'application/json'});
-		return URL.createObjectURL(downloadBlob);
+	function downloadParsedSubtitles(atTime) {
+		const a = document.createElement('a'),
+			downloadBlob = new Blob([subtitles.serialize(atTime)], {type: 'application/json'});
+		a.download = 'parsed-subtitles.json';
+		a.href = URL.createObjectURL(downloadBlob);
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
 	}
 
 	function trayHover(isEntering) {
