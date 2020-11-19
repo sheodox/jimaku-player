@@ -12,7 +12,7 @@
 </div>
 <script>
 	import {createEventDispatcher} from 'svelte';
-	import ASS from "./parsers/ASS";
+	import {ASS} from "./parsers/ASS";
 	import SRT from "./parsers/SRT";
 	const dispatch = createEventDispatcher();
 

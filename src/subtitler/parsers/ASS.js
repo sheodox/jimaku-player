@@ -9,7 +9,14 @@ const camelCase = string => {
 
 const parseColor = assColor => {
 	if (assColor) {
-		assColor = assColor.replace(/[&H]/g, '');
+		assColor = assColor
+			.replace(/[&H]/g, '')
+			// before complex override parsing was more meticulous it was easy for it to stop at the
+			// first ) it saw and if it was on a nested complex override it'd stop processing early
+			// and lose its closing ). but it's better now so that shouldn't happen, but I have seen
+			// an override that had a ) hanging out when it shouldn't, this should trim bad characters
+			// in messy overrides that otherwise cause color parsing to fail. need to do this before padding
+			.replace(/[^0-9A-F]/g, '')
 		assColor = assColor.padStart(8, '0');
 		const [_, alpha, blue, green, red] = assColor.match(/([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})/i),
 			fromHex = num => parseInt(num, 16);
@@ -231,11 +238,61 @@ function parseOverrides(overridesAndText) {
 }
 
 function getOverride(overrides, overrideCode, isComplex=false) {
-	const overrideReg = new RegExp(
-		isComplex ?
-			`\\\\${overrideCode}\\((.*?)\\)` :
-			`\\\\${overrideCode}([^\\\\}]*)`
-		),
+	//complex overrides can have complex overrides within them, like a \clip within a \t
+	//so we can't just grab everything within the first sets of parenthesis we see, or
+	//we might cut off at the end of the nested override, need to be more careful
+	if (isComplex) {
+		const overrideMatch = overrides.match(`\\\\${overrideCode}\\((.*)`);
+		if (!overrideMatch) {
+			return;
+		}
+
+		let params = [],
+			//the full override text, to sanitize the remaining override string at the end
+			thisOverride = '',
+			//the current parameter we're walking through
+			thisParam = '',
+			//can you nest a complex in a complex in a complex? probably not, only assuming one level is probably fine
+			skippingComplex = false;
+
+		//the text starting at this override's params, until the end of the overrides string,
+		//we need to figure out how far to go until we hit the matching parenthesis, taking
+		//care not to match a nested complex tag
+		const paramsAndMore = overrideMatch[1];
+		for(let i = 0; i < paramsAndMore.length && overrides; i++) {
+			const thisCharacter = paramsAndMore[i];
+
+			function keep() {
+				thisParam += thisCharacter;
+				thisOverride += thisCharacter;
+			}
+			if (thisCharacter === '(') {
+				keep(); //this won't fall into the else, need to start the override's parameters
+				skippingComplex = true;
+			}
+			//end of a parameter, or the end of the string, need to store the param regardless, maybe we're done
+			else if (!skippingComplex && (thisCharacter === ',' || thisCharacter === ')')) {
+				params.push(thisParam);
+				thisOverride += thisCharacter;
+				thisParam = '';
+
+				if (thisCharacter === ')') {
+					return {
+						overrides: overrides.replace(`\\${overrideCode}(` + thisOverride, ''),
+						params
+					};
+				}
+			}
+			else if (skippingComplex && thisCharacter === ')') {
+				keep(); //this won't fall into the 'else', need to terminate the override
+				skippingComplex = false;
+			}
+			else {
+				keep();
+			}
+		}
+	}
+	const overrideReg = new RegExp(`\\\\${overrideCode}([^\\\\}]*)`),
 		overrideMatch = overrides.match(overrideReg);
 
 	if (!overrideMatch) {
@@ -244,12 +301,12 @@ function getOverride(overrides, overrideCode, isComplex=false) {
 	return {
 		//pass the overrides back that don't contain this override anymore
 		overrides: overrides.replace(overrideMatch[0], ''),
-		params: isComplex ? overrideMatch[1].split(',') : overrideMatch[1]
+		params: overrideMatch[1]
 	};
 }
 
 // export default class ASS extends SubtitleFormat {
-module.exports = class ASS extends SubtitleFormat {
+class ASS extends SubtitleFormat {
 	/**
 	 * @param ass - .ass file contents
 	 * @param fileName
@@ -733,3 +790,8 @@ module.exports = class ASS extends SubtitleFormat {
 		});
 	}
 };
+
+module.exports = {
+	getOverride,
+	ASS
+}
