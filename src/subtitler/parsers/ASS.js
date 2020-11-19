@@ -626,11 +626,6 @@ module.exports = class ASS extends SubtitleFormat {
 				}
 
 				const {fontScaleX, fontScaleY} = overrides;
-				if (fontScaleX || fontScaleY) {
-					//without position absolute the text won't actually stretch
-					cumulativeStyles.push('position: absolute');
-				}
-
 				if (fontScaleX) {
 					transforms.push(`scaleX(${fontScaleX}%)`);
 				}
@@ -638,29 +633,30 @@ module.exports = class ASS extends SubtitleFormat {
 					transforms.push(`scaleY(${fontScaleY}%)`);
 				}
 
-				if (transforms.length) {
-					cumulativeStyles.push(`transform: ${transforms.join(' ')}`);
-				}
-
 				const rotations = [];
-				const checkRotate = (deg, axies, multiplier=1) => {
+				const checkRotate = (deg, rotationTransform, multiplier=1) => {
 					if (deg !== undefined) {
 						deg = parseFloat(deg) * multiplier;
-						return rotations.push(`rotate3d(${axies.join(', ')}, ${deg}deg)`);
+						return rotations.push(`${rotationTransform}(${deg}deg)`);
 					}
 				};
 
+				checkRotate(overrides.rotateY, `rotateY`);
+				checkRotate(overrides.rotateX, `rotateX`);
 				//the direction of rotation seems to be different for the y/z axis compared to css transforms
-				checkRotate(overrides.rotateX, [1, 0, 0]);
-				checkRotate(overrides.rotateZ, [0, 0, 1], -1);
-				checkRotate(overrides.rotateY, [0, 1, 0]);
+				checkRotate(overrides.rotateZ, `rotateZ`, -1);
 
 				if (rotations.length) {
 					containerInline.push(`perspective: 200px`);
-					//can't rotate while it's display: inline;
-					cumulativeStyles.push(`display: block; transform: ${rotations.join(' ')}`);
+					transforms.push(rotations.join(' '));
 				}
 
+				if (transforms.length) {
+					//without if text is inline it won't rotate or scale, using position: absolute also
+					//seems to allow the transforms to work, but then the positioning gets messed up
+					cumulativeStyles.push(`display: inline-block`);
+					cumulativeStyles.push(`transform: ${transforms.join(' ')}`);
+				}
 
 				if (overrides.fade) {
 					styled.fadeIn = overrides.fade[0];
