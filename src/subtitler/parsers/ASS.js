@@ -27,7 +27,8 @@ const genOutlineStyles = (outlineColor, outlineWidth, shadowColor='transparent',
 	// many shadows will be stacked, which gives an multiplied shadow color, and the shadow will appear
 	// way too thick unless we significantly lower the alpha value on the color. the weakening effect
 	// is multiplied by 4 here because there are 4 directions of shadows we stack, and it looks best it seems
-	const color = (outlineColor || shadowColor).weakenAlpha(1 / (4 * outlineWidth));
+	const colorSource = outlineColor || shadowColor,
+		color = blur < 1 ? colorSource.rgba : colorSource.weakenAlpha(1 / (4 * outlineWidth));
 	blur = `${blur}px`;
 
 	outlineWidth = (typeof outlineWidth === 'undefined' ? 1 : outlineWidth);
@@ -132,7 +133,7 @@ function* overrideScanner(subtitleText) {
  */
 const intBase10 = numStr => parseInt(numStr, 10),
 	knownOverrides = [
-		{ tag: 't', friendly: 'animatedTransform', complex: true },
+		{ tag: 't', friendly: 'animatedTransform', complex: true, repeatable: true },
 		{ tag: 'move', friendly: 'movement', complex: true },
 		{ tag: 'clip', friendly: 'clip', complex: true },
 		{ tag: '3c', friendly: 'outlineColor', parser: parseColor },
@@ -161,6 +162,8 @@ const intBase10 = numStr => parseInt(numStr, 10),
 		{ tag: 'i', friendly: 'italic', parser: intBase10 },
 		{ tag: 'fn', friendly: 'fontName' },
 		{ tag: '1c', friendly: 'color', parser: parseColor },
+		// 'c' is an abbreviation for '1c' (primary fill color aka text color)
+		{ tag: 'c', friendly: 'color', parser: parseColor },
 		{ tag: 'r', friendly: 'reset', defaultValue: false},
 		{ tag: 'q', friendly: 'wrapStyle' },
 		{ tag: 'p', friendly: 'drawMode' },
@@ -195,13 +198,27 @@ function parseOverrides(overridesAndText) {
 	//function was called in the first place
 	let [overridesString] = overridesAndText.match(/{.*?}/);
 
-	for (const {tag, friendly, complex=false, defaultValue, parser} of knownOverrides) {
-		const result = getOverride(overridesString, tag, complex);
-		if (result) {
-			overridesString = result.overrides;
-			// only parse friendly overrides, the raw ones should stay as-is
-			friendlyOverrides[friendly] = runOverrideValueParser(result.params, parser) || defaultValue;
-			rawOverrides[tag] = result.params || defaultValue;
+	for (const {tag, friendly, complex=false, defaultValue, parser, repeatable=false} of knownOverrides) {
+		let result = getOverride(overridesString, tag, complex)
+
+		let i = 0;
+			// for overrides which support only a single value, only check once,
+			// but for overrides that can repeat (\t) check until something is found
+		while ((!repeatable && i === 0) || (repeatable && result)) {
+			if (result) {
+				overridesString = result.overrides;
+
+				const parsedValue = runOverrideValueParser(result.params, parser) || defaultValue;
+				// only parse friendly overrides, the raw ones should stay as-is
+				friendlyOverrides[friendly] = !repeatable ? parsedValue :
+					//if it's a repeatable value (like \t that can occur more than once),
+					//we need to build an array of the times it's been called
+					[...(friendlyOverrides[friendly] || []), parsedValue];
+				rawOverrides[tag] = !repeatable ? result.params : [...(rawOverrides[tag] || []), result.params];
+			}
+
+			result = getOverride(overridesString, tag, complex);
+			i++;
 		}
 	}
 
@@ -235,6 +252,7 @@ function getOverride(overrides, overrideCode, isComplex=false) {
 module.exports = class ASS extends SubtitleFormat {
 	/**
 	 * @param ass - .ass file contents
+	 * @param fileName
 	 */
 	constructor(ass, fileName) {
 		super('ass', fileName);
@@ -477,6 +495,8 @@ module.exports = class ASS extends SubtitleFormat {
 	}
 
 	genScaledFont(fontSize) {
+		//no exact science to the 0.7 here. it just seemed to be closer to the way
+		//the same subtitles looked in VLC. There could be something more to this
 		return `font-size: ${this.scaleHeight(fontSize * 0.7)}`
 	}
 
@@ -575,18 +595,20 @@ module.exports = class ASS extends SubtitleFormat {
 					//so we need to first reconcile the difference in movement by adding
 					//an extra -50%, -50%, so that's why these numbers look weird, without
 					//that adjustment all positioned subtitles are too far down and right
-					const origin = {
-						'1': '0, -100%',
-						'2': '-50%, -100%',
-						'3': '-100%, -100%',
-						'4': '0, -50%',
-						'5': '-50%, -50%',
-						'6': '-100%, -50%',
-						'7': '0, 0',
-						'8': '-50%, 0',
-						'9': '-100%, 0'
-					}[overrides.alignment]; //positioning style is default centered
-					containerInline.push(`transform: translate(${origin})`);
+					if (overrides.alignment) {
+						const origin = {
+							'1': '0, -100%',
+							'2': '-50%, -100%',
+							'3': '-100%, -100%',
+							'4': '0, -50%',
+							'5': '-50%, -50%',
+							'6': '-100%, -50%',
+							'7': '0, 0',
+							'8': '-50%, 0',
+							'9': '-100%, 0'
+						}[overrides.alignment]; //positioning style is default centered
+						containerInline.push(`transform: translate(${origin})`);
+					}
 
 					if (overrides.origin) {
 						const [orgX, orgY] = overrides.origin;
