@@ -11,11 +11,15 @@ const outlineShadow = 'text-shadow: -4px -4px 0px rgba(9, 9, 9, 255), -4px -3px 
 /**
  * Parser for SRT and WebVTT files since WebVTT is more or less a superset of SRT
  */
-export default class SRT extends SubtitleFormat {
-	constructor(srt, fileName) {
-		super('srt', fileName);
-
-		const subs = srt
+export default class SubRip extends SubtitleFormat {
+	constructor(subripFile, fileName) {
+		super('subrip', fileName);
+		const start = Date.now();
+		this.parse(subripFile);
+		this.parseTime = Date.now() - start;
+	}
+	parse(subripFile) {
+		const subs = subripFile
 			.replace(/\r/g, '')
 			//two lines separate each subtitle line
 			.split('\n\n');

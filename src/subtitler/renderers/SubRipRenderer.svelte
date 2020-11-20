@@ -4,7 +4,7 @@
         color: white;
 		margin: 0;
 		padding: 0;
-		white-space: pre;
+		white-space: pre-line;
 		font-family: "Source Han Sans", "源ノ角ゴシック", "Hiragino Sans", "HiraKakuProN-W3", "Hiragino Kaku Gothic ProN W3", "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", "Noto Sans", "Noto Sans CJK JP", "メイリオ", Meiryo, "游ゴシック", YuGothic, "ＭＳ Ｐゴシック", "MS PGothic", "ＭＳ ゴシック", "MS Gothic", sans-serif;
 		text-align: center;
 	}
@@ -14,32 +14,20 @@
 	}
 </style>
 <script>
-	import {onDestroy} from 'svelte';
 	import {
 		showSubtitlesOnVideo,
 		subtitleFallbackColor,
 		invertVerticalAlignment
-	} from './settingsStore';
+	} from '../settingsStore';
 	import {createEventDispatcher} from 'svelte';
 	import {fade} from 'svelte/transition';
-	export let current = []; // the subtitles that are currently supposed to be shown
-	export let styles = {}; // base styles from the subtitle file
-	export let format = ''; // subtitle file format that was parsed
 	const dispatch = createEventDispatcher();
 
-	let subColor, verticalAlignment;
-	const unsubs = [
-		subtitleFallbackColor.subscribe(color => {
-			subColor = color;
-		}),
-		invertVerticalAlignment.subscribe(invert => {
-			verticalAlignment = invert ? 'inverted' : 'normal'
-		})
-	];
+	export let subtitles; //store for which subtitles should be shown each frame
+	export let format = ''; // subtitle file format that was parsed
 
-	onDestroy(() => {
-		unsubs.forEach(unsub => unsub())
-	});
+
+	let subColor, verticalAlignment;
 
 	function define(phrase) {
 		dispatch('define-pauser');
@@ -54,14 +42,8 @@
 	}
 	function genBaseStyles(sub) {
 		let appliedStyles = [
-			`color: ${subColor}`
+			`color: ${$subtitleFallbackColor}`
 		];
-		//ASS subtitles inherit their base styles from some style declarations
-		if (format === 'ass' && sub.style in styles) {
-			const style = styles[sub.style];
-			appliedStyles.push(style.inline);
-			appliedStyles.push(style.verticalAlignment[verticalAlignment]);
-		}
 
 		if (sub.verticalAlignment) {
 			appliedStyles.push(
@@ -92,7 +74,7 @@
 
 <div class="subtitles">
 	{#if $showSubtitlesOnVideo}
-		{#each current as sub (sub._id)}
+		{#each $subtitles as sub (sub._id)}
 			<p style="{genBaseStyles(sub)}" data-sub-style={sub.style} data-sub-id={sub._id} on:click={() => define(sub.text)} title="click to search this phrase on Jisho.org">
 				{#if sub.phrases}
 					{#each sub.phrases as phrase (phrase._id)}

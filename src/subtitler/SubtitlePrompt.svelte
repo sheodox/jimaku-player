@@ -13,7 +13,7 @@
 <script>
 	import {createEventDispatcher} from 'svelte';
 	import {ASS} from "./parsers/ASS";
-	import SRT from "./parsers/SRT";
+	import SubRip from "./parsers/SubRip";
 	const dispatch = createEventDispatcher();
 
 	function loadSubtitleFile(e) {
@@ -34,8 +34,8 @@
 		const constructorClasses = {
 			'ass': ASS,
 			'ssa': ASS,
-			'srt': SRT,
-			'vtt': SRT
+			'srt': SubRip,
+			'vtt': SubRip
 		};
 		dispatch('subtitles-loaded', {
 			//if using provided subtitles they should be aligned at 0, not worth

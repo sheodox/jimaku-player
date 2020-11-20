@@ -7,6 +7,23 @@ const camelCase = string => {
 	return (string.charAt(0).toLowerCase() + string.substring(1)).replace(' ', '');
 };
 
+//the legacy alignment numbering system is kind of weird, 1-3 are the same,
+//but 5-7 are the top of the screen, then switching to 9-11 for the center.
+//but the locations they end up in are all the same, so this just maps
+//the legacy alignments to the regular alignment numbers so the renderer
+//can treat them both the same way
+const legacyAlignmentTranslation = {
+	1: 1,
+	2: 2,
+	3: 3,
+	5: 7,
+	6: 8,
+	7: 9,
+	9: 4,
+	10: 5,
+	11: 6
+};
+
 const parseColor = assColor => {
 	if (assColor) {
 		assColor = assColor
@@ -46,51 +63,11 @@ const genOutlineStyles = (outlineColor, outlineWidth, shadowColor='transparent',
 			outlines.push(`${i}px ${j}px ${blur} ${color}`);
 		}
 	}
-	return `text-shadow: ${outlines.join(', ')}, ${shadowDepth}px ${shadowDepth}px ${blur} ${shadowColor.rgba}`
+	return `text-shadow: ${outlines.join(', ')}; filter: drop-shadow(${shadowDepth}px ${shadowDepth}px ${blur} ${shadowColor.rgba})`
 };
 
 const genFontFamily = fontName => {
 	return `font-family: "${fontName}", "Source Han Sans", "源ノ角ゴシック", "Hiragino Sans", "HiraKakuProN-W3", "Hiragino Kaku Gothic ProN W3", "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", "Noto Sans", "Noto Sans CJK JP", "メイリオ", Meiryo, "游ゴシック", YuGothic, "ＭＳ Ｐゴシック", "MS PGothic", "ＭＳ ゴシック", "MS Gothic", sans-serif`
-};
-
-const genAlignment = (alignmentCode, marginL='0vw', marginR='0vw', marginV='0vh') => {
-	//unless you're using the legacy \a alignment override, the alignments are like the 1-9 keys on the number pad,
-	//so for example 1=bottom left, 5=middle center, 9=top right, that point is its anchor, so the text needs to be
-	//translated to not go off screen or not be in a weird place. so alignment 9 should be translated so its as if
-	//the text grows down and to the left. likewise alignment 1 should be translated to grow upwards and to the right.
-	//
-	//additionally, the margins need to be taken into account to pull the text away from the edges of the screen,
-	//otherwise they'll go off the screen if we just use these positions and add a margin css rule
-	const positions = {
-			1: `top: calc(100vh - ${marginV}); left: ${marginL}; transform: translate(0, -100%)`,
-			2: `top: calc(100vh - ${marginV}); left: 50vw; transform: translate(-50%, -100%)`,
-			3: `top: calc(100vh - ${marginV}); left: calc(100vw - ${marginR}); transform: translate(-100%, -100%)`,
-			4: `top: 50vh; left: ${marginL}; transform: translate(0, -50%)`,
-			5: `top: 50vh; left: 50vw; transform: translate(-50%, -50%)`,
-			6: `top: 50vh; left: calc(100vw - ${marginR}); transform: translate(-100%, -50%)`,
-			//growth in the y direction is the natural way text grows on the web for the top alignments, only need an X correction
-			7: `top: ${marginV}; left: ${marginL}; transform: translate(0, 0)`,
-			8: `top: ${marginV}; left: 50vw; transform: translate(-50%, 0)`,
-			9: `top: ${marginV}; left: calc(100vw - ${marginR}); transform: translate(-100%, 0)`,
-		},
-		//to create alignments that can be inverted using the tray option, this is used to flip the alignment vertically
-		invertedAlignments = {
-			1: 7,
-			2: 8,
-			3: 9,
-			4: 4,
-			5: 5,
-			6: 6,
-			7: 1,
-			8: 2,
-			9: 3
-		},
-		genStyle = alignment => `position:fixed;${positions[alignment]}`;
-
-	return {
-		normal: genStyle(alignmentCode),
-		inverted: genStyle(invertedAlignments[alignmentCode])
-	}
 };
 
 /**
@@ -313,7 +290,9 @@ class ASS extends SubtitleFormat {
 	 */
 	constructor(ass, fileName) {
 		super('ass', fileName);
-		//much easier to parse without carriage returns, keep in mind though that \r is also a 'reset' override tag
+		const start = Date.now();
+
+		//much easier to parse without carriage returns, keep in mind though that \\r is a 'reset' override tag
 		ass = ass.replace(/\r\n/g, '\n');
 		try {
 			this.blocks = this.parseBlocks(ass);
@@ -327,6 +306,8 @@ class ASS extends SubtitleFormat {
 			// if we errored out, having no subs is an error condition detected elsewhere
 			this.subs = [];
 		}
+
+		this.parseTime = Date.now() - start;
 	}
 
 	serialize(atTime) {
@@ -352,7 +333,7 @@ class ASS extends SubtitleFormat {
 		this.blocks.info
 			.split('\n')
 			.forEach(line => {
-				const [key, value] = line.split(': ');
+				const [key, value] = line.split(/: ?/);
 				this.info[camelCase(key)] = value;
 			})
 	}
@@ -537,12 +518,9 @@ class ASS extends SubtitleFormat {
 
 			parsedStyles[style.name] = {
 				inline: inlineStyle.join(';'),
-				verticalAlignment: genAlignment(
-					alignment,
-					this.scaleWidth(marginL),
-					this.scaleWidth(marginR),
-					this.scaleHeight(marginV),
-				),
+				marginL: this.scaleWidth(marginL),
+				marginR: this.scaleWidth(marginR),
+				marginV: this.scaleHeight(marginV),
 				//keep parsed styles as-is for debugging
 				raw: style
 			};
@@ -589,6 +567,8 @@ class ASS extends SubtitleFormat {
 				//subtitles are rendered with `white-space:pre` so just using a space character for a hard space should be enough
 				.replace(/\\h/g, ' '); //hard space
 
+			sub.mountPoint = this.styles[sub.style].raw.alignment;
+
 			//just ignore lines with no overrides
 			if (!/{.+?}/.test(sub.text)) {
 				return;
@@ -615,9 +595,8 @@ class ASS extends SubtitleFormat {
 						overrides: scanned.overrides,
 						rawOverrides: scanned.rawOverrides,
 						rawText: scanned.rawText
-					};
-
-				const {overrides} = scanned;
+					},
+					{overrides} = scanned;
 
 				//todo - parse more tags
 				//http://docs.aegisub.org/3.2/ASS_Tags/
@@ -642,30 +621,33 @@ class ASS extends SubtitleFormat {
 
 				let transforms = [];
 				if (overrides.position) {
+					sub.mountPoint = 'positioned';
 					const [x, y] = overrides.position;
 					//positioning applies to the line, and if we just put it on this span it might get put in the right space, but the
 					//containing paragraph elements will stack, possibly overlapping the video controls if
 					containerInline.push(`position: fixed; left: ${this.scaleWidth(x)}; top: ${this.scaleHeight(y)}`);
+
+					//if the text is explicitly positioned we don't want any unwanted wrapping, it's probably something
+					//pretty short that's probably exactly where it needs to be, letting it wrap when it shouldn't might not be good
+					containerInline.push('white-space: pre');
 
 					//CSS positioning moves as if it's \an7 (i.e. positioning sets the top left corner's position)
 					//but by .ass positionings seem to work like \an5, (i.e. positioning sets the center's position)
 					//so we need to first reconcile the difference in movement by adding
 					//an extra -50%, -50%, so that's why these numbers look weird, without
 					//that adjustment all positioned subtitles are too far down and right
-					if (overrides.alignment) {
-						const origin = {
-							'1': '0, -100%',
-							'2': '-50%, -100%',
-							'3': '-100%, -100%',
-							'4': '0, -50%',
-							'5': '-50%, -50%',
-							'6': '-100%, -50%',
-							'7': '0, 0',
-							'8': '-50%, 0',
-							'9': '-100%, 0'
-						}[overrides.alignment]; //positioning style is default centered
-						containerInline.push(`transform: translate(${origin})`);
-					}
+					const origin = {
+						'1': '0, -100%',
+						'2': '-50%, -100%',
+						'3': '-100%, -100%',
+						'4': '0, -50%',
+						'5': '-50%, -50%',
+						'6': '-100%, -50%',
+						'7': '0, 0',
+						'8': '-50%, 0',
+						'9': '-100%, 0'
+					}[overrides.alignment || '5']; //positioning style is default centered
+					containerInline.push(`transform: translate(${origin})`);
 
 					if (overrides.origin) {
 						const [orgX, orgY] = overrides.origin;
@@ -673,13 +655,10 @@ class ASS extends SubtitleFormat {
 					}
 				}
 				else if (overrides.alignment) {
-					const srcStyle = this.styles[sub.style];
-					sub.verticalAlignment = genAlignment(
-						overrides.alignment,
-						this.scaleWidth(srcStyle.raw.marginL),
-						this.scaleWidth(srcStyle.raw.marginR),
-						this.scaleHeight(srcStyle.raw.marginV),
-					)
+					sub.mountPoint = overrides.alignment
+				}
+				else if (overrides.alignmentLegacy) {
+					sub.mountPoint = legacyAlignmentTranslation[overrides.alignmentLegacy];
 				}
 
 				const {fontScaleX, fontScaleY} = overrides;
@@ -704,7 +683,7 @@ class ASS extends SubtitleFormat {
 				checkRotate(overrides.rotateZ, `rotateZ`, -1);
 
 				if (rotations.length) {
-					containerInline.push(`perspective: 200px`);
+					transforms.push(`perspective(200px)`);
 					transforms.push(rotations.join(' '));
 				}
 
@@ -789,7 +768,7 @@ class ASS extends SubtitleFormat {
 			sub.text = removeOverrideText(sub.text);
 		});
 	}
-};
+}
 
 module.exports = {
 	getOverride,

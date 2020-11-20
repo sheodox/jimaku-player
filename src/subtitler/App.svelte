@@ -62,12 +62,22 @@
 	{:else if phase === 'align'}
 		<Align subtitles={subtitles} on:done={aligned} on:reselect={() => phase = 'prompt'}/>
 	{:else if phase === 'play'}
-		<Subtitles
-			format={subtitles.format}
-			styles={subtitles.styles}
-			current={$subtitleStore}
-			on:define-pauser={definePauser}
-		/>
+		{#if $showSubtitlesOnVideo}
+			{#if subtitles.format === 'subrip'}
+				<SubRipRenderer
+					format={subtitles.format}
+					subtitles={subtitleStore}
+					on:define-pauser={definePauser}
+				/>
+			{:else if subtitles.format === 'ass'}
+				<ASSRenderer
+					format={subtitles.format}
+					styles={subtitles.styles}
+					subtitles={subtitleStore}
+					on:define-pauser={definePauser}
+				/>
+			{/if}
+		{/if}
 		<Tray
 			{recentSubs}
 			{subtitles}
@@ -88,10 +98,12 @@
 <script>
 	import {onMount} from 'svelte';
 	import Tray from "./Tray.svelte";
-	import Subtitles from "./Subtitles.svelte";
+	import SubRipRenderer from './renderers/SubRipRenderer.svelte';
+	import ASSRenderer from './renderers/ASSRenderer.svelte';
 	import VideoController from './VideoController';
 	import SubtitlePrompt from "./SubtitlePrompt.svelte";
 	import Align from "./Align.svelte";
+	import {showSubtitlesOnVideo} from "./settingsStore";
 	import {
 		showNameStore,
 		alignmentStore
