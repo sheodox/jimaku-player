@@ -153,10 +153,12 @@
 	{/each}
 
 	{#each alignments as an (an)}
-		<div class="an an{an}">
-			{#each $arranged[`an${an}`] as sub (sub._id)}
-				<ASSSubtitle {sub} {styles} on:define-pauser />
-			{/each}
-		</div>
+		{#if $arranged[`an${an}`].length}
+			<div class="an an{an}">
+				{#each $arranged[`an${an}`] as sub (sub._id)}
+					<ASSSubtitle {sub} {styles} on:define-pauser />
+				{/each}
+			</div>
+		{/if}
 	{/each}
 </div>
