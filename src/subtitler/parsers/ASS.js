@@ -12,7 +12,7 @@ const camelCase = string => {
 //but the locations they end up in are all the same, so this just maps
 //the legacy alignments to the regular alignment numbers so the renderer
 //can treat them both the same way
-const legacyAlignmentTranslation = {
+const legacyAlignmentTranslationMapping = {
 	1: 1,
 	2: 2,
 	3: 3,
@@ -23,6 +23,10 @@ const legacyAlignmentTranslation = {
 	10: 5,
 	11: 6
 };
+
+const parseLegacyAlignment = alignment => {
+	return legacyAlignmentTranslationMapping[alignment];
+}
 
 const parseColor = assColor => {
 	if (assColor) {
@@ -151,7 +155,7 @@ const intBase10 = numStr => parseInt(numStr, 10),
 		{ tag: 'r', friendly: 'reset', defaultValue: false},
 		{ tag: 'q', friendly: 'wrapStyle' },
 		{ tag: 'p', friendly: 'drawMode' },
-		{ tag: 'a', friendly: 'alignmentLegacy' },
+		{ tag: 'a', friendly: 'alignment', parser: parseLegacyAlignment },
 	];
 
 /**
@@ -657,9 +661,6 @@ class ASS extends SubtitleFormat {
 				}
 				else if (overrides.alignment) {
 					sub.mountPoint = overrides.alignment
-				}
-				else if (overrides.alignmentLegacy) {
-					sub.mountPoint = legacyAlignmentTranslation[overrides.alignmentLegacy];
 				}
 
 				const {fontScaleX, fontScaleY} = overrides;
