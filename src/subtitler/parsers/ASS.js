@@ -567,7 +567,8 @@ class ASS extends SubtitleFormat {
 				//subtitles are rendered with `white-space:pre` so just using a space character for a hard space should be enough
 				.replace(/\\h/g, ' '); //hard space
 
-			sub.mountPoint = this.styles[sub.style].raw.alignment;
+			const inheritedStyle = this.styles[sub.style];
+			sub.mountPoint = inheritedStyle.raw.alignment;
 
 			//just ignore lines with no overrides
 			if (!/{.+?}/.test(sub.text)) {
@@ -646,7 +647,7 @@ class ASS extends SubtitleFormat {
 						'7': '0, 0',
 						'8': '-50%, 0',
 						'9': '-100%, 0'
-					}[overrides.alignment || '5']; //positioning style is default centered
+					}[overrides.alignment || inheritedStyle.raw.alignment];
 					containerInline.push(`transform: translate(${origin})`);
 
 					if (overrides.origin) {
