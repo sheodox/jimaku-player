@@ -14,7 +14,7 @@
 </style>
 
 <p
-	style="{genBaseStyles(sub)}"
+	style="{genBaseStyles(sub)};{$movementStyles}"
 	data-sub-style={sub.style}
 	data-sub-id={sub._id}
 	on:click={() => define(sub.text)}
@@ -23,9 +23,14 @@
 	{#if sub.phrases}
 		{#each sub.phrases as phrase (phrase._id)}
 			{#if phrase.fadeIn || phrase.fadeOut}
-				<span style={genPhraseStyles(phrase)} in:fade={genFade(phrase.fadeIn)} out:fade={genFade(phrase.fadeOut)} data-phrase-id={phrase._id}>{phrase.text}</span>
+				<span
+					style={phrase.inline}
+					in:fade={genFade(phrase.fadeIn)}
+					out:fade={genFade(phrase.fadeOut)}
+					data-phrase-id={phrase._id}
+				>{phrase.text}</span>
 			{:else}
-				<span style={genPhraseStyles(phrase)} data-phrase-id={phrase._id}>{phrase.text}</span>
+				<span style={phrase.inline} data-phrase-id={phrase._id}>{phrase.text}</span>
 			{/if}
 		{/each}
 	{:else}
@@ -34,9 +39,12 @@
 </p>
 
 <script>
-	import {invertVerticalAlignment, subtitleFallbackColor} from "../settingsStore";
 	import {fade} from 'svelte/transition';
+	import {invertVerticalAlignment, subtitleFallbackColor} from '../settingsStore';
+	import {joinStyles} from './render-common';
 	import {createEventDispatcher} from 'svelte';
+	import {readable} from "svelte/store";
+	import {tweened} from "svelte/motion";
 	const dispatch = createEventDispatcher();
 
 	export let sub;
@@ -47,12 +55,44 @@
 		window.open(`https://jisho.org/search/${encodeURIComponent(phrase.trim())}`);
 	}
 
-	function joinStyles(stylesArray) {
-		return stylesArray
-			//ensure we're not putting `;undefined;` in the styles
-			.filter(style => !!style)
-			.join(';');
+	const movementStyles = readable('', set => {
+		const movement = sub.movement;
+		if (movement) {
+			const timings = movement.timings,
+				timed = movement.timings.length > 0,
+				movementOptions = {
+					duration: timed ? timings[1] - timings[0] : sub.end - sub.start,
+					delay: timed ? timings[0] : 0
+				},
+				movementLeft = tweened(movement.x1, movementOptions),
+				movementTop = tweened(movement.y1, movementOptions);
+
+			let top = '', left = '';
+			function updateStyles() {
+				set(`position: fixed; top: ${top}vh; left: ${left}vw;`)
+			}
+
+			movementLeft.subscribe(l => {
+				left = l;
+				updateStyles();
+			})
+			movementTop.subscribe(t => {
+				top = t;
+				updateStyles();
+			})
+
+			movementLeft.set(movement.x2);
+			movementTop.set(movement.y2);
+		}
+	});
+
+	function genFade(dur) {
+		if (typeof dur !== 'number') {
+			dur = 0;
+		}
+		return {delay: 0, duration: dur};
 	}
+
 	function genBaseStyles(sub) {
 		let appliedStyles = [
 			`color: ${$subtitleFallbackColor}`
@@ -67,16 +107,5 @@
 		]);
 
 		return joinStyles(appliedStyles);
-	}
-	function genPhraseStyles(phrase) {
-		return joinStyles([
-			phrase.inline,
-		]);
-	}
-	function genFade(dur) {
-		if (typeof dur !== 'number') {
-			dur = 0;
-		}
-		return {delay: 0, duration: dur};
 	}
 </script>

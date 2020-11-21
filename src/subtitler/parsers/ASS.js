@@ -59,13 +59,16 @@ const genOutlineStyles = (outlineColor, outlineWidth, shadowColor='transparent',
 		color = blur < 1 ? colorSource.rgba : colorSource.weakenAlpha(1 / (4 * outlineWidth));
 	blur = `${blur}px`;
 
-	outlineWidth = (typeof outlineWidth === 'undefined' ? 1 : outlineWidth);
-	const outlines = [];
+	outlineWidth = (typeof outlineWidth === 'undefined' ? 1 : parseInt(outlineWidth, 10));
+	let outlines = [];
 	//make a ton of stacking shadows, because otherwise thicker outlines won't appear smooth
 	for (let i = -1 * outlineWidth; i <= outlineWidth; i++) {
 		for (let j = -1 * outlineWidth; j <= outlineWidth; j++) {
 			outlines.push(`${i}px ${j}px ${blur} ${color}`);
 		}
+	}
+	if (outlineWidth === 0) {
+		outlines = ['none'];
 	}
 	return `text-shadow: ${outlines.join(', ')}; filter: drop-shadow(${shadowDepth}px ${shadowDepth}px ${blur} ${shadowColor.rgba})`
 };
@@ -342,14 +345,16 @@ class ASS extends SubtitleFormat {
 			})
 	}
 
-	scaleHeight(height) {
+	scaleHeight(height, unitless=false) {
 		//fonts in ASS files are meant to be equivalent to px, but they need to scale compared to the size of the video they were expecting,
 		//since we know expected video resolutions we can scale the subtitles into vh units so it'll automatically scale. this can also
 		//be used by pos override tags
-		return `${100 * (height / +this.info.playResY)}vh`;
+		const scaledHeight = 100 * (height / +this.info.playResY);
+		return unitless ? scaledHeight : `${scaledHeight}vh`;
 	}
-	scaleWidth(width) {
-		return `${100 * (width / +this.info.playResX)}vw`;
+	scaleWidth(width, unitless=false) {
+		const scaledWidth = 100 * (width / +this.info.playResX)
+		return unitless ? scaledWidth : `${scaledWidth}vw`;
 	}
 
 	/**
@@ -625,12 +630,27 @@ class ASS extends SubtitleFormat {
 				}
 
 				let transforms = [];
-				if (overrides.position) {
+				if (overrides.position || overrides.movement) {
 					sub.mountPoint = 'positioned';
-					const [x, y] = overrides.position;
-					//positioning applies to the line, and if we just put it on this span it might get put in the right space, but the
-					//containing paragraph elements will stack, possibly overlapping the video controls if
-					containerInline.push(`position: fixed; left: ${this.scaleWidth(x)}; top: ${this.scaleHeight(y)}`);
+
+					if (overrides.position) {
+						const [x, y] = overrides.position;
+						//positioning applies to the line, and if we just put it on this span it might get put in the right space, but the
+						//containing paragraph elements will stack, possibly overlapping the video controls if
+						containerInline.push(`position: fixed; left: ${this.scaleWidth(x)}; top: ${this.scaleHeight(y)}`);
+					}
+					else if (overrides.movement) {
+						const [x1, y1, x2, y2, ...timings] = overrides.movement;
+						sub.movement = {
+							//getting these without units so svelte can do the math
+							//interpolating these values when rendering
+							x1: this.scaleWidth(x1, true),
+							y1: this.scaleHeight(y1, true),
+							x2: this.scaleWidth(x2, true),
+							y2: this.scaleHeight(y2, true),
+							timings
+						}
+					}
 
 					//if the text is explicitly positioned we don't want any unwanted wrapping, it's probably something
 					//pretty short that's probably exactly where it needs to be, letting it wrap when it shouldn't might not be good

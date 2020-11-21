@@ -14,6 +14,7 @@
 	}
 </style>
 <script>
+	import {joinStyles} from './render-common';
 	import {
 		showSubtitlesOnVideo,
 		subtitleFallbackColor,
@@ -24,8 +25,6 @@
 	const dispatch = createEventDispatcher();
 
 	export let subtitles; //store for which subtitles should be shown each frame
-	export let format = ''; // subtitle file format that was parsed
-
 
 	let subColor, verticalAlignment;
 
@@ -34,12 +33,6 @@
 		window.open(`https://jisho.org/search/${encodeURIComponent(phrase.trim())}`);
 	}
 
-	function joinStyles(stylesArray) {
-		return stylesArray
-			//ensure we're not putting `;undefined;` in the styles
-			.filter(style => !!style)
-			.join(';');
-	}
 	function genBaseStyles(sub) {
 		let appliedStyles = [
 			`color: ${$subtitleFallbackColor}`
