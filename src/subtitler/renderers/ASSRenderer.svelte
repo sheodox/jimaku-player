@@ -109,19 +109,9 @@
 		9: 3
 	};
 
-	//subtitles come in as a store of an array of all subtitles shown on screen at the time,
-	//but ASS subtitles need to be positioned in one of a few different containers, it's easier
-	//to compute each subtitle's destination here in a derived store than in html
-	const arranged = derived(subtitles, subs => {
-		//positioned elements are rendered as-is wherever the subtitles say they should be,
-		//but any of the tags with an alignment are mounted into a common container so they
-		//can flow within that container and not overlap. this way the browser can flow
-		//the text however it chooses and we don't need to do any conflict resolution calculations.
-
-
-		//note that this doesn't yet work for different layers, but could be easily extended
-		// to duplicate all of the alignment containers for each layer that's displayed currently
-		const mountPoints = {
+	function emptyArrangement(level) {
+		return {
+			level,
 			positioned: [],
 			//'an' is a reference to the \an override tag, though the alignment here could have come
 			//from the base style the subtitle inherits from if it's not overridden
@@ -135,30 +125,51 @@
 			an8: [],
 			an9: [],
 		}
+	}
 
+	//subtitles come in as a store of an array of all subtitles shown on screen at the time,
+	//but ASS subtitles need to be positioned in one of a few different containers, it's easier
+	//to compute each subtitle's destination here in a derived store than in html
+	const layers = derived(subtitles, subs => {
+		//positioned elements are rendered as-is wherever the subtitles say they should be,
+		//but any of the tags with an alignment are mounted into a common container so they
+		//can flow within that container and not overlap. this way the browser can flow
+		//the text however it chooses and we don't need to do any collision resolution calculations.
+		//additionally subtitles have "layers", subs on different layers don't compete with each
+		//other during collision resolution, i.e. subs on different layers can overlap if they
+		//have the same alignment. higher number layers will show on top of the others, so this
+		//basically just corresponds to a z-index number.
+		const layerMounts = {};
 		for (const sub of subs) {
 			const mount = sub.mountPoint === 'positioned' ?
 				sub.mountPoint :
 				`an${$invertVerticalAlignment ? invertedAlignments[sub.mountPoint] : sub.mountPoint}`
-			mountPoints[mount].push(sub);
+			if (!layerMounts[sub.layer]) {
+				layerMounts[sub.layer] = emptyArrangement(sub.layer)
+			}
+			layerMounts[sub.layer][mount].push(sub);
 		}
 
-		return mountPoints;
+		//since z-index handles which show on top there's no need to sort the array coming from this
+		return Object.values(layerMounts);
 	});
 </script>
 
 <div class="subtitles">
-	{#each $arranged.positioned as sub (sub._id)}
-		<ASSSubtitle {sub} {styles} on:define-pauser />
-	{/each}
-
-	{#each alignments as an (an)}
-		{#if $arranged[`an${an}`].length}
-			<div class="an an{an}">
-				{#each $arranged[`an${an}`] as sub (sub._id)}
-					<ASSSubtitle {sub} {styles} on:define-pauser />
-				{/each}
-			</div>
-		{/if}
+	{#each $layers as arrangement (arrangement.level)}
+		<div data-ass-layer={arrangement.level} style="position: absolute; z-index: {arrangement.level}">
+			{#each arrangement.positioned as sub (sub._id)}
+				<ASSSubtitle {sub} {styles} on:define-pauser />
+			{/each}
+			{#each alignments as an (an)}
+				{#if arrangement[`an${an}`].length}
+					<div class="an an{an}">
+						{#each arrangement[`an${an}`] as sub (sub._id)}
+							<ASSSubtitle {sub} {styles} on:define-pauser />
+						{/each}
+					</div>
+				{/if}
+			{/each}
+		</div>
 	{/each}
 </div>
