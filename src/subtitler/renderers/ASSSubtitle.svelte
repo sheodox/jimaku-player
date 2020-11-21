@@ -22,7 +22,11 @@
 >
 	{#if sub.phrases}
 		{#each sub.phrases as phrase (phrase._id)}
-			<span style={genPhraseStyles(phrase)} in:fade={genFade(phrase.fadeIn)} out:fade={genFade(phrase.fadeOut)} data-phrase-id={phrase._id}>{phrase.text}</span>
+			{#if phrase.fadeIn || phrase.fadeOut}
+				<span style={genPhraseStyles(phrase)} in:fade={genFade(phrase.fadeIn)} out:fade={genFade(phrase.fadeOut)} data-phrase-id={phrase._id}>{phrase.text}</span>
+			{:else}
+				<span style={genPhraseStyles(phrase)} data-phrase-id={phrase._id}>{phrase.text}</span>
+			{/if}
 		{/each}
 	{:else}
 		{sub.text}
