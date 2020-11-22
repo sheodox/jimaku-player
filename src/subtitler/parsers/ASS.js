@@ -24,6 +24,16 @@ const legacyAlignmentTranslationMapping = {
 	11: 6
 };
 
+const svgNamespace = 'http://www.w3.org/2000/svg';
+function createSVGNSElement(elementName) {
+	return document.createElementNS(svgNamespace, elementName);
+}
+function createSVG() {
+	const svg = createSVGNSElement('svg');
+	svg.setAttribute('xmlns', svgNamespace);
+	return svg;
+}
+
 const parseLegacyAlignment = alignment => {
 	return legacyAlignmentTranslationMapping[alignment];
 }
@@ -51,6 +61,23 @@ const parseColor = assColor => {
 	}
 };
 
+const parseClip = clipOptions => {
+	//clips have two types, rectangle and vector.
+	//rectangle clips have four parameters,
+	if (clipOptions.length === 4) {
+		//todo - rectangle clip
+	}
+	else {
+		//if only drawing commands are given the scale is assumed to be 1
+		const [scale, drawingCommands] = clipOptions.length === 1 ? [1, clipOptions[0]] : clipOptions;
+
+		return {
+			scale,
+			commands: parseDrawingCommands(drawingCommands)
+		}
+	}
+}
+
 const parseDrawingCommands = drawText => {
 	const commands = [],
 		commandRegex = /([mnlbspc][ \.0-9\-]+)/g;
@@ -77,6 +104,81 @@ const parseDrawingCommands = drawText => {
 	});
 	return commands;
 };
+
+const genPathFromDrawCommands = (commands) => {
+	let paths = [];
+	let maxWidth = 0, maxHeight = 0;
+	//for an accurate viewBox and SVG sizing we need to know how big the SVG is going to be
+	function analyzeMaxes(x, y) {
+		maxWidth = Math.max(maxWidth, x);
+		maxHeight = Math.max(maxHeight, y);
+	}
+
+	/**
+	 * ASS lets you omit redundant path commands and just give a huge list of coordinates for some
+	 * drawing commands, but that doesn't fly with SVGs. So in ASS you can do:
+	 * L 100 100 200 200 300 300 which will draw three lines to (100, 100), (200, 200), and (300,300)
+	 * but we need to separate that into three commands of two coordinates for SVGs,
+	 * this will group the specified commands into groups of commands, so the above
+	 * example will be turned into: L 100 100 L 200 200 L 300 300
+	 * given a maxCoordsPerCommand of 2. additionally a callback can be
+	 * given that will be passed each group of coordinates, so the caller can call
+	 * analyzeMaxes, as it'll have a better idea of which coordinates are x and which are y.
+	 * @param command - SVG path command code
+	 * @param coordinates - an array of coordinates
+	 * @param maxCoordsPerCommand - how many coordinates are valid after a command code
+	 * @param callbackPerSet - callback to have the caller analyze x/y values for computing maxHeight/maxWidth
+	 */
+	function pathInSets(command, coordinates, maxCoordsPerCommand, callbackPerSet) {
+		const commands = [],
+			//copy the coordinates array, otherwise we'll wipe out debug info
+			mutableCoordinates = coordinates.slice();
+		while (mutableCoordinates.length > 0) {
+			const set = mutableCoordinates.splice(0, maxCoordsPerCommand);
+			if (callbackPerSet) {
+				callbackPerSet(...set);
+			}
+			commands.push(command + ' ' + set.join(' '));
+		}
+		paths = paths.concat(commands);
+	}
+
+	for (let {command, coordinates} of commands) {
+		if (command === 'm' && paths.length > 0) {
+			paths.push(' Z '); //'z' closes the path which is what 'm' does in addition to moving
+		}
+
+		//if it's an 'n', it's a move command like an 'm', but without closing a path,
+		//so now that we're past the path closing condition, treat it as an 'm'
+		if (command === 'n') {
+			command = 'm';
+		}
+
+		if (command === 'l') {
+			//ass line commands can take multiple sets of coordinates, but svg paths need
+			//to be grouped in sets of two
+			pathInSets('L', coordinates, 2, analyzeMaxes);
+		}
+		else if (command === 'm') {
+			paths.push('M' + coordinates.join(' '));
+			analyzeMaxes(...coordinates);
+		}
+		else if (command === 'b') {
+			//in an svg path 'C' is a cubic bezier curve, which is 'b' in ASS
+			pathInSets('C', coordinates, 6, (x1, y1, x2, y2, x3, y3) => {
+				analyzeMaxes(x1, y1);
+				analyzeMaxes(x2, y2);
+				analyzeMaxes(x3, y3);
+			});
+		}
+	}
+
+	return {
+		path: paths.join(' '),
+		viewBox: `0 0 ${maxWidth} ${maxHeight}`,
+		maxHeight, maxWidth
+	};
+}
 
 const genOutlineStyles = (outlineColor, outlineWidth, shadowColor='transparent', shadowDepth=0, blur=0) => {
 	// many shadows will be stacked, which gives an multiplied shadow color, and the shadow will appear
@@ -153,7 +255,7 @@ const intBase10 = numStr => parseInt(numStr, 10),
 	knownOverrides = [
 		{ tag: 't', friendly: 'animatedTransform', complex: true, repeatable: true },
 		{ tag: 'move', friendly: 'movement', complex: true, parser: parseFloat },
-		{ tag: 'clip', friendly: 'clip', complex: true },
+		{ tag: 'clip', friendly: 'clip', complex: true, parser: parseClip, parseTogether: true },
 		{ tag: '3c', friendly: 'outlineColor', parser: parseColor },
 		{ tag: '4c', friendly: 'shadowColor', parser: parseColor },
 		{ tag: 'bord', friendly: 'outlineSize' },
@@ -193,11 +295,16 @@ const intBase10 = numStr => parseInt(numStr, 10),
  * a parser exists for that override this will run it on every value
  * @param value
  * @param parser
+ * @param parseTogether - if the parser should be run on the whole value (true), or each (false, default)
  * @returns {*}
  */
-function runOverrideValueParser(value, parser) {
+function runOverrideValueParser(value, parser, parseTogether=false) {
 	if (!parser) {
 		return value;
+	}
+
+	if (parseTogether) {
+		return parser(value);
 	}
 
 	return Array.isArray(value) ? value.map(parser) : parser(value);
@@ -216,7 +323,7 @@ function parseOverrides(overridesAndText) {
 	//function was called in the first place
 	let [overridesString] = overridesAndText.match(/{.*?}/);
 
-	for (const {tag, friendly, complex=false, defaultValue, parser, repeatable=false} of knownOverrides) {
+	for (const {tag, friendly, complex=false, defaultValue, parser, repeatable=false, parseTogether} of knownOverrides) {
 		let result = getOverride(overridesString, tag, complex)
 
 		let i = 0;
@@ -226,7 +333,7 @@ function parseOverrides(overridesAndText) {
 			if (result) {
 				overridesString = result.overrides;
 
-				const parsedValue = runOverrideValueParser(result.params, parser) || defaultValue;
+				const parsedValue = runOverrideValueParser(result.params, parser, parseTogether) || defaultValue;
 				// only parse friendly overrides, the raw ones should stay as-is
 				friendlyOverrides[friendly] = !repeatable ? parsedValue :
 					//if it's a repeatable value (like \t that can occur more than once),
@@ -642,7 +749,9 @@ class ASS extends SubtitleFormat {
 						inline: '',
 						overrides: scanned.overrides,
 						rawOverrides: scanned.rawOverrides,
-						rawText: scanned.rawText
+						rawText: scanned.rawText,
+						//generated SVG structure for drawings and clip paths
+						html: ''
 					},
 					{overrides} = scanned;
 
@@ -819,12 +928,20 @@ class ASS extends SubtitleFormat {
 
 				if (overrides.drawMode === '1') {
 					const drawing = this.draw(styled.text, overrides, inheritedStyle)
-					styled.html = drawing.html;
+					styled.html += drawing.html;
 					styled.drawCommands = drawing.commands;
+					//SVGs don't have anything you can define, and searching jisho for a path is just going to be nonsense
+					containerInline.push('pointer-events: none');
 
 					if (overrides.blur) {
 						cumulativeStyles.push(`filter: blur(${overrides.blur}px)`);
 					}
+				}
+
+				if (overrides.clip) {
+					const {html, clipId} = this.clip(overrides.clip, styled._id);
+					cumulativeStyles.push(`clip-path: url(#${clipId})`)
+					styled.html += html;
 				}
 
 				styled.inline = cumulativeStyles.join(';');
@@ -839,87 +956,61 @@ class ASS extends SubtitleFormat {
 			sub.text = removeOverrideText(sub.text);
 		});
 	}
-	draw(drawText, overrides, inheritedStyle) {
-		const commands = parseDrawingCommands(drawText);
 
-		const xmlns = 'http://www.w3.org/2000/svg',
-			svg = document.createElementNS(xmlns, 'svg');
-		// svg.setAttribute('width', 1000);
-		// svg.setAttribute('height', 1000);
-		svg.setAttribute('xmlns', xmlns);
-		let paths = [],
-			maxWidth = 0,
-			maxHeight = 0;
+	genSvg(commands, scale=1) {
+		const svgElement = createSVG(),
+			pathElement = createSVGNSElement('path');
+
+		const {
+			path,
+			maxHeight,
+			maxWidth,
+			viewBox
+		} = genPathFromDrawCommands(commands);
+
+		svgElement.setAttribute('viewBox', viewBox);
+		pathElement.setAttribute('d', path);
+		svgElement.setAttribute('width', this.scaleWidth(maxWidth))
+		svgElement.setAttribute('height', this.scaleHeight(maxHeight))
+
+		//not actually appending the two together, as both usages of these have different
+		//structure depending on drawing vs clip shape
+		return {
+			svg: svgElement,
+			path: pathElement
+		}
+	}
+
+	clip({scale, commands}, phraseId) {
+		const {svg, path} = this.genSvg(commands, scale),
+			defs = createSVGNSElement('defs'),
+			clipPath = createSVGNSElement('clipPath'),
+			clipId = `clip-path-${phraseId}`;
+
+		clipPath.setAttribute('id', clipId);
+
+		svg.appendChild(defs);
+		defs.appendChild(clipPath);
+		clipPath.appendChild(path);
+
+		return {
+			html: svg.outerHTML,
+			clipId,
+			commands
+		}
+	}
+
+	draw(drawText, overrides, inheritedStyle) {
+		const commands = parseDrawingCommands(drawText),
+			{svg, path} = this.genSvg(commands);
 
 		function overrideOrInherit(overrideColor, inheritedColor) {
 			return overrideColor ? overrideColor.rgba : inheritedColor.rgba;
 		}
 
-		function pathInSets(command, coordinates, maxCoordsPerCommand, callbackPerSet) {
-			const commands = [],
-				//copy the coordinates array, otherwise we'll wipe out debug info
-				mutableCoordinates = coordinates.slice();
-			while (mutableCoordinates.length > 0) {
-				const set = mutableCoordinates.splice(0, maxCoordsPerCommand);
-				if (callbackPerSet) {
-					callbackPerSet(...set);
-				}
-				commands.push(command + ' ' + set.join(' '));
-			}
-			paths = paths.concat(commands);
-		}
+		path.setAttribute('fill', overrideOrInherit(overrides.color, inheritedStyle.raw.primaryColour));
+		svg.appendChild(path);
 
-		function closePath() {
-			const pathElement = document.createElementNS(xmlns, 'path');
-			pathElement.setAttribute('d', paths.join(' '));
-			pathElement.setAttribute('fill', overrideOrInherit(overrides.color, inheritedStyle.raw.primaryColour));
-			const strokeWidth = overrides.outlineSize || inheritedStyle.raw.outline,
-				strokeColor = overrideOrInherit(overrides.outlineColor, inheritedStyle.raw.outlineColour);
-
-			svg.appendChild(pathElement);
-		}
-
-		function analyzeMaxes(x, y) {
-			maxWidth = Math.max(maxWidth, x);
-			maxHeight = Math.max(maxHeight, y);
-		}
-
-		for (let {command, coordinates} of commands) {
-			if (command === 'm' && paths.length > 0) {
-				paths.push(' Z '); //'z' closes the path which is what 'm' does in addition to moving
-			}
-
-			//if it's an 'n', it's a move command like an 'm', but without closing a path,
-			//so now that we're past the path closing condition, treat it as an 'm'
-			if (command === 'n') {
-				command = 'm';
-			}
-
-			if (command === 'l') {
-				//ass line commands can take multiple sets of coordinates, but svg paths need
-				//to be grouped in sets of two
-				pathInSets('L', coordinates, 2, analyzeMaxes);
-			}
-			else if (command === 'm') {
-				paths.push('M' + coordinates.join(' '));
-				analyzeMaxes(...coordinates);
-			}
-			else if (command === 'b') {
-				//in an svg path 'C' is a cubic bezier curve, which is 'b' in ASS
-				pathInSets('C', coordinates, 6, (x1, y1, x2, y2, x3, y3) => {
-					analyzeMaxes(x1, y1);
-					analyzeMaxes(x2, y2);
-					analyzeMaxes(x3, y3);
-				});
-			}
-		}
-
-		if (paths.length > 0) {
-			closePath();
-		}
-
-		svg.setAttribute('width', `${maxWidth}px`)
-		svg.setAttribute('height', `${maxHeight}px`)
 		return {
 			html: svg.outerHTML,
 			commands
