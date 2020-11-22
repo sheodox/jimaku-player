@@ -930,6 +930,7 @@ class ASS extends SubtitleFormat {
 					const drawing = this.draw(styled.text, overrides, inheritedStyle)
 					styled.html += drawing.html;
 					styled.drawCommands = drawing.commands;
+					styled.text = '';
 					//SVGs don't have anything you can define, and searching jisho for a path is just going to be nonsense
 					containerInline.push('pointer-events: none');
 

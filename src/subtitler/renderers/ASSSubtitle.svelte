@@ -31,17 +31,15 @@
 				>
 					{#if phrase.html}
 						{@html phrase.html}
-					{:else}
-						{phrase.text}
 					{/if}
+					{phrase.text}
 				</span>
 			{:else}
 				<span style={phrase.inline} data-phrase-id={phrase._id}>
 					{#if phrase.html}
 						{@html phrase.html}
-					{:else}
-						{phrase.text}
 					{/if}
+					{phrase.text}
 				</span>
 			{/if}
 		{/each}
