@@ -28,9 +28,21 @@
 					in:fade={genFade(phrase.fadeIn)}
 					out:fade={genFade(phrase.fadeOut)}
 					data-phrase-id={phrase._id}
-				>{phrase.text}</span>
+				>
+					{#if phrase.html}
+						{@html phrase.html}
+					{:else}
+						{phrase.text}
+					{/if}
+				</span>
 			{:else}
-				<span style={phrase.inline} data-phrase-id={phrase._id}>{phrase.text}</span>
+				<span style={phrase.inline} data-phrase-id={phrase._id}>
+					{#if phrase.html}
+						{@html phrase.html}
+					{:else}
+						{phrase.text}
+					{/if}
+				</span>
 			{/if}
 		{/each}
 	{:else}
@@ -64,25 +76,15 @@
 					duration: timed ? timings[1] - timings[0] : sub.end - sub.start,
 					delay: timed ? timings[0] : 0
 				},
-				movementLeft = tweened(movement.x1, movementOptions),
-				movementTop = tweened(movement.y1, movementOptions);
+				movementTween = tweened({
+					top: movement.y1,
+					left: movement.x1
+				}, movementOptions);
 
-			let top = '', left = '';
-			function updateStyles() {
+			movementTween.subscribe(({top, left}) => {
 				set(`position: fixed; top: ${top}vh; left: ${left}vw;`)
-			}
-
-			movementLeft.subscribe(l => {
-				left = l;
-				updateStyles();
 			})
-			movementTop.subscribe(t => {
-				top = t;
-				updateStyles();
-			})
-
-			movementLeft.set(movement.x2);
-			movementTop.set(movement.y2);
+			movementTween.set({left: movement.x2, top: movement.y2});
 		}
 	});
 

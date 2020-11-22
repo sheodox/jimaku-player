@@ -51,6 +51,33 @@ const parseColor = assColor => {
 	}
 };
 
+const parseDrawingCommands = drawText => {
+	const commands = [],
+		commandRegex = /([mnlbspc][ \.0-9\-]+)/g;
+
+	for (const commandText of drawText.match(commandRegex)) {
+		const [commandName, ...coordinates] = commandText.trim().split(' ');
+
+		//for each drawing command, get the command type (e.g. 'm' - move, 'l' - line, etc),
+		//and the sets of coordinates that come with it
+		commands.push({
+			command: commandName,
+			coordinates: coordinates.map(parseFloat)
+		});
+	}
+
+	//ASS coordinates are weird and allow you to use negative numbers, but that won't show in
+	//an SVG path, it'll be out of the boundaries of the SVG, just bump everything up to at least zero
+	const makePositiveAmount = -1 * commands.reduce((lowest, {coordinates}) => {
+		return Math.min(lowest, ...coordinates)
+	}, 0)
+
+	commands.forEach(command => {
+		command.coordinates = command.coordinates.map(c => c + makePositiveAmount);
+	});
+	return commands;
+};
+
 const genOutlineStyles = (outlineColor, outlineWidth, shadowColor='transparent', shadowDepth=0, blur=0) => {
 	// many shadows will be stacked, which gives an multiplied shadow color, and the shadow will appear
 	// way too thick unless we significantly lower the alpha value on the color. the weakening effect
@@ -125,7 +152,7 @@ function* overrideScanner(subtitleText) {
 const intBase10 = numStr => parseInt(numStr, 10),
 	knownOverrides = [
 		{ tag: 't', friendly: 'animatedTransform', complex: true, repeatable: true },
-		{ tag: 'move', friendly: 'movement', complex: true },
+		{ tag: 'move', friendly: 'movement', complex: true, parser: parseFloat },
 		{ tag: 'clip', friendly: 'clip', complex: true },
 		{ tag: '3c', friendly: 'outlineColor', parser: parseColor },
 		{ tag: '4c', friendly: 'shadowColor', parser: parseColor },
@@ -318,10 +345,21 @@ class ASS extends SubtitleFormat {
 	}
 
 	serialize(atTime) {
+		let subs = this.subs,
+			styles = this.styles;
+
+		if (typeof atTime === 'number') {
+			subs = this.getSubs(atTime);
+			styles = {};
+			//filter styles down to only what is used by the current subtitles
+			for (const {style} of subs) {
+				styles[style] = this.styles[style];
+			}
+		}
 		return JSON.stringify({
 			info: this.info,
-			styles: this.styles,
-			subs: typeof atTime === 'number' ? this.getSubs(atTime) : this.subs,
+			styles,
+			subs,
 		}, null, 4);
 	}
 
@@ -648,7 +686,8 @@ class ASS extends SubtitleFormat {
 							y1: this.scaleHeight(y1, true),
 							x2: this.scaleWidth(x2, true),
 							y2: this.scaleHeight(y2, true),
-							timings
+							//setting both times to zero in ASS movement is equivalent to not having timings at all
+							timings: timings.every(t => t === 0) ? [] : timings
 						}
 					}
 
@@ -778,6 +817,16 @@ class ASS extends SubtitleFormat {
 					cumulativeStyles = [];
 				}
 
+				if (overrides.drawMode === '1') {
+					const drawing = this.draw(styled.text, overrides, inheritedStyle)
+					styled.html = drawing.html;
+					styled.drawCommands = drawing.commands;
+
+					if (overrides.blur) {
+						cumulativeStyles.push(`filter: blur(${overrides.blur}px)`);
+					}
+				}
+
 				styled.inline = cumulativeStyles.join(';');
 				sub.phrases.push(styled);
 				if (containerInline.length) {
@@ -789,6 +838,92 @@ class ASS extends SubtitleFormat {
 			//have to be handled wherever we're not showing styled text (alignment button and jisho searches)
 			sub.text = removeOverrideText(sub.text);
 		});
+	}
+	draw(drawText, overrides, inheritedStyle) {
+		const commands = parseDrawingCommands(drawText);
+
+		const xmlns = 'http://www.w3.org/2000/svg',
+			svg = document.createElementNS(xmlns, 'svg');
+		// svg.setAttribute('width', 1000);
+		// svg.setAttribute('height', 1000);
+		svg.setAttribute('xmlns', xmlns);
+		let paths = [],
+			maxWidth = 0,
+			maxHeight = 0;
+
+		function overrideOrInherit(overrideColor, inheritedColor) {
+			return overrideColor ? overrideColor.rgba : inheritedColor.rgba;
+		}
+
+		function pathInSets(command, coordinates, maxCoordsPerCommand, callbackPerSet) {
+			const commands = [],
+				//copy the coordinates array, otherwise we'll wipe out debug info
+				mutableCoordinates = coordinates.slice();
+			while (mutableCoordinates.length > 0) {
+				const set = mutableCoordinates.splice(0, maxCoordsPerCommand);
+				if (callbackPerSet) {
+					callbackPerSet(...set);
+				}
+				commands.push(command + ' ' + set.join(' '));
+			}
+			paths = paths.concat(commands);
+		}
+
+		function closePath() {
+			const pathElement = document.createElementNS(xmlns, 'path');
+			pathElement.setAttribute('d', paths.join(' '));
+			pathElement.setAttribute('fill', overrideOrInherit(overrides.color, inheritedStyle.raw.primaryColour));
+			const strokeWidth = overrides.outlineSize || inheritedStyle.raw.outline,
+				strokeColor = overrideOrInherit(overrides.outlineColor, inheritedStyle.raw.outlineColour);
+
+			svg.appendChild(pathElement);
+		}
+
+		function analyzeMaxes(x, y) {
+			maxWidth = Math.max(maxWidth, x);
+			maxHeight = Math.max(maxHeight, y);
+		}
+
+		for (let {command, coordinates} of commands) {
+			if (command === 'm' && paths.length > 0) {
+				paths.push(' Z '); //'z' closes the path which is what 'm' does in addition to moving
+			}
+
+			//if it's an 'n', it's a move command like an 'm', but without closing a path,
+			//so now that we're past the path closing condition, treat it as an 'm'
+			if (command === 'n') {
+				command = 'm';
+			}
+
+			if (command === 'l') {
+				//ass line commands can take multiple sets of coordinates, but svg paths need
+				//to be grouped in sets of two
+				pathInSets('L', coordinates, 2, analyzeMaxes);
+			}
+			else if (command === 'm') {
+				paths.push('M' + coordinates.join(' '));
+				analyzeMaxes(...coordinates);
+			}
+			else if (command === 'b') {
+				//in an svg path 'C' is a cubic bezier curve, which is 'b' in ASS
+				pathInSets('C', coordinates, 6, (x1, y1, x2, y2, x3, y3) => {
+					analyzeMaxes(x1, y1);
+					analyzeMaxes(x2, y2);
+					analyzeMaxes(x3, y3);
+				});
+			}
+		}
+
+		if (paths.length > 0) {
+			closePath();
+		}
+
+		svg.setAttribute('width', `${maxWidth}px`)
+		svg.setAttribute('height', `${maxHeight}px`)
+		return {
+			html: svg.outerHTML,
+			commands
+		};
 	}
 }
 
