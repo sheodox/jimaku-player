@@ -34,10 +34,22 @@ function createSVG() {
 	return svg;
 }
 
+/**
+ * Translate a legacy \a override into its matching \an alignment value.
+ * @param alignment
+ * @returns {*}
+ */
 const parseLegacyAlignment = alignment => {
 	return legacyAlignmentTranslationMapping[alignment];
 }
 
+/**
+ * Parse an ASS hex color into an rgba color. Also returns a method to weaken the rgba's alpha
+ * if it needs to be used in a stacked fashion so it doesn't get overpoweringly opaque trying
+ * to imitate a large blur override on a outline.
+ * @param assColor
+ * @returns {{rgba: string, weakenAlpha: (function(*): string)}}
+ */
 const parseColor = assColor => {
 	if (assColor) {
 		assColor = assColor
@@ -61,6 +73,11 @@ const parseColor = assColor => {
 	}
 };
 
+/**
+ * Parse a clip override's instructions into its scale and its drawing commands.
+ * @param clipOptions
+ * @returns {{scale: *, commands: *[]}}
+ */
 const parseClip = clipOptions => {
 	//clips have two types, rectangle and vector.
 	//rectangle clips have four parameters,
@@ -78,6 +95,12 @@ const parseClip = clipOptions => {
 	}
 }
 
+/**
+ * Parse an ASS drawing command string into an array of objects of the individual
+ * path commands and their corresponding float parsed array of coordinates.
+ * @param drawText
+ * @returns {[]}
+ */
 const parseDrawingCommands = drawText => {
 	const commands = [],
 		commandRegex = /([mnlbspc][ \.0-9\-]+)/g;
@@ -105,6 +128,13 @@ const parseDrawingCommands = drawText => {
 	return commands;
 };
 
+/**
+ * Translates a series of ASS drawing commands parsed by `parseDrawingCommands` to
+ * an SVG path string, along with some measurements about the drawing it contains,
+ * which are used to properly size the path when added to an SVG in some way.
+ * @param commands
+ * @returns {{path: string, viewBox: string, maxHeight: number, maxWidth: number}}
+ */
 const genPathFromDrawCommands = (commands) => {
 	let paths = [];
 	let maxWidth = 0, maxHeight = 0;
@@ -235,11 +265,13 @@ function* overrideScanner(subtitleText) {
 }
 
 /**
- * a list of override tags we parse (but not necessarily support),
+ * A list of override tags we parse (but not necessarily support),
  * 'tag' is the ASS override tag, we'll map it to a more friendly
  * property name when parsing overrides. 'complex' is a boolean
  * determining if we should expect to see arguments (like,this)
  * instead of just immediately after the override tag name.
+ *
+ * Multiple overrides can target the same 'friendly' name if they have the same effect.
  *
  * Since the parser is fairly dumb and doesn't know when an override tag ends and the value begins
  * it's recommended that overrides are checked for in order from most specific name to least specific,
@@ -250,6 +282,13 @@ function* overrideScanner(subtitleText) {
  * tags, as we know a '(' immediately follows the override tag, so they can be first if needed (if their
  * arguments are likely to contain more overrides like '\t' does, otherwise we'll match a general style
  * instead of a part of an animation)
+ *
+ * Some tags (repeatable=true) can occur more than once in a list of overrides (\t), we need to capture every instance
+ * before trying to parse anything else, or we might get part of what's supposed to be a transition
+ * and interpret it as a regular override for the whole duration of the subtitle instead of just part.
+ *
+ * Some tags (parseTogether=true) might not have the same data type for all arguments (\clip)
+ * and using one parser for all values in a list of complex arguments would cause trouble.
  */
 const intBase10 = numStr => parseInt(numStr, 10),
 	knownOverrides = [
@@ -355,6 +394,13 @@ function parseOverrides(overridesAndText) {
 	}
 }
 
+/**
+ * Try and find an override for a specific override code in a subtitle's override string.
+ * @param overrides - an override string from a subtitle, may or may not contain this override
+ * @param overrideCode - an override code to search for
+ * @param isComplex - is the value complex? this is any override that accepts (arguments,like,this)
+ * @returns {{overrides: (void|string|*), params: []}|{overrides: (void|string|*), params: *}}
+ */
 function getOverride(overrides, overrideCode, isComplex=false) {
 	//complex overrides can have complex overrides within them, like a \clip within a \t
 	//so we can't just grab everything within the first sets of parenthesis we see, or
@@ -480,6 +526,11 @@ class ASS extends SubtitleFormat {
 		}];
 	}
 
+	/**
+	 * Parse the script metadata block, mostly just care about the PlayResX/PlayResY
+	 * values from this, which give insight to how big 1px is supposed to be relative
+	 * to the target video's resolution. (see 'scaleHeight' and 'scaleWidth').
+	 */
 	parseInfo() {
 		this.info = {};
 		this.blocks.info
@@ -490,21 +541,44 @@ class ASS extends SubtitleFormat {
 			})
 	}
 
+	/**
+	 * Scale an Y coordinate (height or size) to viewport height based units depending
+	 * relative to the ASS script's target resolution.
+	 *
+	 * In an ASS script, sizes and positions are in pixels but those are relative to the
+	 * script resolution (the PlayResX/PlayResY values in the script info block). But if
+	 * those pixel values are treated at face value they will only be accurate if the video
+	 * size exactly matches those resolutions. To fix this we have to convert every size
+	 * into automatically scaling vh/vw units so no runtime scaling needs to be done.
+	 * If a video has a 1280x720 script resolution, a 50px value in a height
+	 * is 50/720th of the height of the video, in vh units that's 6.94vh and using that
+	 * will give whatever it's used for the same size or position relative to the video
+	 * no matter what the size of the video player is.
+	 * @param height - a value in the Y axis (height or position Y) from an ASS script
+	 * @param unitless - return this value as a number without the vh unit?
+	 * @returns {number|string}
+	 */
 	scaleHeight(height, unitless=false) {
-		//fonts in ASS files are meant to be equivalent to px, but they need to scale compared to the size of the video they were expecting,
-		//since we know expected video resolutions we can scale the subtitles into vh units so it'll automatically scale. this can also
-		//be used by pos override tags
 		const scaledHeight = 100 * (height / +this.info.playResY);
 		return unitless ? scaledHeight : `${scaledHeight}vh`;
 	}
+
+	/**
+	 * Scale an X coordinate, same reasoning as 'scaleHeight'
+	 * @param width
+	 * @param unitless
+	 * @returns {number|string}
+	 */
 	scaleWidth(width, unitless=false) {
 		const scaledWidth = 100 * (width / +this.info.playResX)
 		return unitless ? scaledWidth : `${scaledWidth}vw`;
 	}
 
 	/**
-	 * ASS subtitles have data in INI-like sections, under a header like [Events]
-	 * @param ass
+	 * ASS subtitles have data in INI-like sections, under a header like [Events],
+	 * this takes an ASS subtitle script and splits it into the important blocks
+	 * to be later parsed individually.
+	 * @param ass - the raw text contents of an .ass subtitle file
 	 */
 	parseBlocks(ass) {
 		//split the ass file by newlines followed by a [, we know those are the start of the headings
