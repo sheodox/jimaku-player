@@ -11,10 +11,28 @@
         /* need important so it can override .ass inline styles */
         color: #0aff8c !important;
     }
+
+	@keyframes movement {
+		from {
+			top: var(--move-from-top);
+			left: var(--move-from-left);
+		}
+        to {
+            top: var(--move-to-top);
+            left: var(--move-to-left);
+        }
+	}
+
+	.has-movement {
+		position: fixed;
+		animation: movement var(--move-duration) linear forwards;
+		animation-delay: var(--move-delay);
+	}
 </style>
 
 <p
-	style="{genBaseStyles(sub)};{$movementStyles}"
+	style="{genBaseStyles(sub)}"
+	class:has-movement={!!sub.movement}
 	data-sub-style={sub.style}
 	data-sub-id={sub._id}
 	on:click={() => define(sub.text)}
@@ -54,7 +72,6 @@
 	import {joinStyles} from './render-common';
 	import {createEventDispatcher} from 'svelte';
 	import {readable} from "svelte/store";
-	import {tweened} from "svelte/motion";
 	const dispatch = createEventDispatcher();
 
 	export let sub;
@@ -64,27 +81,6 @@
 		dispatch('define-pauser');
 		window.open(`https://jisho.org/search/${encodeURIComponent(phrase.trim())}`);
 	}
-
-	const movementStyles = readable('', set => {
-		const movement = sub.movement;
-		if (movement) {
-			const timings = movement.timings,
-				timed = movement.timings.length > 0,
-				movementOptions = {
-					duration: timed ? timings[1] - timings[0] : sub.end - sub.start,
-					delay: timed ? timings[0] : 0
-				},
-				movementTween = tweened({
-					top: movement.y1,
-					left: movement.x1
-				}, movementOptions);
-
-			movementTween.subscribe(({top, left}) => {
-				set(`position: fixed; top: ${top}vh; left: ${left}vw;`)
-			})
-			movementTween.set({left: movement.x2, top: movement.y2});
-		}
-	});
 
 	function genFade(dur) {
 		if (typeof dur !== 'number') {
@@ -106,6 +102,21 @@
 			(sub.inline || ''),
 		]);
 
+		if (sub.movement) {
+			const timings = sub.movement.timings,
+				timed = sub.movement.timings.length > 0,
+				duration = timed ? timings[1] - timings[0] : sub.end - sub.start,
+				delay = timed ? timings[0] : 0;
+
+			appliedStyles = appliedStyles.concat([
+				`--move-duration: ${duration}ms`,
+				`--move-delay: ${delay}ms`,
+				`--move-from-top: ${sub.movement.y1}`,
+				`--move-from-left: ${sub.movement.x1}`,
+				`--move-to-top: ${sub.movement.y2}`,
+				`--move-to-left: ${sub.movement.x2}`,
+			])
+		}
 		return joinStyles(appliedStyles);
 	}
 </script>

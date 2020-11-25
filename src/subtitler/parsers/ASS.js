@@ -555,23 +555,21 @@ class ASS extends SubtitleFormat {
 	 * will give whatever it's used for the same size or position relative to the video
 	 * no matter what the size of the video player is.
 	 * @param height - a value in the Y axis (height or position Y) from an ASS script
-	 * @param unitless - return this value as a number without the vh unit?
 	 * @returns {number|string}
 	 */
-	scaleHeight(height, unitless=false) {
+	scaleHeight(height) {
 		const scaledHeight = 100 * (height / +this.info.playResY);
-		return unitless ? scaledHeight : `${scaledHeight}vh`;
+		return `${scaledHeight}vh`;
 	}
 
 	/**
 	 * Scale an X coordinate, same reasoning as 'scaleHeight'
 	 * @param width
-	 * @param unitless
 	 * @returns {number|string}
 	 */
-	scaleWidth(width, unitless=false) {
+	scaleWidth(width) {
 		const scaledWidth = 100 * (width / +this.info.playResX)
-		return unitless ? scaledWidth : `${scaledWidth}vw`;
+		return `${scaledWidth}vw`;
 	}
 
 	/**
@@ -863,12 +861,10 @@ class ASS extends SubtitleFormat {
 					else if (overrides.movement) {
 						const [x1, y1, x2, y2, ...timings] = overrides.movement;
 						sub.movement = {
-							//getting these without units so svelte can do the math
-							//interpolating these values when rendering
-							x1: this.scaleWidth(x1, true),
-							y1: this.scaleHeight(y1, true),
-							x2: this.scaleWidth(x2, true),
-							y2: this.scaleHeight(y2, true),
+							x1: this.scaleWidth(x1),
+							y1: this.scaleHeight(y1),
+							x2: this.scaleWidth(x2),
+							y2: this.scaleHeight(y2),
 							//setting both times to zero in ASS movement is equivalent to not having timings at all
 							timings: timings.every(t => t === 0) ? [] : timings
 						}
