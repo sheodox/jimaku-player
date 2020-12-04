@@ -58,11 +58,13 @@
 	::-moz-range-track {
 		background-color: #252732;
         height: 0.4rem;
+        cursor: pointer;
 	}
 
 	::-moz-range-progress {
 		background: var(--accent-gradient) fixed;
 		height: 0.4rem;
+		cursor: pointer;
 	}
 
 	::-moz-range-thumb {
@@ -81,6 +83,7 @@
 	::-webkit-slider-runnable-track {
 		background-color: #4b5266;
 		height: 0.4rem;
+        cursor: pointer;
 	}
 
 	::-webkit-slider-thumb {
