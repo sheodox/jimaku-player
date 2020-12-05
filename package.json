@@ -30,7 +30,6 @@
     "sass-loader": "^10.0.4",
     "sharp": "^0.25.1",
     "sheodox-ui": "0.0.8",
-    "sqlite3": "^4.1.1",
     "style-loader": "^2.0.0",
     "svelte": "^3.29.4",
     "svelte-loader": "^2.13.6",
@@ -43,7 +42,6 @@
     "@types/express": "^4.17.8",
     "@types/node": "^14.14.6",
     "@types/sharp": "^0.26.0",
-    "@types/sqlite3": "^3.1.6",
     "jest": "^26.6.3",
     "nodemon": "^2.0.6"
   }
