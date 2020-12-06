@@ -6,8 +6,8 @@
 
 <div class="settings">
 	<label for="audio-track-select">Audio Track</label>
-	<select id="audio-track-select" bind:value={selectedVideoIndex} on:change={switchVideo} disabled={videos.length < 2}>
-		{#each videos as track, index}
+	<select id="audio-track-select" bind:value={selectedAudioTrackIndex} on:change={switchVideo} disabled={audioTracks.length < 2}>
+		{#each audioTracks as track, index}
 			<option value={index}>{getTrackTitle(track, index + 1)}</option>
 		{/each}
 	</select>
@@ -15,12 +15,12 @@
 
 <script>
 	import {createEventDispatcher} from 'svelte';
-	export let selectedVideoIndex;
-	export let videos;
+	export let selectedAudioTrackIndex;
+	export let audioTracks;
 	const dispatch = createEventDispatcher();
 
 	function switchVideo() {
-		dispatch('switchVideo', selectedVideoIndex);
+		dispatch('switchTrack', selectedAudioTrackIndex);
 	}
 
 	function getTrackTitle(track, trackNumber) {

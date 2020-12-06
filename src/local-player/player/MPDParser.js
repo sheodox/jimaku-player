@@ -27,37 +27,27 @@ function parseTimelineSegment(sNode) {
 }
 
 export class MPDParser {
-	constructor(mpdText) {
+	constructor(mpdText, streamDescription) {
 		const domParser = new DOMParser();
 		this._generateIdBase = 0;
 		this.mpdXml = domParser.parseFromString(mpdText, 'text/xml');
-		this.logger = new Logger(`MPDParser`);
+		this.logger = new Logger(`MPDParser-${streamDescription}`);
 
-		//this could be an AdaptationSet node or a Representation node, depending on the MPD
-		const videoAdaptation = this.mpdXml.querySelector(`Representation[mimeType^=video]`).parentNode,
-			audioRepresentations = this.mpdXml.querySelectorAll('Representation[mimeType^=audio]');
+		const adaptation = this.mpdXml.querySelector(`AdaptationSet`);
 
-		this.video = this.parseAdaptation(videoAdaptation);
-		this.logger.streaming('Parsed video data', this.video);
+		this.parseAdaptation(adaptation);
+		this.logger.streaming('Parsed MPD data', this);
 
-		const lastSegmentEnd = this.video.segments[this.video.segments.length - 1].timing.toPretty;
-		this.logger.streaming(`Parsed ${this.video.segments.length} video segments over a total of ${lastSegmentEnd}.`);
-
-		this.audio = [];
-		for (const rep of audioRepresentations) {
-			const audioData = this.parseAdaptation(rep.parentNode);
-			this.audio.push(audioData);
-			this.logger.streaming('Parsed audio data', audioData);
-		}
+		const lastSegmentEnd = this.segments[this.segments.length - 1].timing.toPretty;
+		this.logger.streaming(`Parsed ${this.segments.length} video segments over a total of ${lastSegmentEnd}.`);
 	}
 	parseAdaptation(adaptation) {
 		const representation = adaptation.querySelector('Representation'),
 			bitrate = parseInt(representation.getAttribute('bandwidth'), 10);
-		return {
-			...this.parseSegments(adaptation, bitrate),
-			mimeType: representation.getAttribute('mimeType'),
-			codecs: representation.getAttribute('codecs'),
-		};
+
+		this.parseSegments(adaptation, bitrate);
+		this.mimeType = representation.getAttribute('mimeType');
+		this.codecs = representation.getAttribute('codecs');
 	}
 	parseSegments(adaptation, bitrate) {
 		const initialization = adaptation.querySelector('Initialization').getAttribute('range'),
@@ -79,10 +69,9 @@ export class MPDParser {
 			});
 			start += duration;
 		}
-		return {
-			segments,
-			initialization
-		};
+
+		this.segments = segments;
+		this.initialization = initialization;
 	}
 	parseSegmentTimeline(adaptation) {
 		const segmentNodes = adaptation.querySelectorAll('SegmentTimeline S'),
@@ -123,8 +112,8 @@ export class MPDParser {
 		}
 		return i;
 	}
-	getSegmentsToBuffer(seconds, audioTrackIndex) {
-		const videoSegmentIndex = this.findSegmentIndexByTime(this.video.segments, seconds),
+	getSegmentsToBuffer(seconds) {
+		const videoSegmentIndex = this.findSegmentIndexByTime(this.segments, seconds),
 			prettySeconds = prettyTime(seconds);
 		if (videoSegmentIndex === -1) {
 			this.logger.error(`No segments found for ${prettySeconds}!`)
@@ -133,21 +122,15 @@ export class MPDParser {
 
 		const videoStartSegmentIndex = Math.max(0, videoSegmentIndex - 1),
 			//make sure to fetch at least 10 seconds of video after the current
-			videoEndSegmentIndex = Math.min(this.video.segments.length - 1, this.getSegmentsForMinimumBufferedInterval(this.video.segments, videoSegmentIndex + 1));
+			videoEndSegmentIndex = Math.min(this.segments.length - 1, this.getSegmentsForMinimumBufferedInterval(this.segments, videoSegmentIndex + 1));
 
 		this.logger.streaming(
-			`For video time ${prettyTime(seconds)} (segment index ${videoSegmentIndex}), ${videoEndSegmentIndex - videoStartSegmentIndex} segments should be buffered from ${this.video.segments[videoStartSegmentIndex].timing.fromPretty} to ${this.video.segments[videoEndSegmentIndex].timing.toPretty} (segment indices ${videoStartSegmentIndex} to ${videoEndSegmentIndex}).`
+			`For stream time ${prettyTime(seconds)} (segment index ${videoSegmentIndex}), ${videoEndSegmentIndex - videoStartSegmentIndex} segments should be buffered from ${this.segments[videoStartSegmentIndex].timing.fromPretty} to ${this.segments[videoEndSegmentIndex].timing.toPretty} (segment indices ${videoStartSegmentIndex} to ${videoEndSegmentIndex}).`
 		)
 
-		return {
-			videoSegments: this.video.segments.slice(
-				videoStartSegmentIndex,
-				videoEndSegmentIndex + 1
-			),
-			audioSegments: this.audio[audioTrackIndex].segments.slice(
-				videoStartSegmentIndex,
-				videoEndSegmentIndex + 1
-			)
-		};
+		return this.segments.slice(
+			videoStartSegmentIndex,
+			videoEndSegmentIndex + 1
+		);
 	}
 }

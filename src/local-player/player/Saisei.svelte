@@ -25,6 +25,7 @@
         margin: 0 auto;
 		cursor: default;
 		text-transform: uppercase;
+		user-select: none;
 	}
 	.video-controls {
 		background: rgba(28, 24, 37, 0.79);
@@ -102,6 +103,7 @@
 </style>
 
 <div class="video-player" class:no-cursor={!showControls && !paused}>
+	<!-- svelte-ignore a11y-media-has-caption -->
 	<video
 		src={streamer.src}
 		bind:currentTime={currentTime}
@@ -139,7 +141,7 @@
 
 {#if showSettings}
 	<Modal bind:visible={showSettings} title="Video Settings">
-		<SaiseiSettings on:switchVideo={switchVideo} videos={metadata.videos} {selectedVideoIndex} />
+		<SaiseiSettings on:switchTrack={switchTrack} audioTracks={metadata.audio} {selectedAudioTrackIndex} />
 	</Modal>
 {/if}
 
@@ -168,7 +170,7 @@
 		totalTime = 0,
 		paused = true,
 		showControls = true,
-		selectedVideoIndex = 0;
+		selectedAudioTrackIndex = 0;
 
 	let inactiveTimer, videoElement;
 
@@ -187,24 +189,9 @@
 		showControls = false;
 	}
 
-	async function switchVideo(e) {
-		const lastTime = currentTime,
-			lastPaused = paused;
-		//need to store the currentTime on the video so we can go back to there after switching it
-		//otherwise the video will start from the beginning again
-		selectedVideoIndex = e.detail;
-
-		await tick();
-
-		function resume() {
-			currentTime = lastTime;
-			if (!lastPaused) {
-				videoElement.play();
-			}
-
-			videoElement.removeEventListener('canplay', resume)
-		}
-		videoElement.addEventListener('canplay', resume);
+	async function switchTrack(e) {
+		selectedAudioTrackIndex = e.detail;
+		streamer.switchAudioTrack(selectedAudioTrackIndex, currentTime);
 	}
 
 	function togglePause() {
@@ -256,17 +243,18 @@
 		active();
 	}
 
-	$: {
-		if (
-			//this will run before the video initializes, without this it will always throw an error
-			videoElement &&
-			//ensure some amount of video is buffered beyond the current time, otherwise we should buffer
-			//some video before we get there so they don't have to watch a stalled video
-			!isEnoughBuffered(currentTime, videoElement.buffered)
-		) {
+	/*
+	This interval ensures we have a decent amount of video and audio buffered so the video can play
+	without interruptions. This could be in a reactive ("$: ...") statement, but that causes a crazy
+	amount of unwanted segment fetches to happen if the user is dragging the seek bar. An interval
+	like this will still always allow it to keep the buffer healthy before it would cause stalling.
+	 */
+	setInterval(() => {
+		//this will run before the video initializes, without this it will always throw an error
+		if (videoElement) {
 			bufferVideo(currentTime);
 		}
-	}
+	}, 1000);
 
 	function isVideoBuffered(seconds) {
 		if (!videoElement) {
@@ -277,9 +265,9 @@
 	}
 
 	async function bufferVideo(time) {
-		await streamer.fetchSegment(time);
+		const bufferingHappened = await streamer.bufferTime(time);
 
-		if (logLevels.streaming && videoElement) {
+		if (bufferingHappened && logLevels.streaming && videoElement) {
 			const bufferedTime = [];
 			for (let i = 0; i < videoElement.buffered.length; i++) {
 				const start = videoElement.buffered.start(i),
