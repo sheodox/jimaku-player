@@ -1,4 +1,5 @@
 import {readable, writable} from "svelte/store";
+import {currentTime} from "./activity-stores";
 
 let subs;
 export const setSubtitles = subtitleObject => {
@@ -14,7 +15,7 @@ export const subtitleTime = writable(0);
  */
 export const createSubtitleTimer = offsetOrStore => readable([], set => {
 	let offset = typeof offsetOrStore === 'number' ? offsetOrStore : 0,
-		af, offsetUnsubscribe;
+		offsetUnsubscribe;
 
 	//allow a store to be passed, for variable times (the main player itself)
 	//without having to re-create this subtitleTimer given alignment changes
@@ -23,17 +24,15 @@ export const createSubtitleTimer = offsetOrStore => readable([], set => {
 			offset = alignment;
 		})
 	}
-	const video = document.querySelector('video'),
-		update = () => {
-			const time = video.currentTime * 1000 - offset
-			subtitleTime.set(time);
-			set(subs.getSubs(time))
-			af = requestAnimationFrame(update);
-		};
 
-	update();
+	const unsubCurrentTime = currentTime.subscribe(currentTime => {
+		const time = currentTime * 1000 - offset
+		subtitleTime.set(time);
+		set(subs.getSubs(time))
+	})
+
 	return () => {
-		cancelAnimationFrame(af);
+		unsubCurrentTime();
 		if (offsetUnsubscribe) {
 			offsetUnsubscribe();
 		}

@@ -13,6 +13,11 @@
         text-align: center;
 	}
 
+	.tray.inactive {
+		background: transparent;
+		transition: background 0.2s;
+	}
+
 	.tray > * {
 		visibility: hidden;
 	}
@@ -123,7 +128,13 @@
 	}
 </style>
 
-<div class="tray" on:mouseenter={trayHover(true)} on:mouseleave={trayHover(false)} style="right: {$trayAnim}rem" class:hidden={fineAdjustDialogVisible}>
+<div
+	class="tray"
+	class:inactive={!$userActive}
+	on:mouseenter={trayHover(true)}
+	on:mouseleave={trayHover(false)}
+	style="right: {$trayAnim}rem" class:hidden={fineAdjustDialogVisible}
+>
 	<h1>字幕プレーヤー</h1>
 	{#if mode === 'cancelled'}
 		<div class="tab tab-active tab-cancelled">
@@ -253,6 +264,7 @@
 	} from './alignmentStore';
 	import RecentAlignments from "./RecentAlignments.svelte";
 	import {subtitleTime} from "./subtitleTimer";
+	import {userActive} from "./activity-stores";
 
 	const dispatch = createEventDispatcher(),
 		trayStates = {
