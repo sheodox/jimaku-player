@@ -51,52 +51,6 @@
 		width: 5rem;
 		color: white;
 	}
-	input[type=range] {
-		-webkit-appearance: none;
-		background: none !important;
-		width: 100%;
-	}
-	::-moz-range-track {
-		background-color: #252732;
-        height: 0.4rem;
-        cursor: pointer;
-	}
-
-	::-moz-range-progress {
-		background: var(--accent-gradient) fixed;
-		height: 0.4rem;
-		cursor: pointer;
-	}
-
-	::-moz-range-thumb {
-		-webkit-appearance: none;
-		cursor: pointer;
-		height: 0.75rem;
-		width: 0.75rem;
-		background: var(--accent-gradient) fixed;
-		border-radius: 50%;
-		border: none;
-		margin-top: -0.875rem;
-        visibility: hidden;
-	}
-
-	/* chrome doesn't seem to play nicely with comma separated selectors, can't combine with the firefox ones */
-	::-webkit-slider-runnable-track {
-		background-color: #4b5266;
-		height: 0.4rem;
-        cursor: pointer;
-	}
-
-	::-webkit-slider-thumb {
-		-webkit-appearance: none;
-		cursor: pointer;
-		height: 0.75rem;
-		width: 0.75rem;
-		background: var(--accent-gradient) fixed;
-		border-radius: 50%;
-		border: none;
-		margin-top: -0.25rem;
-	}
 	.video-player :global(i) {
 		font-size: 1.5rem;
 	}
@@ -126,7 +80,13 @@
 			<span class="times">
 				{prettyTime(currentTime, totalTime > 3600)} / {prettyTime(totalTime)}
 			</span>
-			<input type="range" bind:value={currentTime} max={totalTime} aria-label="video time seek bar" />
+			<SaiseiSeek
+				value={currentTime}
+				max={totalTime}
+				on:seek={onSeeked}
+				on:seek-drag-start={onSeekStart}
+				label="video seek slider"
+			/>
 			<button on:click={() => showSettings = !showSettings}>
 				<Icon icon="cog" />
 				<span class="sr-only">Video settings</span>
@@ -157,6 +117,7 @@
 	import {Streamer} from './Streamer';
 	import {isEnoughBuffered, isTimeBuffered, prettyTime} from "../utils";
 	import {Logger, logLevels} from '../logger';
+	import SaiseiSeek from "./SaiseiSeek.svelte";
 
 	export let metadata;
 	export let resourceBase;
@@ -197,6 +158,29 @@
 	function togglePause() {
 		paused = !paused;
 		active();
+	}
+
+	//track the state of paused when seeking starts,
+	let wasPaused = null;
+	function onSeekStart(e) {
+		wasPaused = paused;
+		//pause the video, or the slider will be jumping back and forth between
+		//the intermediate values the user is dragging the thumb to, and the
+		//actual values the video is playing, we'll resume the video (if it was
+		//playing) when they finish seeking
+		if (!paused) {
+			paused = true;
+		}
+	}
+
+	function onSeeked(e) {
+		videoElement.currentTime = e.detail;
+		// only care about unpausing the video if we programmatically paused it in the first place
+		if (wasPaused !== null) {
+			paused = wasPaused;
+		}
+		wasPaused = null;
+		bufferVideo(e.detail);
 	}
 
 	function toggleFullscreen() {
@@ -284,6 +268,7 @@
 	function videoError(...args) {
 		logger.error(...args);
 	}
+
 	onMount(() => {
 		// the full path to this video
 		const videoIdentifier = resourceBase + '/' + metadata.name;
