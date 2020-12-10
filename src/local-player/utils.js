@@ -56,3 +56,19 @@ export function isEnoughBuffered(seconds, bufferedTimeRanges) {
 	const range = findBufferedTimeRange(seconds, bufferedTimeRanges);
 	return range && (range.end - seconds > MINIMUM_BUFFER_INTERVAL);
 }
+
+export function getTrackTitle(track, trackNumber) {
+	const title = (track.title || '') + (track.language ? ` (${track.language})` : '');
+
+	return title || `Audio Track ${trackNumber}`;
+}
+
+export function downloadFile(fileName, mime, text) {
+	const blob = new Blob([text], {type: mime}),
+		a = document.createElement('a');
+	a.href = URL.createObjectURL(blob);
+	a.download = fileName;
+	document.body.appendChild(a);
+	a.click();
+	a.remove();
+}

@@ -15,17 +15,12 @@
 
 <script>
 	import {createEventDispatcher} from 'svelte';
+	import {getTrackTitle} from "../utils";
 	export let selectedAudioTrackIndex;
 	export let audioTracks;
 	const dispatch = createEventDispatcher();
 
 	function switchVideo() {
 		dispatch('switchTrack', selectedAudioTrackIndex);
-	}
-
-	function getTrackTitle(track, trackNumber) {
-		const title = (track.title || '') + (track.language ? ` (${track.language})` : '');
-
-		return title || `Audio Track ${trackNumber}`;
 	}
 </script>

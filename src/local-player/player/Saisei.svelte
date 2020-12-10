@@ -87,7 +87,7 @@
 				on:seek-drag-start={onSeekStart}
 				label="video seek slider"
 			/>
-			<button on:click={() => showSettings = !showSettings}>
+			<button on:click={() => showSettings = !showSettings} on:contextmenu|preventDefault={() => showDebug = true}>
 				<Icon icon="cog" />
 				<span class="sr-only">Video settings</span>
 			</button>
@@ -104,6 +104,11 @@
 		<SaiseiSettings on:switchTrack={switchTrack} audioTracks={metadata.audio} {selectedAudioTrackIndex} />
 	</Modal>
 {/if}
+{#if showDebug}
+	<Modal bind:visible={showDebug} title="Saisei Debug">
+		<SaiseiDebug {metadata} />
+	</Modal>
+{/if}
 
 <svelte:window on:keydown={handleHotkeys} on:mousemove={active} />
 <svelte:body on:mouseleave={inactive} />
@@ -118,6 +123,7 @@
 	import {isEnoughBuffered, isTimeBuffered, prettyTime} from "../utils";
 	import {Logger, logLevels} from '../logger';
 	import SaiseiSeek from "./SaiseiSeek.svelte";
+	import SaiseiDebug from "./SaiseiDebug.svelte";
 
 	export let metadata;
 	export let resourceBase;
@@ -127,6 +133,7 @@
 		streamer = new Streamer(metadata, resourceBase),
 		logger = new Logger('Saisei');
 	let currentTime = 0,
+		showDebug = false,
 		showSettings = false,
 		totalTime = 0,
 		paused = true,
