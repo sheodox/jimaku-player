@@ -38,18 +38,19 @@
 	}
     .times {
 		padding: 0.3rem;
-		cursor: default;
+        user-select: none;
 	}
 	.video-controls input[type=range] {
 		flex: 1;
 	}
     button {
-		padding: 0 0;
-		line-height: 1.5;
         cursor: pointer;
 		font-size: 2rem;
 		width: 5rem;
 		color: white;
+		flex: 0;
+        margin: 0;
+        padding: 0.5rem;
 	}
 	.video-player :global(i) {
 		font-size: 1.5rem;
@@ -76,7 +77,7 @@
 	{/if}
 	{#if showControls || paused}
 		<div class="video-controls f-row align-items-center" transition:fade={{duration: 100}}>
-			<button on:click={togglePause}><Icon icon={!paused ? 'pause' : 'play'} /></button>
+			<button on:click={togglePause}><Icon icon={!paused ? 'pause' : 'play'} noPadding={true} /></button>
 			<span class="times">
 				{prettyTime(currentTime, totalTime > 3600)} / {prettyTime(totalTime)}
 			</span>
@@ -88,11 +89,11 @@
 				label="video seek slider"
 			/>
 			<button on:click={() => showSettings = !showSettings} on:contextmenu|preventDefault={() => showDebug = true}>
-				<Icon icon="cog" />
+				<Icon icon="cog" noPadding={true} />
 				<span class="sr-only">Video settings</span>
 			</button>
 			<button on:click={toggleFullscreen}>
-				<Icon icon="expand" />
+				<Icon icon="expand" noPadding={true} />
 				<span class="sr-only">Toggle fullscreen</span>
 			</button>
 		</div>
@@ -278,7 +279,7 @@
 
 	onMount(() => {
 		// the full path to this video
-		const videoIdentifier = resourceBase + '/' + metadata.name;
+		const videoIdentifier = resourceBase + '/' + metadata.title;
 
 		currentTime = viewTimes.get(videoIdentifier).currentTime;
 		bufferVideo(currentTime);

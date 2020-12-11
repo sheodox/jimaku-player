@@ -28,13 +28,14 @@ function eventPromise(target, event) {
 export class Streamer {
 	constructor(metadata, resourceBase) {
 		this.metadata = metadata; // jimaku ingest metadata JSON file
-		this.videoSrc = resourceBase + '/' + metadata.video; // a URL for the video in question
+		this.videoSrc = resourceBase + '/' + metadata.video.fileName; // a URL for the video in question
 		this.logger = new Logger('Streamer');
-		this.videoTrack = new MPDParser(metadata.mpd, 'video');
+		this.videoTrack = new MPDParser(metadata.video.mpd, 'video');
 		this.audioTracks = metadata.audio.map((audioTrack, index) => {
 			return {
 				src: resourceBase + '/' + audioTrack.fileName,
-				mpd: new MPDParser(audioTrack.mpd, `audio-${index}`)
+				mpd: new MPDParser(audioTrack.mpd, `audio-${index}`),
+				metadata: audioTrack
 			}
 		});
 		this.selectedAudioTrack = this.audioTracks[0];
