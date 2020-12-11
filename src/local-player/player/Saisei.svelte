@@ -139,7 +139,7 @@
 		totalTime = 0,
 		paused = true,
 		showControls = true,
-		selectedAudioTrackIndex = 0;
+		selectedAudioTrackIndex = streamer.getSelectedAudioTrackIndex();
 
 	let inactiveTimer, videoElement;
 

@@ -1,6 +1,7 @@
 import {MPDParser} from "./MPDParser";
 import {Logger} from "../logger";
 import {isEnoughBuffered, isTimeBuffered, prettyTime} from "../utils";
+import settings from "../settings";
 
 //clean up buffered memory beyond a certain range. if we load too much
 //this might remove some of it and need to be re-buffered, but the
@@ -38,7 +39,10 @@ export class Streamer {
 				metadata: audioTrack
 			}
 		});
-		this.selectedAudioTrack = this.audioTracks[0];
+
+		const preferredLanguage = settings.get('preferred-audio-language'),
+			preferredAudioTrack = this.audioTracks.find(track => track.metadata.language === preferredLanguage);
+		this.selectedAudioTrack = preferredAudioTrack || this.audioTracks[0];
 		this.source = new MediaSource();
 		this.src = URL.createObjectURL(this.source);
 
@@ -105,6 +109,11 @@ export class Streamer {
 			this.audioBuffer.remove(0, this.source.duration);
 		})
 		await this.bufferAudio(currentTime);
+		settings.set('preferred-audio-language', this.selectedAudioTrack.metadata.language);
+	}
+
+	getSelectedAudioTrackIndex() {
+		return this.audioTracks.findIndex(track => track === this.selectedAudioTrack);
 	}
 
 	/**
