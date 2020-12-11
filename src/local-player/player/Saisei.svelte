@@ -40,9 +40,6 @@
 		padding: 0.3rem;
         user-select: none;
 	}
-	.video-controls input[type=range] {
-		flex: 1;
-	}
     button {
         cursor: pointer;
 		font-size: 2rem;
