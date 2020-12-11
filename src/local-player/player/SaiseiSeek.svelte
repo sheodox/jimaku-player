@@ -12,6 +12,9 @@
         height: 100%;
         background: var(--accent-purple);
     }
+    .seek:not(:hover) .thumb {
+        opacity: 0;
+    }
     .thumb {
         position: absolute;
         transform: translateX(-50%);
@@ -19,6 +22,7 @@
         width: 1rem;
         border-radius: 50%;
         background: var(--accent-purple);
+        transition: opacity 0.3s;
     }
 </style>
 
@@ -34,11 +38,10 @@
         aria-label={label}
         style="left:{trackProgress}"
         on:mousedown|stopPropagation={startDragging}
-        on:mouseup|stopPropagation={finishDragging}
     ></div>
 </div>
 
-<svelte:body on:mousemove={e => dragging && setApparentValue(e)} />
+<svelte:body on:mousemove={e => dragging && setApparentValue(e)} on:mouseup={finishDragging} />
 
 <script>
     import {createEventDispatcher} from 'svelte';
@@ -52,7 +55,7 @@
     $: trackProgress = (value / max) * 100 + '%';
 
     function setApparentValue(e) {
-        value = max * ((e.clientX - seekBar.offsetLeft) / seekBar.offsetWidth);
+        value = Math.min(max, Math.max(0, max * ((e.clientX - seekBar.offsetLeft) / seekBar.offsetWidth)));
     }
 
     function setValue(e) {
@@ -69,7 +72,10 @@
     }
 
     function finishDragging(e) {
-        dragging = false;
-        setValue(e);
+        if (dragging) {
+            setValue(e);
+            e.stopPropagation();
+            dragging = false;
+        }
     }
 </script>
