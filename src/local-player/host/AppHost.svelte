@@ -19,36 +19,45 @@
 	.host {
 		flex: 1;
 	}
+    .everything {
+		position: relative;
+        flex: 1;
+		display: flex;
+		flex-direction: column;
+	}
 </style>
 
-<Header appName="字幕プレーヤー" slim={true}>
-	<svg slot="logo" viewbox="0 0 100 100" id="header-logo">
-		<image xlink:href="/logo.svg"></image>
-	</svg>
-</Header>
-<div class="host f-column">
-    <div class="video-player">
-		<iframe title="video player" src="/video.html?{encodeURIComponent(selectedVideoInfo.src)}" allowfullscreen></iframe>
-		<div class="video-info page-content">
-			{#if selectedVideoInfo.name}
-				<h2>{selectedVideoInfo.name}</h2>
-				<div>
-					<button class="icon-button" on:click={scrollToSelectedVideo}>
-						<Icon icon="angle-double-down" /> Show in list
-					</button>
-					<!-- todo: video info and statistics -->
-				</div>
-			{/if}
+<ThumbnailGhost />
+<div class="everything">
+	<Header appName="字幕プレーヤー" slim={true}>
+		<svg slot="logo" viewbox="0 0 100 100" id="header-logo">
+			<image xlink:href="/logo.svg"></image>
+		</svg>
+	</Header>
+	<div class="host f-column">
+		<div class="video-player">
+			<iframe title="video player" src="/video.html?{encodeURIComponent(selectedVideoInfo.src)}" allowfullscreen></iframe>
+			<div class="video-info page-content">
+				{#if selectedVideoInfo.name}
+					<h2>{selectedVideoInfo.name}</h2>
+					<div>
+						<button class="icon-button" on:click={scrollToSelectedVideo}>
+							<Icon icon="angle-double-down" /> Show in list
+						</button>
+						<!-- todo: video info and statistics -->
+					</div>
+				{/if}
+			</div>
+		</div>
+
+
+		<div class="page-content">
+			<Selector selectedVideoInfo={selectedVideoInfo} />
 		</div>
 	</div>
 
-
-	<div class="page-content">
-		<Selector selectedVideoInfo={selectedVideoInfo} />
-	</div>
+	<Footer />
 </div>
-
-<Footer />
 
 <script>
 	import {onMount} from 'svelte';
@@ -57,6 +66,7 @@
 	import {Header, Icon} from 'sheodox-ui';
 	import Footer from "./Footer.svelte";
 	import {videoInfo} from '../videos-store';
+	import ThumbnailGhost from "./ThumbnailGhost.svelte";
 
 	//info for the video that's currently playing
 	let selectedVideoInfo = {src: '', name: ''};

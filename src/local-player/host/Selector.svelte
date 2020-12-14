@@ -48,8 +48,13 @@
 	import {Icon} from 'sheodox-ui';
 	import SelectorVideo from "./SelectorVideo.svelte";
 	import {videoInfo} from "../videos-store";
+	import {selectedGhost} from "./thumbnail-ghosts";
 
 	export let selectedVideoInfo = {src: ''};
+
+	$: selectedGhost.set({
+		imageKey: selectedVideoInfo.imageKey,
+	})
 
 	function selectVideo(item) {
 		selectPath(item);
