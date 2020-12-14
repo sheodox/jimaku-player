@@ -5,35 +5,36 @@
 		background: var(--panel-bg);
 		transition: box-shadow 0.2s;
 		text-decoration: none;
-	}
-	a.video {
 		border: none;
 		padding: 0;
 		margin: 1rem;
 		color: white;
-		transition: box-shadow 0.2s;
 		display: flex;
 		flex-direction: column;
 		max-width: 24rem;
 	}
-	a.video img {
+	img, .skeleton {
 		flex: 1;
 		width: 24rem;
 		align-self: center;
 	}
-	a.selected {
+    .skeleton {
+		min-height: calc(24rem * (9/16));
+		background: var(--panel-footer-bg);
+	}
+	.selected {
 		outline: 1px solid var(--accent-blue);
 		box-shadow: 0.5rem 0.5rem var(--accent-blue);
 	}
-	a.video:not(.selected) {
+	a:not(.selected) {
 		opacity: 0.7;
 	}
-	a.video:not(.selected):hover {
+	a:not(.selected):hover {
 		opacity: 1;
 		color: var(--accent-blue);
 		outline: 1px solid var(--accent-blue);
 	}
-	a.video:not(.selected):hover .video-title {
+	a:not(.selected):hover .video-title {
 		color: var(--accent-blue);
 	}
 	.video-title {
@@ -65,7 +66,15 @@
 </style>
 
 <a class="video" class:selected={isSelected} href={route} on:click|preventDefault={() => page(route)}>
-	<img src={imageSrc(video.imageKey)} alt="image for {video.name}" />
+	<img
+		src={imageSrc(video.imageKey)}
+		alt="image for {video.name}"
+		class:hidden={!imageLoaded}
+		on:load={() => imageLoaded = true}
+	/>
+	{#if !imageLoaded}
+		<div class="skeleton" />
+	{/if}
 	<progress value={currentTime} max={duration}></progress>
 	<p class="video-title">
 		{video.name}
@@ -84,11 +93,14 @@
 	//the route this video is available at
 	export let route = '';
 
+	let imageLoaded = false,
+		currentTime = 0,
+		duration = 1;
+
 	function imageSrc(imageKey) {
 		return `/image/medium/${imageKey}`
 	}
 
-	let currentTime = 0, duration = 1;
 	function renderUpdatedViewTimes() {
 		const times = viewTimes.get(video.src);
 		duration = times.duration;
