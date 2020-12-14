@@ -12,7 +12,9 @@
         {directory.name}
     </p>
     <p class="video-count muted">
-        <Icon icon="folder" noPadding={true}/> {directory.containedDirectories} <span class="sr-only">Directories</span>
+        {#if directory.containedDirectories > 0}
+            <Icon icon="folder" noPadding={true}/> {directory.containedDirectories} <span class="sr-only">Directories</span>
+        {/if}
         <Icon icon="film" noPadding={true}/> {directory.containedVideos} <span class="sr-only">Videos</span>
     </p>
 </a>

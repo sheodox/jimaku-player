@@ -31,7 +31,9 @@ export function countVideosInPath(dir: string) {
     return countInPath(dir, scanned.videos);
 }
 export function countDirectoriesInPath(dir: string) {
-    return countInPath(dir, scanned.directories);
+    //this directory is always going to be considered a match, but we
+    //want anything inside it, so subtract one to not consider itself
+    return countInPath(dir, scanned.directories) - 1;
 }
 
 /**
