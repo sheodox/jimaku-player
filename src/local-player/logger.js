@@ -1,5 +1,5 @@
 export const logLevels = {
-	streaming: true
+	streaming: false
 };
 
 export class Logger{

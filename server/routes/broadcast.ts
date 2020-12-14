@@ -4,7 +4,13 @@ import child_process from 'child_process';
 import {promisify} from "util";
 import {Router} from 'express';
 import {imageRepository} from "../entity";
-import {deMetaPaths, scanVideoDirectories, scanVideos} from "../video-scanner";
+import {
+	deMetaPaths,
+	countVideosInPath,
+	scanVideoDirectories,
+	scanVideos,
+	countDirectoriesInPath
+} from "../video-scanner";
 const fs = require('fs').promises,
 	glob = promisify(require('glob')),
 	exec = promisify(child_process.exec),
@@ -21,7 +27,9 @@ interface VideoMetadata {
 interface DirectoryMetadata {
 	type: 'directory'
 	src: string
-	name: string
+	name: string,
+	containedVideos: number
+	containedDirectories: number
 }
 
 interface VideoInfo {
@@ -84,12 +92,14 @@ router.get('/video-info', async (req, res) => {
 		return {
 			type: 'directory',
 			src: /\/$/.test(dirPath) ? dirPath : dirPath + '/',
-			name: deepestDirName
+			name: deepestDirName,
+			containedVideos: countVideosInPath(dirPath),
+			containedDirectories: countDirectoriesInPath(dirPath)
 		}
 	};
 	response.directories = (await getDirectoriesInPath(focusedPath)).map(pathToDirectoryObject);
 
-	const videosInPath = await getVideosInPath(focusedPath);
+	const videosInPath = await getVideosAtPath(focusedPath);
 	response.videos = [];
 	for (const vpath of videosInPath) {
 		response.videos.push(await getVideoInfo(vpath));
@@ -118,7 +128,7 @@ router.get('/video-info', async (req, res) => {
  * Get videos within the selected folder.
  * @param dirPath
  */
-async function getVideosInPath(dirPath: string) {
+async function getVideosAtPath(dirPath: string) {
 	return deMetaPaths(await glob(path.join('./', dirPath, '/*-metadata.json')));
 }
 

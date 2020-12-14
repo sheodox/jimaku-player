@@ -20,6 +20,20 @@ export function scanVideoDirectories() {
     return scanned.directories;
 }
 
+function countInPath(path: string, globbed: string[]) {
+    const globStylePath = `./${path}`
+    return globbed.reduce((total, vidPath) => {
+        return total + (vidPath.startsWith(globStylePath) ? 1 : 0);
+    }, 0);
+}
+
+export function countVideosInPath(dir: string) {
+    return countInPath(dir, scanned.videos);
+}
+export function countDirectoriesInPath(dir: string) {
+    return countInPath(dir, scanned.directories);
+}
+
 /**
  * Videos are scanned for by looking for a metadata file, but that's an ugly path to show the browser,
  * this removes that ugly portion of the path so we can ignore that on the front end and only

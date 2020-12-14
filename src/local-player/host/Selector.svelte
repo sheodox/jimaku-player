@@ -33,8 +33,8 @@
 		</ol>
 	</nav>
 	<div class="directories grid-list">
-		{#each $videoInfo.directories as dir (dir.src)}
-			<a class="button" href={getRouteToItem(dir)} on:click|preventDefault={() => selectPath(dir)}><Icon icon="folder" /> {dir.name}</a>
+		{#each $videoInfo.directories as directory (directory.src)}
+            <SelectorDirectory {directory} />
 		{/each}
 	</div>
     <div class="videos grid-list">
@@ -49,6 +49,8 @@
 	import SelectorVideo from "./SelectorVideo.svelte";
 	import {videoInfo} from "../videos-store";
 	import {selectedGhost} from "./thumbnail-ghosts";
+	import SelectorDirectory from "./SelectorDirectory.svelte";
+	import {getRouteToItem, selectPath} from "./selector-utils";
 
 	export let selectedVideoInfo = {src: ''};
 
@@ -59,13 +61,5 @@
 	function selectVideo(item) {
 		selectPath(item);
 		window.scrollTo(0, 0);
-	}
-
-	function getRouteToItem(item) {
-		return `/v/${encodeURIComponent(item.src)}`
-	}
-
-	function selectPath(item) {
-		page(getRouteToItem(item));
 	}
 </script>

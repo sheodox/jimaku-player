@@ -22,7 +22,6 @@
     import {selectedGhost} from "./thumbnail-ghosts";
 
     function ghostStyles(ghost) {
-        console.log(ghost);
         return `background-image: url(/image/medium/${ghost.imageKey});`;
     }
 </script>
