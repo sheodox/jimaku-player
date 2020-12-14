@@ -14,8 +14,10 @@
 	.history a:last-of-type {
 		font-size: 1.1rem;
 	}
-	.directories a {
-		margin: 0.5rem;
+    #video-list {
+		/* don't want folders without videos to take up so little space that the page
+		gets really short and they have to scroll immediately to see any videos */
+		min-height: 30rem;
 	}
 </style>
 
