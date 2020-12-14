@@ -4,9 +4,9 @@ import child_process from 'child_process';
 import {promisify} from "util";
 import {Router} from 'express';
 import {imageRepository} from "../entity";
-const fs = require('fs').promises;
-
-const glob = promisify(require('glob')),
+import {deMetaPaths, scanVideoDirectories, scanVideos} from "../video-scanner";
+const fs = require('fs').promises,
+	glob = promisify(require('glob')),
 	exec = promisify(child_process.exec),
 	router = Router();
 
@@ -50,8 +50,8 @@ interface MetadataFile {
 
 router.get('/video-info', async (req, res) => {
 	const videoPath = (req.query.path as string),
-		videos = await scanVideos(),
-		videoDirs = await scanVideoDirectories(),
+		videos = scanVideos(),
+		videoDirs = scanVideoDirectories(),
 		// make sure the video requested is actually a path of a real video or directory
 		isValidVideo = videos.includes(`./${videoPath}`),
 		isValidVideoFolder = videoDirs.includes(`./${videoPath}`),
@@ -115,16 +115,6 @@ router.get('/video-info', async (req, res) => {
 });
 
 /**
- * Videos are scanned for by looking for a metadata file, but that's an ugly path to show the browser,
- * this removes that ugly portion of the path so we can ignore that on the front end and only
- * care about the metadata stuff in code.
- * @param paths
- */
-function deMetaPaths(paths: string[]) {
-	return paths.map(p => p.replace(/-metadata\.json$/, ''));
-}
-
-/**
  * Get videos within the selected folder.
  * @param dirPath
  */
@@ -158,26 +148,10 @@ async function getVideoInfo(videoPath: string): Promise<VideoMetadata> {
 	}
 }
 
-/**
- * Get all the videos available.
- */
-async function scanVideos(): Promise<string[]> {
-	return deMetaPaths(await glob('./videos/**/*-metadata.json'));
-}
-
-/**
- * Get all the directories in the video folder
- */
-async function scanVideoDirectories(): Promise<string[]> {
-	return [
-		'./videos/',
-		...await glob('./videos/**/*/')
-	]
-}
 
 async function generateMissingImages() {
 	const imageGeneratePath = './data/temp/broadcast-generated.png',
-		videoPaths = await scanVideos(),
+		videoPaths = scanVideos(),
 		videosWithoutImages = await ImageService.findMissingImages(videoPaths);
 
 	if (!videosWithoutImages.length) {
