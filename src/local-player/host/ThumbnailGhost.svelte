@@ -13,7 +13,7 @@
     }
 </style>
 <div class="ghosts">
-    {#if $selectedGhost}
+    {#if $selectedGhost && $selectedGhost.imageKey}
         <div class="ghost" style={ghostStyles($selectedGhost)} />
     {/if}
 </div>
@@ -22,6 +22,7 @@
     import {selectedGhost} from "./thumbnail-ghosts";
 
     function ghostStyles(ghost) {
+        console.log(ghost);
         return `background-image: url(/image/medium/${ghost.imageKey});`;
     }
 </script>
