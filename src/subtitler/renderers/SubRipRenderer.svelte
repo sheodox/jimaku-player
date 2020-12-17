@@ -26,8 +26,6 @@
 
 	export let subtitles; //store for which subtitles should be shown each frame
 
-	let subColor, verticalAlignment;
-
 	function define(phrase) {
 		dispatch('define-pauser');
 		window.open(`https://jisho.org/search/${encodeURIComponent(phrase.trim())}`);
@@ -43,7 +41,7 @@
 				//alignment can be either 'normal' which respects the subtitle's vertical alignment,
 				//or 'inverted' which does the opposite, if the user wants to use these subs
 				//along with VRV's, otherwise they'd likely overlap
-				sub.verticalAlignment[verticalAlignment]
+				sub.verticalAlignment[$invertVerticalAlignment ? 'inverted' : 'normal']
 			)
 		}
 		appliedStyles = appliedStyles.concat([
