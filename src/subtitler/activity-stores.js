@@ -1,4 +1,7 @@
 import {writable, readable} from "svelte/store";
+function getVideo() {
+	return document.querySelector('video');
+}
 
 /**
  * The current time of the video that's playing.
@@ -9,7 +12,7 @@ export const currentTime = readable(0, set => {
 
 	function onFrame() {
 		frame = requestAnimationFrame(onFrame);
-		const video = document.querySelector('video');
+		const video = getVideo();
 		if (video) {
 			set(video.currentTime);
 		}
@@ -26,18 +29,16 @@ export const currentTime = readable(0, set => {
  * @type {Writable<boolean>}
  */
 export const userActive = writable(true),
-	ACTIVITY_TIMEOUT = 2000;
-let inactiveTimeout
-userActive.subscribe(active => {
-	if (active) {
-		clearTimeout(inactiveTimeout);
-		inactiveTimeout = setTimeout(() => {
-			userActive.set(false);
-		}, ACTIVITY_TIMEOUT);
-	}
-});
+	//a roughly similar time to how long it takes vrv to hide its controls after the user stops interacting
+	ACTIVITY_TIMEOUT = 2500;
+let inactiveTimeout;
 function setActive() {
 	userActive.set(true);
+
+	clearTimeout(inactiveTimeout);
+	inactiveTimeout = setTimeout(() => {
+		userActive.set(false);
+	}, ACTIVITY_TIMEOUT);
 }
 document.addEventListener('keydown', setActive);
 document.addEventListener('mousemove', setActive);

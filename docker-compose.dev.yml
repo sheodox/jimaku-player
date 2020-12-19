@@ -5,4 +5,5 @@ services:
       - ./.env:/usr/src/app/.env
       - ./server:/usr/src/app/server
       - ./static:/usr/src/app/static
+      - ./src:/usr/src/app/src
       - ./ormconfig.js:/usr/src/app/ormconfig.js

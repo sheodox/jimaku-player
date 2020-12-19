@@ -2,6 +2,8 @@
 static/subtitler.js
 static/host.js
 static/player.js
+static/subrip-test.js
+static/subrip-test-player.js
 node_modules
 videos
 data

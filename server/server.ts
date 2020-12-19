@@ -15,6 +15,7 @@ const app = express(),
 });
 
 app.use(express.static('./static'));
+app.use('/test', express.static('./src/test'));
 app.use('/fontawesome', express.static('./node_modules/@fortawesome/fontawesome-free'));
 app.use('/videos', express.static('./videos'));
 

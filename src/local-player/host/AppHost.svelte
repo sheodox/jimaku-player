@@ -29,11 +29,7 @@
 
 <ThumbnailGhost />
 <div class="everything">
-	<Header appName="字幕プレーヤー" slim={true}>
-		<svg slot="logo" viewbox="0 0 100 100" id="header-logo">
-			<image xlink:href="/logo.svg"></image>
-		</svg>
-	</Header>
+    <Header />
 	<div class="host f-column">
 		<div class="video-player">
 			<iframe title="video player" src="/video.html?{encodeURIComponent(selectedVideoInfo.src)}" allowfullscreen></iframe>
@@ -63,7 +59,8 @@
 	import {onMount} from 'svelte';
 	import Selector from './Selector.svelte';
 	import page from 'page';
-	import {Header, Icon} from 'sheodox-ui';
+	import {Icon} from 'sheodox-ui';
+	import Header from './Header.svelte';
 	import Footer from "./Footer.svelte";
 	import {videoInfo} from '../videos-store';
 	import ThumbnailGhost from "./ThumbnailGhost.svelte";
