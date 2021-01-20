@@ -16,11 +16,11 @@
     .muted {
         color: #5b5c6f;
     }
-    details {
-        margin-top: 1rem;
-    }
     summary {
         cursor: pointer;
+    }
+    input[type=range]:disabled {
+        opacity: 0.3;
     }
 </style>
 
@@ -46,16 +46,47 @@
 </div>
 <div class="row">
     <label>
-        Global Font Size Scale ({Math.floor($globalFontScale * 100)}%)
+        Global font size scale ({Math.floor($globalFontScale * 100)}%)
         <br>
-        <input type="range" min="0.5" max="3" step="0.1" bind:value={$globalFontScale}/>
+        <input
+            type="range"
+            min="0.5"
+            max="3"
+            step="0.1"
+            disabled={$showBasedSettings && $showBasedSettings.overrideGlobalFontScale}
+            bind:value={$globalFontScale}
+        />
     </label>
 </div>
+{#if $usesShowBasedSettings}
+    <h3>Settings for {$showNameStore}</h3>
+    <div class="row">
+        <label>
+            <input type="checkbox" bind:checked={$showBasedSettings.overrideGlobalFontScale}>
+            Override the global font scale setting
+        </label>
+    </div>
+    {#if $showBasedSettings.overrideGlobalFontScale}
+        <div class="row">
+            <label>
+                Font size scale ({Math.floor($showBasedSettings.fontScale * 100)}%)
+                <br>
+                <input
+                    type="range"
+                    min="0.5"
+                    max="3"
+                    step="0.1"
+                    disabled={!$showBasedSettings.overrideGlobalFontScale}
+                    bind:value={$showBasedSettings.fontScale}
+                />
+            </label>
+        </div>
+    {/if}
+{/if}
 
-<div class="row">
-    <a target="_blank" href="https://github.com/sheodox/jimaku-player/issues" rel="noopener noreferrer">Issue? Report it here!</a>
-</div>
-
+<h3>
+    About
+</h3>
 <details>
     <summary>Debug Information</summary>
     <dl>
@@ -78,10 +109,15 @@
     </div>
 </details>
 
+<div class="row">
+    <a target="_blank" href="https://github.com/sheodox/jimaku-player/issues" rel="noopener noreferrer">Issue? Report it here!</a>
+</div>
+
 <script>
     import {
         explainedSecondsStore,
-        signedSecondsStore
+        signedSecondsStore,
+        showNameStore
     } from '../alignmentStore';
     import {subtitleTime} from "../subtitleTimer";
     import {
@@ -91,6 +127,11 @@
         invertVerticalAlignment,
         globalFontScale
     } from '../settingsStore';
+    import {
+        usesShowBasedSettings,
+        showBasedSettings
+    } from "../by-show-settings";
+
     export let subtitles;
 
     function downloadParsedSubtitles(atTime) {

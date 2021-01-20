@@ -40,9 +40,12 @@
 	}
 
 	/* headings within the tabs */
-	.tray :global(h2) {
+	.tray :global(h2), .tray :global(h3) {
 		text-decoration: underline;
 		margin: 0 0 0.4rem;
+	}
+	.tray :global(h3) {
+		margin-top: 1rem;
 	}
 	.tray :global(a) {
 		color: white;
@@ -60,7 +63,7 @@
 	.tab {
 		display: none;
 		text-align: left;
-		padding: 2rem;
+		padding: 0.5rem 2rem;
         background: #1c1825;
 		border-top: 2px solid #f47521;
 	}

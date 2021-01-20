@@ -35,12 +35,14 @@
 </div>
 
 <script>
-	import {joinStyles} from './render-common';
+	import {
+	    joinStyles,
+        fontScale
+	} from './render-common';
 	import {
 		showSubtitlesOnVideo,
 		subtitleFallbackColor,
 		invertVerticalAlignment,
-        globalFontScale
 	} from '../settingsStore';
 	import {createEventDispatcher} from 'svelte';
 	import {fade} from 'svelte/transition';
@@ -57,7 +59,7 @@
 	function genBaseStyles(sub, userActive) {
 		let appliedStyles = [
 			`color: ${$subtitleFallbackColor}`,
-            `font-size: ${5 * $globalFontScale}vh`
+            `font-size: ${5 * $fontScale}vh`
 		];
 
 		if (sub.verticalAlignment) {

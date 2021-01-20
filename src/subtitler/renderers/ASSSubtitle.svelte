@@ -71,9 +71,11 @@
 	import {
 		invertVerticalAlignment,
 		subtitleFallbackColor,
-		globalFontScale,
 	} from '../settingsStore';
-	import {joinStyles} from './render-common';
+	import {
+		joinStyles,
+		fontScale
+	} from './render-common';
 	import {createEventDispatcher} from 'svelte';
 	import {readable} from "svelte/store";
 	const dispatch = createEventDispatcher();
@@ -99,10 +101,10 @@
 			//not inheriting the font-size from the sub, instead apply it directly to every phrase.
 			//if a large font size is on the sub, but as small font size override, the bounding box
 			//of the sub will still be large, and the subtitle will be the right size, but in the wrong place
-			`font-size: ${style.fontSize * $globalFontScale}vh`,
+			`font-size: ${style.fontSize * $fontScale}vh`,
 			phrase.inline,
 			//if the phrase has a font size override, this will override the sub's font size
-			phrase.fontSize ? `font-size: ${phrase.fontSize * $globalFontScale}vh` : null
+			phrase.fontSize ? `font-size: ${phrase.fontSize * $fontScale}vh` : null
 		]);
 	}
 
@@ -123,7 +125,7 @@
 		//as such we can apply the font size directly to the base element, avoiding the problem described
 		//in the comments in genPhraseStyles.
 		if (!sub.phrases) {
-			appliedStyles.push(`font-size: ${style.fontSize * $globalFontScale}vh`);
+			appliedStyles.push(`font-size: ${style.fontSize * $fontScale}vh`);
 		}
 
 		if (sub.movement) {
