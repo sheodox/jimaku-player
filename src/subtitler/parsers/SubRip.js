@@ -88,8 +88,7 @@ export default class SubRip extends SubtitleFormat {
 							position: 50,
 							positionAlignment: 'center'
 						};
-					},
-					fontSize = 5;
+					};
 
 				let {position, positionAlignment='center'} = getPositionCue(),
 					//TODO do something with align, fallback to it instead of positionAlignment having a default 'center'
@@ -116,7 +115,6 @@ export default class SubRip extends SubtitleFormat {
 				//now that we've processed all the cues the remaining text is the subtitle text
 
 				const text = lines.join('\n').replace(/<\/?c.Japanese>/g, '');
-				inlineStyles.push(`font-size: ${fontSize}vh`);
 
 				//rough estimate of the padding between each lines, on very small players like crunchyroll the
 				//space between lines takes up a considerable amount of space, and lines can go off the page

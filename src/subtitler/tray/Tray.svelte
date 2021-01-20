@@ -120,7 +120,7 @@
 		</div>
 	{/if}
 	<div class="row">
-		<a target="_blank" href="https://discord.gg/Vyjjyj4" rel="noopener noreferrer">Release notes and discussion here on Discord!</a>
+		<a target="_blank" href="https://discord.gg/Vyjjyj4" rel="noopener noreferrer">Join the Discord community for release notes and discussion!</a>
 	</div>
 </div>
 {#if fineAdjustDialogVisible}

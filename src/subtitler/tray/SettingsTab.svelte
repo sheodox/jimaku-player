@@ -16,6 +16,12 @@
     .muted {
         color: #5b5c6f;
     }
+    details {
+        margin-top: 1rem;
+    }
+    summary {
+        cursor: pointer;
+    }
 </style>
 
 <h2>Settings</h2>
@@ -38,28 +44,39 @@
 					You'll likely want this enabled if you intend to watch with VRV's subtitles at the same time.</span>
     </label>
 </div>
-<h2>Debug Information</h2>
-<dl>
-    <dt>Subtitles File</dt>
-    <dd>{subtitles.fileName}</dd>
-
-    <dt>Alignment</dt>
-    <dd>{$explainedSecondsStore} ({$signedSecondsStore})</dd>
-
-    {#each subtitles.debugInfo() as info}
-        <dt>{info.title}</dt>
-        <dd>{info.detail}</dd>
-    {/each}
-</dl>
 <div class="row">
-    <button on:click={() => downloadParsedSubtitles()}>⬇ Download parsed subtitles</button>
+    <label>
+        Global Font Size Scale ({Math.floor($globalFontScale * 100)}%)
+        <br>
+        <input type="range" min="0.5" max="3" step="0.1" bind:value={$globalFontScale}/>
+    </label>
 </div>
-<div class="row">
-    <button on:click={() => downloadParsedSubtitles($subtitleTime)}>⬇ Download currently visible parsed subtitles</button>
-</div>
+
 <div class="row">
     <a target="_blank" href="https://github.com/sheodox/jimaku-player/issues" rel="noopener noreferrer">Issue? Report it here!</a>
 </div>
+
+<details>
+    <summary>Debug Information</summary>
+    <dl>
+        <dt>Subtitles File</dt>
+        <dd>{subtitles.fileName}</dd>
+
+        <dt>Alignment</dt>
+        <dd>{$explainedSecondsStore} ({$signedSecondsStore})</dd>
+
+        {#each subtitles.debugInfo() as info}
+            <dt>{info.title}</dt>
+            <dd>{info.detail}</dd>
+        {/each}
+    </dl>
+    <div class="row">
+        <button on:click={() => downloadParsedSubtitles()}>⬇ Download parsed subtitles</button>
+    </div>
+    <div class="row">
+        <button on:click={() => downloadParsedSubtitles($subtitleTime)}>⬇ Download currently visible parsed subtitles</button>
+    </div>
+</details>
 
 <script>
     import {
@@ -71,7 +88,8 @@
         subtitleFallbackColor,
         showSubtitlesOnVideo,
         pauseWhenTrayOpen,
-        invertVerticalAlignment
+        invertVerticalAlignment,
+        globalFontScale
     } from '../settingsStore';
     export let subtitles;
 

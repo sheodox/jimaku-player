@@ -39,7 +39,8 @@
 	import {
 		showSubtitlesOnVideo,
 		subtitleFallbackColor,
-		invertVerticalAlignment
+		invertVerticalAlignment,
+        globalFontScale
 	} from '../settingsStore';
 	import {createEventDispatcher} from 'svelte';
 	import {fade} from 'svelte/transition';
@@ -55,7 +56,8 @@
 
 	function genBaseStyles(sub, userActive) {
 		let appliedStyles = [
-			`color: ${$subtitleFallbackColor}`
+			`color: ${$subtitleFallbackColor}`,
+            `font-size: ${5 * $globalFontScale}vh`
 		];
 
 		if (sub.verticalAlignment) {

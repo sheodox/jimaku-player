@@ -42,7 +42,7 @@
 		{#each sub.phrases as phrase (phrase._id)}
 			{#if phrase.fadeIn || phrase.fadeOut}
 				<span
-					style={phrase.inline}
+					style={genPhraseStyles(phrase, sub)}
 					in:fade={genFade(phrase.fadeIn)}
 					out:fade={genFade(phrase.fadeOut)}
 					data-phrase-id={phrase._id}
@@ -53,7 +53,7 @@
 					{phrase.text}
 				</span>
 			{:else}
-				<span style={phrase.inline} data-phrase-id={phrase._id}>
+				<span style={genPhraseStyles(phrase, sub)} data-phrase-id={phrase._id}>
 					{#if phrase.html}
 						{@html phrase.html}
 					{/if}
@@ -68,7 +68,11 @@
 
 <script>
 	import {fade} from 'svelte/transition';
-	import {invertVerticalAlignment, subtitleFallbackColor} from '../settingsStore';
+	import {
+		invertVerticalAlignment,
+		subtitleFallbackColor,
+		globalFontScale,
+	} from '../settingsStore';
 	import {joinStyles} from './render-common';
 	import {createEventDispatcher} from 'svelte';
 	import {readable} from "svelte/store";
@@ -89,6 +93,19 @@
 		return {delay: 0, duration: dur};
 	}
 
+	function genPhraseStyles(phrase, sub) {
+		const style = styles[sub.style];
+		return joinStyles([
+			//not inheriting the font-size from the sub, instead apply it directly to every phrase.
+			//if a large font size is on the sub, but as small font size override, the bounding box
+			//of the sub will still be large, and the subtitle will be the right size, but in the wrong place
+			`font-size: ${style.fontSize * $globalFontScale}vh`,
+			phrase.inline,
+			//if the phrase has a font size override, this will override the sub's font size
+			phrase.fontSize ? `font-size: ${phrase.fontSize * $globalFontScale}vh` : null
+		]);
+	}
+
 	function genBaseStyles(sub) {
 		let appliedStyles = [
 			`color: ${$subtitleFallbackColor}`
@@ -101,6 +118,13 @@
 		appliedStyles = appliedStyles.concat([
 			(sub.inline || ''),
 		]);
+
+		//if there are no overrides the text will be directly mounted inside the <p> and not in <span>s.
+		//as such we can apply the font size directly to the base element, avoiding the problem described
+		//in the comments in genPhraseStyles.
+		if (!sub.phrases) {
+			appliedStyles.push(`font-size: ${style.fontSize * $globalFontScale}vh`);
+		}
 
 		if (sub.movement) {
 			const timings = sub.movement.timings,

@@ -5,7 +5,8 @@ const settingsKey = 'settings-store',
 		subtitleFallbackColor: '#FFFFFF',
 		showSubtitlesOnVideo: true,
 		pauseWhenTrayOpen: true,
-		invertVerticalAlignment: true
+		invertVerticalAlignment: true,
+		globalFontScale: 1
 	},
 	//stores are interacted with, which updates 'state' which will get persisted with GM_setValue
 	state = Object.assign({}, defaultSettings, GM_getValue(settingsKey, {})),
@@ -25,4 +26,5 @@ export const subtitleFallbackColor = stores.subtitleFallbackColor;
 export const showSubtitlesOnVideo = stores.showSubtitlesOnVideo;
 export const pauseWhenTrayOpen = stores.pauseWhenTrayOpen;
 export const invertVerticalAlignment = stores.invertVerticalAlignment;
+export const globalFontScale = stores.globalFontScale;
 

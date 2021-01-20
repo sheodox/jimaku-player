@@ -555,11 +555,12 @@ class ASS extends SubtitleFormat {
 	 * will give whatever it's used for the same size or position relative to the video
 	 * no matter what the size of the video player is.
 	 * @param height - a value in the Y axis (height or position Y) from an ASS script
+	 * @param noUnit - return without units, used when math needs to be done at run-time
 	 * @returns {number|string}
 	 */
-	scaleHeight(height) {
+	scaleHeight(height, noUnit=false) {
 		const scaledHeight = 100 * (height / +this.info.playResY);
-		return `${scaledHeight}vh`;
+		return noUnit ? scaledHeight : `${scaledHeight}vh`;
 	}
 
 	/**
@@ -740,13 +741,13 @@ class ASS extends SubtitleFormat {
 			if (underline === assTrue || strikeOut === assTrue) {
 				inlineStyle.push(`text-decoration: ${underline === assTrue ? 'underline': ''} ${strikeOut === assTrue ? 'line-through' : ''}`);
 			}
-			inlineStyle.push(this.genScaledFont(fontsize));
 
 			parsedStyles[style.name] = {
 				inline: inlineStyle.join(';'),
 				marginL: this.scaleWidth(marginL),
 				marginR: this.scaleWidth(marginR),
 				marginV: this.scaleHeight(marginV),
+				fontSize: this.genScaledFont(fontsize),
 				//keep parsed styles as-is for debugging
 				raw: style
 			};
@@ -758,7 +759,7 @@ class ASS extends SubtitleFormat {
 	genScaledFont(fontSize) {
 		//no exact science to the 0.7 here. it just seemed to be closer to the way
 		//the same subtitles looked in VLC. There could be something more to this
-		return `font-size: ${this.scaleHeight(fontSize * 0.7)}`
+		return this.scaleHeight(fontSize * 0.7, true);
 	}
 
 	parseSubOverrideTags() {
@@ -813,7 +814,7 @@ class ASS extends SubtitleFormat {
 			//go block by block of overridden text
 			for (const scanned of scanner) {
 				const containerInline = [],
-					styled = {
+					phrase = {
 						_id: this.genId(),
 						text: scanned.text,
 						fadeIn: 0,
@@ -935,12 +936,12 @@ class ASS extends SubtitleFormat {
 				}
 
 				if (overrides.fade) {
-					styled.fadeIn = overrides.fade[0];
-					styled.fadeOut = overrides.fade[1];
+					phrase.fadeIn = overrides.fade[0];
+					phrase.fadeOut = overrides.fade[1];
 
 					//svelte will not start animating until the sub is done showing and not before,
 					//so we need to subtract the amount of fadeout time from the subtitle's end time so it works
-					sub.end -= styled.fadeOut;
+					sub.end -= phrase.fadeOut;
 				}
 
 				if (overrides.letterSpacing) {
@@ -948,7 +949,7 @@ class ASS extends SubtitleFormat {
 				}
 
 				if (overrides.fontSize) {
-					cumulativeStyles.push(this.genScaledFont(overrides.fontSize));
+					phrase.fontSize = this.genScaledFont(overrides.fontSize);
 				}
 
 				//need to handle underline and strike through decorations at the same time, because it's the same css property
@@ -997,10 +998,10 @@ class ASS extends SubtitleFormat {
 				}
 
 				if (overrides.drawMode === '1') {
-					const drawing = this.draw(styled.text, overrides, inheritedStyle)
-					styled.html += drawing.html;
-					styled.drawCommands = drawing.commands;
-					styled.text = '';
+					const drawing = this.draw(phrase.text, overrides, inheritedStyle)
+					phrase.html += drawing.html;
+					phrase.drawCommands = drawing.commands;
+					phrase.text = '';
 					//SVGs don't have anything you can define, and searching jisho for a path is just going to be nonsense
 					containerInline.push('pointer-events: none');
 
@@ -1010,13 +1011,13 @@ class ASS extends SubtitleFormat {
 				}
 
 				if (overrides.clip) {
-					const {html, clipId} = this.clip(overrides.clip, styled._id);
+					const {html, clipId} = this.clip(overrides.clip, phrase._id);
 					cumulativeStyles.push(`clip-path: url(#${clipId})`)
-					styled.html += html;
+					phrase.html += html;
 				}
 
-				styled.inline = cumulativeStyles.join(';');
-				sub.phrases.push(styled);
+				phrase.inline = cumulativeStyles.join(';');
+				sub.phrases.push(phrase);
 				if (containerInline.length) {
 					sub.inline = containerInline.join(';');
 				}
