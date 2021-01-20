@@ -97,7 +97,7 @@
 
 <script>
 	import {onMount} from 'svelte';
-	import Tray from "./Tray.svelte";
+	import Tray from "./tray/Tray.svelte";
 	import SubRipRenderer from './renderers/SubRipRenderer.svelte';
 	import ASSRenderer from './renderers/ASSRenderer.svelte';
 	import VideoController from './VideoController';
