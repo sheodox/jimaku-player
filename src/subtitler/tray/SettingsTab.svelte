@@ -22,6 +22,9 @@
     input[type=range]:disabled {
         opacity: 0.3;
     }
+    .radio-label {
+        display: block;
+    }
 </style>
 
 <h2>Settings</h2>
@@ -43,6 +46,20 @@
         Invert subtitle vertical alignment (<kbd title="Hotkey: i">I</kbd>) <span class="muted">(i.e. if subtitles should be near the bottom this will make them show near the top).
 					You'll likely want this enabled if you intend to watch with VRV's subtitles at the same time.</span>
     </label>
+</div>
+<div class="row">
+    <fieldset>
+        <legend>
+            What should happen when a subtitle is clicked
+        </legend>
+
+        {#each subtitleActionOptions as action}
+            <label class="radio-label">
+                <input type="radio" bind:group={$subtitleClickAction} value={action.value} />
+                {action.name}
+            </label>
+        {/each}
+    </fieldset>
 </div>
 <div class="row">
     <label>
@@ -125,7 +142,8 @@
         showSubtitlesOnVideo,
         pauseWhenTrayOpen,
         invertVerticalAlignment,
-        globalFontScale
+        globalFontScale,
+        subtitleClickAction
     } from '../settingsStore';
     import {
         usesShowBasedSettings,
@@ -133,6 +151,12 @@
     } from "../by-show-settings";
 
     export let subtitles;
+
+    const subtitleActionOptions = [
+        {value: 'jisho', name: 'Search on Jisho'},
+        {value: 'copy', name: 'Copy to clipboard'},
+        {value: 'nothing', name: 'Do nothing'}
+    ]
 
     function downloadParsedSubtitles(atTime) {
         const a = document.createElement('a'),

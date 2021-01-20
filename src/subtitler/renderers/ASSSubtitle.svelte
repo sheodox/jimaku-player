@@ -35,7 +35,7 @@
 	class:has-movement={!!sub.movement}
 	data-sub-style={sub.style}
 	data-sub-id={sub._id}
-	on:click={() => define(sub.text)}
+	on:click={() => performSubtitleClickAction(sub.text)}
 	title="click to search this phrase on Jisho.org"
 >
 	{#if sub.phrases}
@@ -68,25 +68,15 @@
 
 <script>
 	import {fade} from 'svelte/transition';
-	import {
-		invertVerticalAlignment,
-		subtitleFallbackColor,
-	} from '../settingsStore';
+	import {performSubtitleClickAction} from "./render-common";
+	import {subtitleFallbackColor} from '../settingsStore';
 	import {
 		joinStyles,
 		fontScale
 	} from './render-common';
-	import {createEventDispatcher} from 'svelte';
-	import {readable} from "svelte/store";
-	const dispatch = createEventDispatcher();
 
 	export let sub;
 	export let styles;
-
-	function define(phrase) {
-		dispatch('define-pauser');
-		window.open(`https://jisho.org/search/${encodeURIComponent(phrase.trim())}`);
-	}
 
 	function genFade(dur) {
 		if (typeof dur !== 'number') {

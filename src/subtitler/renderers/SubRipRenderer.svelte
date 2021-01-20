@@ -25,7 +25,7 @@
                 style="{genBaseStyles(sub, $userActive)}"
                 data-sub-style={sub.style}
                 data-sub-id={sub._id}
-                on:click={() => define(sub.text)}
+                on:click={() => performSubtitleClickAction(sub.text)}
                 title="click to search this phrase on Jisho.org"
             >
                 {sub.text}
@@ -44,17 +44,10 @@
 		subtitleFallbackColor,
 		invertVerticalAlignment,
 	} from '../settingsStore';
-	import {createEventDispatcher} from 'svelte';
-	import {fade} from 'svelte/transition';
+    import {performSubtitleClickAction} from "./render-common";
 	import {userActive} from "../activity-stores";
-	const dispatch = createEventDispatcher();
 
 	export let subtitles; //store for which subtitles should be shown each frame
-
-	function define(phrase) {
-		dispatch('define-pauser');
-		window.open(`https://jisho.org/search/${encodeURIComponent(phrase.trim())}`);
-	}
 
 	function genBaseStyles(sub, userActive) {
 		let appliedStyles = [

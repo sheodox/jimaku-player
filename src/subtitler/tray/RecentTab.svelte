@@ -1,12 +1,18 @@
 <style>
-    a:not(:hover) {
-        text-decoration: none;
+    .a:hover {
+        text-decoration: underline;
     }
     li {
         padding-bottom: 0.2rem;
     }
-    li a {
+    li .a {
         white-space: pre;
+        background: none !important;
+        color: white !important;
+        text-transform: none;
+        font-weight: normal;
+        margin: 0;
+        padding: 0;
     }
     li:not(:first-of-type)::after {
         content: ' ';
@@ -30,9 +36,16 @@
     {#each recentSubs as sub, i (sub.text)}
         <li in:fly={{y: -50, duration: 200}} out:fly={{y:50, duration: 200}} animate:flip={{duration: 200}}>
             <button class="small-button secondary" on:click={rewindToSubtitle(sub)} title="Rewind to this subtitle">⯇<span class="sr">Rewind to this subtitle</span></button>
-            <a target="_blank" href={`https://jisho.org/search/${encodeURIComponent(sub.text.trim())}`} rel="noopener noreferrer" on:click={() => dispatch('define-pauser')}>
+            {#if $subtitleClickAction === 'nothing'}
                 {(sub.text || '').trim()}
-            </a>
+            {:else}
+                <button
+                    class="a"
+                    on:click={() => performSubtitleClickAction(sub.text)}
+                >
+                    {(sub.text || '').trim()}
+                </button>
+            {/if}
         </li>
     {/each}
 </ul>
@@ -42,6 +55,9 @@
     import {fly, fade} from 'svelte/transition';
     import {flip} from 'svelte/animate';
     import {alignmentStore} from "../alignmentStore";
+    import {performSubtitleClickAction} from "../renderers/render-common";
+    import {subtitleClickAction} from "../settingsStore";
+
     export let recentSubs;
 
     const dispatch = createEventDispatcher();

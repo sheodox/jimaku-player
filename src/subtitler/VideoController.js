@@ -1,6 +1,6 @@
 const userPausedReason = 'user-paused';
 
-export default class VideoController {
+class VideoController {
 	constructor() {
 		this.video = null;
 		this.reasons = [];
@@ -48,3 +48,4 @@ export default class VideoController {
 	}
 }
 
+export const videoController = new VideoController();

@@ -67,14 +67,12 @@
 				<SubRipRenderer
 					format={subtitles.format}
 					subtitles={subtitleStore}
-					on:define-pauser={definePauser}
 				/>
 			{:else if subtitles.format === 'ass'}
 				<ASSRenderer
 					format={subtitles.format}
 					styles={subtitles.styles}
 					subtitles={subtitleStore}
-					on:define-pauser={definePauser}
 				/>
 			{/if}
 		{/if}
@@ -83,7 +81,6 @@
 			{subtitles}
 			on:restart={restart}
 			on:tray-pauser={trayPauser}
-			on:define-pauser={definePauser}
 			on:realign={() => phase = 'align'}
 		/>
 	{:else if phase === 'cancelled'}
@@ -100,7 +97,6 @@
 	import Tray from "./tray/Tray.svelte";
 	import SubRipRenderer from './renderers/SubRipRenderer.svelte';
 	import ASSRenderer from './renderers/ASSRenderer.svelte';
-	import VideoController from './VideoController';
 	import SubtitlePrompt from "./SubtitlePrompt.svelte";
 	import Align from "./Align.svelte";
 	import {showSubtitlesOnVideo} from "./settingsStore";
@@ -110,9 +106,9 @@
 	} from './alignmentStore';
 	import {createSubtitleTimer, setSubtitles as setTimerSubtitles} from "./subtitleTimer";
 	import Hotkeys from "./Hotkeys.svelte";
+	import {videoController} from "./VideoController";
 
-	const alignmentKey = 'last-used-alignment',
-		videoController = new VideoController();
+	const alignmentKey = 'last-used-alignment';
 
 	let phase = 'prompt',
 		currentSubtitles = [],
@@ -206,9 +202,5 @@
 
 	function trayPauser(e) {
 		e.detail ? videoController.addPauser('tray') : videoController.removePauser('tray');
-	}
-
-	function definePauser() {
-		videoController.addPauser('define');
 	}
 </script>

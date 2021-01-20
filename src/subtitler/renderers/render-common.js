@@ -1,6 +1,7 @@
-import {derived} from 'svelte/store';
-import {globalFontScale} from "../settingsStore";
+import {derived, get} from 'svelte/store';
+import {globalFontScale, subtitleClickAction} from "../settingsStore";
 import {showBasedSettings, usesShowBasedSettings} from "../by-show-settings";
+import {videoController} from "../VideoController";
 
 export function joinStyles(stylesArray) {
 	return stylesArray
@@ -17,3 +18,23 @@ export const fontScale = derived(
 			: globalFontScale;
 	}
 )
+
+export function performSubtitleClickAction(subtitleText) {
+	subtitleText = subtitleText.trim();
+	const action = get(subtitleClickAction);
+
+	switch (action) {
+		case 'jisho':
+			window.open(`https://jisho.org/search/${encodeURIComponent(subtitleText)}`)
+			videoController.addPauser('define');
+			break;
+		case 'copy':
+			const copyInput = document.createElement('input');
+			document.body.appendChild(copyInput);
+			copyInput.value = subtitleText;
+			copyInput.select();
+			document.execCommand('copy');
+			copyInput.remove();
+			break;
+	}
+}
