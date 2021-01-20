@@ -25,6 +25,9 @@
     .radio-label {
         display: block;
     }
+    fieldset {
+        margin: 0.2rem;
+    }
 </style>
 
 <h2>Settings</h2>
@@ -63,7 +66,7 @@
 </div>
 <div class="row">
     <label>
-        Global font size scale ({Math.floor($globalFontScale * 100)}%)
+        Subtitle font size scale ({Math.floor($globalFontScale * 100)}%)
         <br>
         <input
             type="range"
@@ -80,13 +83,13 @@
     <div class="row">
         <label>
             <input type="checkbox" bind:checked={$showBasedSettings.overrideGlobalFontScale}>
-            Override the global font scale setting
+            Use a different subtitle font size scale for this show
         </label>
     </div>
     {#if $showBasedSettings.overrideGlobalFontScale}
         <div class="row">
             <label>
-                Font size scale ({Math.floor($showBasedSettings.fontScale * 100)}%)
+                This show's subtitle font size scale ({Math.floor($showBasedSettings.fontScale * 100)}%)
                 <br>
                 <input
                     type="range"
