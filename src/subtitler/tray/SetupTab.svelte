@@ -25,18 +25,21 @@
         Fine adjustment
     </button>
 </div>
-<h3>Switch to a previous alignment</h3>
-{#if $pauseWhenTrayOpen}
-    <!-- without a way to resume the video, with this setting on you wouldn't be able to watch for the subtitles changing, the video would be paused -->
-    <button id="resume-button" class="secondary" on:click={playVideo}>Resume Video</button>
+{#if $alignmentHistoryStore.length}
+    <h3>Switch to a previous alignment</h3>
+    {#if $pauseWhenTrayOpen}
+        <!-- without a way to resume the video, with this setting on you wouldn't be able to watch for the subtitles changing, the video would be paused -->
+        <button id="resume-button" class="secondary" on:click={playVideo}>Resume Video</button>
+    {/if}
+    <RecentAlignments showPreviews={true} />
 {/if}
-<RecentAlignments showPreviews={true} />
 
 <script>
     import {createEventDispatcher} from 'svelte';
     import RecentAlignments from "../RecentAlignments.svelte";
     import {signedSecondsStore, explainedSecondsStore} from "../alignmentStore";
     import {pauseWhenTrayOpen} from '../settingsStore';
+    import {alignmentHistoryStore} from '../alignmentStore';
     const dispatch = createEventDispatcher();
 
     export let fineAdjustDialogVisible;
