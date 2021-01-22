@@ -1,4 +1,5 @@
 import App from './App.svelte';
+import './style/style.scss';
 
 const mount = document.createElement('div');
 if (location.host.includes('crunchyroll')) {

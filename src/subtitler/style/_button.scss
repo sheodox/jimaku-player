@@ -1,0 +1,32 @@
+button, .button {
+  background: #fd0;
+  border: none;
+  padding: 0.4rem;
+  line-height: 1;
+  font-weight: bold;
+  color: black;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  margin-bottom: 0.2rem;
+
+  &:disabled {
+    background: #2a3450;
+  }
+  &:not(:disabled):hover {
+    background: #ffea6d;
+    cursor: pointer;
+    color: black;
+  }
+
+  &.secondary {
+    background: #11121863;
+    border: 1px solid #fd0;
+    color: #fd0;
+  }
+}
+
+
+.small-button {
+  font-size: 0.6rem;
+  padding: 0.2rem;
+}

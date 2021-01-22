@@ -32,34 +32,6 @@
 		visibility: visible;
 	}
 
-	.tray h1 {
-		font-size: 2rem;
-		padding: 0.5rem 0;
-		border-radius: 3px;
-		margin: 0;
-	}
-
-	/* headings within the tabs */
-	.tray :global(h2), .tray :global(h3) {
-		text-decoration: underline;
-		margin: 0 0 0.4rem;
-	}
-	.tray :global(h3) {
-		margin-top: 1rem;
-	}
-	.tray :global(a) {
-		color: white;
-		transform: scaleY(0);
-		transform-origin: top;
-		transition: transform 0.5s ease;
-		font-family: "Source Han Sans", "源ノ角ゴシック", "Hiragino Sans", "HiraKakuProN-W3", "Hiragino Kaku Gothic ProN W3", "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", "Noto Sans", "Noto Sans CJK JP", "メイリオ", Meiryo, "游ゴシック", YuGothic, "ＭＳ Ｐゴシック", "MS PGothic", "ＭＳ ゴシック", "MS Gothic", sans-serif;
-	}
-	.tray :global(a:hover) {
-		color: #0aff8c;
-		cursor: pointer;
-		text-decoration: underline;
-	}
-
 	.tab {
 		display: none;
 		text-align: left;

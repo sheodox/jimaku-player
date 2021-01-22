@@ -5,10 +5,10 @@
     li {
         padding-bottom: 0.2rem;
     }
-    li .a {
+    #recent-subs li .a {
         white-space: pre;
-        background: none !important;
-        color: white !important;
+        background: none;
+        color: white;
         text-transform: none;
         font-weight: normal;
         margin: 0;
@@ -32,7 +32,7 @@
 </style>
 
 <h2>Recent Subtitles</h2>
-<ul class="recent-subs">
+<ul id="recent-subs">
     {#each recentSubs as sub, i (sub.text)}
         <li in:fly={{y: -50, duration: 200}} out:fly={{y:50, duration: 200}} animate:flip={{duration: 200}}>
             <button class="small-button secondary" on:click={rewindToSubtitle(sub)} title="Rewind to this subtitle">⯇<span class="sr">Rewind to this subtitle</span></button>

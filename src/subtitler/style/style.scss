@@ -1,0 +1,20 @@
+//nest all styles within the app mount point element's id so the styles can be easier to write
+#sheodox-jimaku-player {
+  @import './button';
+  @import './input';
+  @import './tray';
+
+  position: relative;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-align: center;
+
+  /* screenreader only text elements */
+  .sr {
+    position:absolute;
+    left:-10000px;
+    top:auto;
+    width:1px;
+    height:1px;
+    overflow:hidden;
+  }
+}

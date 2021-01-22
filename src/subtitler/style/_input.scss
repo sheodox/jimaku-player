@@ -1,0 +1,10 @@
+input[type=text], input:not([type]) {
+  color: white;
+  background: #0b0b26;
+  border: 1px solid #364962;
+  padding: 0.2rem;
+
+  &:focus {
+    border-color: #fd0;
+  }
+}
