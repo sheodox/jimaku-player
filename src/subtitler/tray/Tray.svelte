@@ -7,10 +7,11 @@
 		right: 0;
 		top: 0;
 		color: white;
-		height: calc(100% - 5rem);
+		height: calc(100% - 10rem);
 		display: flex;
 		flex-direction: column;
         text-align: center;
+		border-radius: 5px 0 0 5px;
 	}
 
 	.tray.inactive {
