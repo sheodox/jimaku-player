@@ -1,16 +1,17 @@
 <style>
     p {
-        cursor: pointer;
+		cursor: default;
         color: white;
         margin: 0;
         padding: 0;
         white-space: pre-wrap;
         font-family: "Source Han Sans", "源ノ角ゴシック", "Hiragino Sans", "HiraKakuProN-W3", "Hiragino Kaku Gothic ProN W3", "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", "Noto Sans", "Noto Sans CJK JP", "メイリオ", Meiryo, "游ゴシック", YuGothic, "ＭＳ Ｐゴシック", "MS PGothic", "ＭＳ ゴシック", "MS Gothic", sans-serif;
     }
-    p:hover {
+    p.actionable:hover {
         /* need important so it can override .ass inline styles */
         color: #0aff8c !important;
-    }
+		cursor: pointer;
+	}
 
 	@keyframes movement {
 		from {
@@ -33,6 +34,7 @@
 <p
 	style="{genBaseStyles(sub)}"
 	class:has-movement={!!sub.movement}
+	class:actionable={$subtitleActionable}
 	data-sub-style={sub.style}
 	data-sub-id={sub._id}
 	on:click={() => performSubtitleClickAction(sub.text)}
@@ -72,7 +74,8 @@
 	import {subtitleFallbackColor} from '../settingsStore';
 	import {
 		joinStyles,
-		fontScale
+		fontScale,
+		subtitleActionable
 	} from './render-common';
 
 	export let sub;

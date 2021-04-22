@@ -19,6 +19,13 @@ export const fontScale = derived(
 	}
 )
 
+//if the desired subtitle action is something that's obvious to the user.
+//while 'do nothing' actually does run some code we want to pretend it doesn't
+//to make it look like you just clicked the
+export const subtitleActionable = derived(subtitleClickAction, action => {
+	return ['jisho', 'copy'].includes(action);
+})
+
 export function performSubtitleClickAction(subtitleText) {
 	subtitleText = subtitleText.trim();
 	const action = get(subtitleClickAction);
@@ -36,5 +43,11 @@ export function performSubtitleClickAction(subtitleText) {
 			document.execCommand('copy');
 			copyInput.remove();
 			break;
+		default:
+			//pretend like the user clicked through the subtitle and toggle pause. the event
+			//can't just be bubbled up as the video player won't catch that event because of
+			//where jimaku-player is mounted in the DOM.
+			const video = document.querySelector('video');
+			video.paused ? video.play() : video.pause();
 	}
 }
