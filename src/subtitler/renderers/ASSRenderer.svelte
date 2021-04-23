@@ -77,13 +77,16 @@
 	.an1, .an2, .an3 {
 		flex-direction: column-reverse;
 	}
-
+	.non-actionable {
+		pointer-events: none;
+	}
 </style>
 
 <script>
 	import {derived} from 'svelte/store';
 	import ASSSubtitle from "./ASSSubtitle.svelte";
 	import {invertVerticalAlignment} from "../settingsStore";
+	import {subtitleActionable} from "./render-common";
 
 	export let subtitles; //store for which subtitles should be shown each frame
 	export let styles = {}; // base styles from the subtitle file
@@ -155,7 +158,7 @@
 	});
 </script>
 
-<div class="subtitles">
+<div class="subtitles" class:non-actionable={!$subtitleActionable}>
 	{#each $layers as arrangement (arrangement.level)}
 		<div data-ass-layer={arrangement.level} style="position: absolute; z-index: {arrangement.level}">
 			{#each arrangement.positioned as sub (sub._id)}
