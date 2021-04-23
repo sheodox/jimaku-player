@@ -54,6 +54,9 @@
     .hidden {
 		display: none;
 	}
+	.tray :global(.tab-list) {
+		margin: 0;
+    }
 	.tray :global(.tab-list li) {
 		display: inline-block;
 	}
