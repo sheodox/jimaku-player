@@ -44,6 +44,12 @@
     <label for="pause-on-tray">Pause when tray is open</label>
 </div>
 <div class="row">
+    <input id="auto-copy-subtitles" type="checkbox" bind:checked={$autoCopySubtitles}>
+    <label for="auto-copy-subtitles">Auto-copy current subtitles
+        <span class="muted">This will copy the current subtitles to your clipboard whenever they change.</span>
+    </label>
+</div>
+<div class="row">
     <input id="invert-subtitle-alignment" type="checkbox" bind:checked={$invertVerticalAlignment}>
     <label for="invert-subtitle-alignment">
         Invert subtitle vertical alignment (<kbd title="Hotkey: i">I</kbd>) <span class="muted">(i.e. if subtitles should be near the bottom this will make them show near the top).
@@ -146,7 +152,8 @@
         pauseWhenTrayOpen,
         invertVerticalAlignment,
         globalFontScale,
-        subtitleClickAction
+        subtitleClickAction,
+        autoCopySubtitles
     } from '../settingsStore';
     import {
         usesShowBasedSettings,

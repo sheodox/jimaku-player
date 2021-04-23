@@ -49,7 +49,7 @@
 	import ASSRenderer from './renderers/ASSRenderer.svelte';
 	import SubtitlePrompt from "./SubtitlePrompt.svelte";
 	import Align from "./Align.svelte";
-	import {showSubtitlesOnVideo} from "./settingsStore";
+	import {showSubtitlesOnVideo, autoCopySubtitles} from "./settingsStore";
 	import {
 		showNameStore,
 		alignmentStore
@@ -118,8 +118,15 @@
 
 		setTimerSubtitles(subtitles);
 		subtitleStore = createSubtitleTimer(alignmentStore)
+		let lastText = '';
 		subtitleUnsubscribe = subtitleStore.subscribe(currentSubs => {
 			mergeSubsWithRecent(currentSubs);
+
+			const subText = currentSubs.map(sub => sub.text || '').join('\n').trim();
+			if ($autoCopySubtitles && subText !== lastText && subText) {
+				lastText = subText;
+				GM_setClipboard(subText, 'text')
+			}
 		})
 	}
 

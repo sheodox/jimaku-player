@@ -24,6 +24,7 @@ const userscript = `// ==UserScript==
 // @match        https://static.crunchyroll.com/vilos-v2/web/vilos/player.html*
 // @grant        GM_getValue
 // @grant        GM_setValue
+// @grant        GM_setClipboard
 // ==/UserScript==
 
 ${script}

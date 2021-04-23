@@ -6,6 +6,7 @@ const settingsKey = 'settings-store',
 		showSubtitlesOnVideo: true,
 		pauseWhenTrayOpen: true,
 		invertVerticalAlignment: true,
+		autoCopySubtitles: false,
 		globalFontScale: 1,
 		subtitleClickAction: 'jisho'
 	},
@@ -27,6 +28,7 @@ export const subtitleFallbackColor = stores.subtitleFallbackColor;
 export const showSubtitlesOnVideo = stores.showSubtitlesOnVideo;
 export const pauseWhenTrayOpen = stores.pauseWhenTrayOpen;
 export const invertVerticalAlignment = stores.invertVerticalAlignment;
+export const autoCopySubtitles = stores.autoCopySubtitles;
 export const globalFontScale = stores.globalFontScale;
 export const subtitleClickAction = stores.subtitleClickAction;
 
