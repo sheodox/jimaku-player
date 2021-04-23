@@ -31,7 +31,6 @@
     }
 </style>
 
-<h2>Recent Subtitles</h2>
 <ul id="recent-subs">
     {#each recentSubs as sub, i (sub.text)}
         <li in:fly={{y: -50, duration: 200}} out:fly={{y:50, duration: 200}} animate:flip={{duration: 200}}>

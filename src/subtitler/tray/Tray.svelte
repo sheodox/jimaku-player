@@ -24,28 +24,26 @@
 	}
 
 	.tray:hover {
-		background: #111218;
+		background: #0c1015;
 		overflow: auto;
 		border-radius: 3px;
+		border: 1px solid #8c8c8c21;
+		border-right: none;
 	}
 
-	.tray:hover > * {
+	.tray:hover > :global(*) {
 		visibility: visible;
 	}
 
-	.tab {
-		display: none;
+	.tray-header {
+		background: #181d2b;
+		border-bottom: 1px solid #8c8c8c21;
+	}
+
+	.tab-content {
 		text-align: left;
 		padding: 0.5rem 2rem;
-        background: #1c1825;
-		border-top: 2px solid #f47521;
-	}
-	.tab-active {
-		display: block;
-		flex: 1;
-	}
-	.tray-tab-buttons {
-		margin: 0.2rem;
+        flex: 1;
 	}
     .row:not(:last-child) {
 		margin-bottom: 0.5rem;
@@ -56,6 +54,9 @@
     .hidden {
 		display: none;
 	}
+	.tray :global(.tab-list li) {
+		display: inline-block;
+	}
 </style>
 
 <div
@@ -65,7 +66,14 @@
 	on:mouseleave={trayHover(false)}
 	style="right: {$trayAnim}rem" class:hidden={fineAdjustDialogVisible}
 >
-	<h1>字幕プレーヤー</h1>
+	<div class="tray-header">
+		<h1>字幕プレーヤー</h1>
+		{#if mode === 'normal'}
+			<div class="tray-tab-buttons">
+                <TabList tabs={tabList} bind:selectedTab />
+			</div>
+		{/if}
+	</div>
 	{#if mode === 'cancelled'}
 		<div class="tab tab-active tab-cancelled">
 			<div class="row">
@@ -76,23 +84,20 @@
 			</div>
 		</div>
 	{:else if mode === 'normal'}
-		<div class="tray-tab-buttons">
-			<button on:click={() => panel = 'recent'} disabled={panel === 'recent'}>Recent Subtitles</button>
-			<button on:click={() => panel = 'setup'} disabled={panel === 'setup'}>Setup</button>
-			<button on:click={() => panel = 'settings'} disabled={panel === 'settings'}>Settings</button>
-		</div>
-		<div class="tab" class:tab-active={panel === 'recent'}>
-            <RecentTab {recentSubs} />
-		</div>
-		<div class="tab" class:tab-active={panel === 'setup'}>
-            <SetupTab
-				on:realign
-				on:restart
-				bind:fineAdjustDialogVisible
-			/>
-		</div>
-		<div class="tab tab-settings" class:tab-active={panel === 'settings'}>
-            <SettingsTab {subtitles} />
+		<div class="tab-content">
+			<Tab tabId="recent" bind:selectedTab>
+				<RecentTab {recentSubs} />
+			</Tab>
+			<Tab tabId="setup" bind:selectedTab>
+				<SetupTab
+					on:realign
+					on:restart
+					bind:fineAdjustDialogVisible
+				/>
+			</Tab>
+			<Tab tabId="settings" bind:selectedTab>
+				<SettingsTab {subtitles} />
+			</Tab>
 		</div>
 	{/if}
 	<div class="row">
@@ -105,6 +110,7 @@
 
 <script>
 	import {createEventDispatcher} from 'svelte';
+	import {Tab, TabList} from 'sheodox-ui';
 	import {get} from 'svelte/store';
 	import {
 		pauseWhenTrayOpen,
@@ -125,7 +131,17 @@
 		trayAnim = tweened(trayStates.hidden, {
 			duration: 300,
 			easing: cubicOut
-		});
+		}),
+		tabList = [{
+			id: 'recent',
+			title: 'Recent Subtitles'
+		}, {
+			id: 'setup',
+			title: 'Setup'
+		}, {
+			id: 'settings',
+			title: 'Settings'
+		}];
 
 	export let recentSubs = [];
 	export let subtitles = {};
@@ -134,6 +150,7 @@
 	let panel = 'recent',
 		fineAdjustDialogVisible = false,
 		showSettings = false,
+		selectedTab,
 		showSubs = true;
 
 	function trayHover(isEntering) {
