@@ -3,7 +3,7 @@ const fs = require('fs'),
 	lastPackagedScript = fs.readFileSync(packagedScriptPath).toString(),
 	script = fs.readFileSync(`./static/subtitler.js`).toString();
 
-let versionBase = '0.4.';
+let versionBase = '0.5.';
 const [_, oldVersion] = lastPackagedScript.match(/@version\s*\d+\.\d+\.(\d+)/);
 
 //if packaging a release version, increment the version
