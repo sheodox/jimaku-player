@@ -86,11 +86,14 @@ const parseClip = clipOptions => {
 	}
 	else {
 		//if only drawing commands are given the scale is assumed to be 1
-		const [scale, drawingCommands] = clipOptions.length === 1 ? [1, clipOptions[0]] : clipOptions;
+		const [scale, drawingCommands] = clipOptions.length === 1 ? [1, clipOptions[0]] : clipOptions,
+			commands = parseDrawingCommands(drawingCommands)
 
-		return {
-			scale,
-			commands: parseDrawingCommands(drawingCommands)
+		if (commands) {
+			return {
+				scale,
+				commands
+			}
 		}
 	}
 }
@@ -102,6 +105,10 @@ const parseClip = clipOptions => {
  * @returns {[]}
  */
 const parseDrawingCommands = drawText => {
+	if (!drawText) {
+		return null;
+	}
+
 	const commands = [],
 		commandRegex = /([mnlbspc][ \.0-9\-]+)/g;
 
@@ -489,7 +496,10 @@ class ASS extends SubtitleFormat {
 			this.parseStyles(this.parseBlock(this.blocks.styles));
 			this.parseSubOverrideTags();
 		} catch(e) {
-			console.error('ASS PARSE ERROR', e);
+			console.error('[Jimaku Player] ASS parse error', e);
+			if (this.parsingSub) {
+				console.error('[Jimaku Player] Error occurred parsing this line', this.parsingSub)
+			}
 			// if we errored out, having no subs is an error condition detected elsewhere
 			this.subs = [];
 		}
@@ -780,6 +790,9 @@ class ASS extends SubtitleFormat {
 		 * only the second one. So all styles need to be able to add or remove styles
 		 */
 		this.subs.forEach(sub => {
+		    //copy the subtitle we're parsing overrides for, this lets us log the line that caused parsing to fail
+			this.parsingSub = JSON.parse(JSON.stringify(sub));
+
 			//keep the unchanged text around for debugging purposes
 			sub.rawText = sub.text;
 
@@ -1027,6 +1040,8 @@ class ASS extends SubtitleFormat {
 			//have to be handled wherever we're not showing styled text (alignment button and jisho searches)
 			sub.text = removeOverrideText(sub.text);
 		});
+
+		this.parsingSub = null;
 	}
 
 	genSvg(commands, scale=1) {
