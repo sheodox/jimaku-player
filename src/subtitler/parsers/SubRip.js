@@ -18,7 +18,13 @@ export default class SubRip extends SubtitleFormat {
 	}
 	parse(subripFile) {
 		const subs = subripFile
-			.replace(/\r/g, '')
+			//get rid of the carriage return in windows style line endings, it's easier to parse with just \n characters
+			.replace(/\r\n/g, '\n')
+			//some subtitle files that have been seen for some reason only use carriage returns and no newline characters
+			//but it seems those carriage returns are used in the same place as i'd expect newline characters to be,
+			//if there are remaining carriage returns in the subtitle script after accounting for windows style line endings
+			//by now we assume it's this strange case we're dealing with, just normalize them into newlines
+			.replace(/\r/g, '\n')
 			//two lines separate each subtitle line
 			.split('\n\n');
 		this.subs = subs.reduce((done, sub) => {
