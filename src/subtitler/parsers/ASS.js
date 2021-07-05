@@ -53,6 +53,10 @@ const parseLegacyAlignment = alignment => {
 const parseColor = assColor => {
 	if (assColor) {
 		assColor = assColor
+			// I've seen subtitles that have lower cased colors for some reason. Uppercase them
+			// because all the hex regexes look for upper cased letters and it'd otherwise
+			// misinterpret every color as black.
+			.toUpperCase()
 			.replace(/[&H]/g, '')
 			// before complex override parsing was more meticulous it was easy for it to stop at the
 			// first ) it saw and if it was on a nested complex override it'd stop processing early
@@ -1107,5 +1111,6 @@ class ASS extends SubtitleFormat {
 
 module.exports = {
 	getOverride,
+	parseColor,
 	ASS
 }
