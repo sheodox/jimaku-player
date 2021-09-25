@@ -553,6 +553,18 @@ class ASS extends SubtitleFormat {
 				const [key, value] = line.split(/: ?/);
 				this.info[camelCase(key)] = value;
 			})
+
+		//some subtitle scripts have been seen to not include playResX/playResY in
+		//the info block, resulting in NaNvh heights for font sizes which makes them
+		//really tiny and impossible to fix with the font size scaling setting (NaN * 3 = NaN).
+		//this works around that case by giving a default player size, if the subtitles
+		//end up being too big or small the user can fix it with the scaling setting.
+		if (!this.info.playResX) {
+			this.info.playResX = 1280;
+		}
+		if (!this.info.playResY) {
+			this.info.playResY = 720;
+		}
 	}
 
 	/**
