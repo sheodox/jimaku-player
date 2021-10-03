@@ -7,7 +7,10 @@ This is a [Tampermonkey](https://www.tampermonkey.net/) userscript that lets you
  [VRV](https://vrv.co/) or [Crunchyroll](https://www.crunchyroll.com/), to help with learning
   Japanese.
 
-# [Install (requires Tampermonkey)](https://github.com/sheodox/jimaku-player/raw/master/dist/jimaku-player.user.js)
+# [Install](https://github.com/sheodox/jimaku-player/raw/master/dist/jimaku-player.user.js) (requires [Tampermonkey](https://www.tampermonkey.net/))
+
+If Tampermonkey is installed, clicking on the "Install" link above should present you with a Tampermonkey screen asking to confirm
+ installation, just click "Install" again on that page and you're done!
 
 ## Features
 
