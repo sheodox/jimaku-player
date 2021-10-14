@@ -42,7 +42,9 @@ interface VideoInfo {
 
 interface MetadataFile {
 	name: string,
-	video: string,
+	video: {
+		fileName: string
+	},
 	audio: {
 		language: string,
 		title?: string,
@@ -171,7 +173,7 @@ async function generateMissingImages() {
 
 	for (const videoBase of videosWithoutImages) {
 		const metadata: MetadataFile = JSON.parse((await fs.readFile(`${videoBase}-metadata.json`)).toString()),
-			videoPath = path.join(path.dirname(videoBase), metadata.video);
+			videoPath = path.join(path.dirname(videoBase), metadata.video.fileName);
 
 		// extract one frame of video to the temp image path
 		await exec(`ffmpeg -ss 00:05:00.000 -i "${videoPath}" -vframes 1 ${imageGeneratePath} -y`);
