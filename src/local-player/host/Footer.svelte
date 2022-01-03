@@ -21,6 +21,6 @@
 </Footer>
 
 <script>
-	import {Footer, Icon} from 'sheodox-ui';
-	import ExternalLink from "../ExternalLink.svelte";
+	import { Footer, Icon } from 'sheodox-ui';
+	import ExternalLink from '../ExternalLink.svelte';
 </script>

@@ -3,7 +3,7 @@
 		margin: 0.5rem;
 		align-self: center;
 		max-width: 20rem;
-        /* prevent the buttons from shifting around, seeing part of the line should be good enough for now, though it can easily get cut off */
+		/* prevent the buttons from shifting around, seeing part of the line should be good enough for now, though it can easily get cut off */
 		overflow: hidden;
 	}
 	pre {
@@ -12,10 +12,10 @@
 		font-size: 0.7rem;
 	}
 
-    /* show buttons with subtitle previews in a grid, otherwise they move around a lot when allowd to just flow based on size */
+	/* show buttons with subtitle previews in a grid, otherwise they move around a lot when allowd to just flow based on size */
 	.with-previews {
 		display: grid;
-        grid-gap: 0.5rem;
+		grid-gap: 0.5rem;
 		grid-template-columns: 1fr 1fr;
 	}
 </style>
@@ -26,7 +26,7 @@
 			<button on:click={() => align(history.alignment)} class="secondary" use:previewSubtitles={history.alignment}>
 				{history.signed}秒
 				{#if showPreviews}
-					<pre class="subtitle-preview"></pre>
+					<pre class="subtitle-preview" />
 				{/if}
 			</button>
 		{/each}
@@ -34,14 +34,10 @@
 {/if}
 
 <script>
-	import {writable} from 'svelte/store';
-	import {
-		alignmentHistoryStore,
-		alignmentStore,
-		saveAlignmentToHistory
-	} from './alignmentStore';
-	import {createEventDispatcher} from 'svelte';
-	import {createSubtitleTimer} from './subtitleTimer';
+	import { writable } from 'svelte/store';
+	import { alignmentHistoryStore, alignmentStore, saveAlignmentToHistory } from './alignmentStore';
+	import { createEventDispatcher } from 'svelte';
+	import { createSubtitleTimer } from './subtitleTimer';
 	export let showPreviews = false;
 	const dispatch = createEventDispatcher();
 
@@ -57,19 +53,21 @@
 			//watch a store with this offset so we can show a preview of the lines showing at that time in the video so you don't
 			//have to click around randomly when trying to pick a previous alignment
 			store = createSubtitleTimer(alignmentStore),
-			unsub = store.subscribe(subtitles => {
+			unsub = store.subscribe((subtitles) => {
 				//many subtitles are often one or two lines, occasionally more but not as often.
 				//so pad everything out to two lines minimum to prevent too much movement
-				const text = subtitles
-					.map(sub => sub.text)
-					.join('\n').trim() || '\n\n';
+				const text =
+					subtitles
+						.map((sub) => sub.text)
+						.join('\n')
+						.trim() || '\n\n';
 				previewEl.textContent = !text.includes('\n') ? '\n' + text : text;
-			})
+			});
 
 		return {
-			update: newAlignment =>  alignmentStore.set(newAlignment),
-			destroy: unsub
-		}
+			update: (newAlignment) => alignmentStore.set(newAlignment),
+			destroy: unsub,
+		};
 	}
 
 	function align(alignment) {

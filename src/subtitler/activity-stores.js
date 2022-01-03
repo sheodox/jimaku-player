@@ -1,4 +1,4 @@
-import {writable, readable} from "svelte/store";
+import { writable, readable } from 'svelte/store';
 function getVideo() {
 	return document.querySelector('video');
 }
@@ -7,7 +7,7 @@ function getVideo() {
  * The current time of the video that's playing.
  * @type {Readable<number>}
  */
-export const currentTime = readable(0, set => {
+export const currentTime = readable(0, (set) => {
 	let frame;
 
 	function onFrame() {
@@ -21,8 +21,8 @@ export const currentTime = readable(0, set => {
 
 	return () => {
 		cancelAnimationFrame(frame);
-	}
-})
+	};
+});
 
 /**
  * If the user has performed some keyboard or mouse activity recently.

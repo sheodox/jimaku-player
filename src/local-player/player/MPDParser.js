@@ -1,13 +1,13 @@
-import {Logger} from '../logger';
-import {prettyTime} from "../utils";
+import { Logger } from '../logger';
+import { prettyTime } from '../utils';
 
 export const MINIMUM_BUFFER_INTERVAL = 10; //buffer this number of seconds worth of segments
 
 function parseByteRange(byteRange) {
-	const [from, to] = byteRange.split('-').map(bytes => parseInt(bytes, 10));
+	const [from, to] = byteRange.split('-').map((bytes) => parseInt(bytes, 10));
 
 	//range is the byte range as-is, used in the range header to fetch this segment
-	return {from, to, range: byteRange};
+	return { from, to, range: byteRange };
 }
 
 // 'sNode' is literally an <S> element
@@ -18,8 +18,8 @@ function parseTimelineSegment(sNode) {
 		repeat = sNode.getAttribute('r'),
 		times = {
 			duration: parseInt(sNode.getAttribute('d'), 10),
-			repetitions: 1 + (repeat ? parseInt(repeat, 10) : 0)
-		}
+			repetitions: 1 + (repeat ? parseInt(repeat, 10) : 0),
+		};
 	if (start) {
 		times.start = parseInt(start, 10);
 	}
@@ -65,7 +65,7 @@ export class MPDParser {
 				id: this._generateIdBase++,
 				mediaRange,
 				segmentNumber: i,
-				timing: timeline[i]
+				timing: timeline[i],
 			});
 			start += duration;
 		}
@@ -86,13 +86,13 @@ export class MPDParser {
 			}
 			for (let i = 0; i < segmentDetails.repetitions; i++) {
 				const from = start / timescale,
-					to = (start + segmentDetails.duration) / timescale
+					to = (start + segmentDetails.duration) / timescale;
 				timeline.push({
 					from,
 					to,
 					duration: segmentDetails.duration / timescale,
 					fromPretty: prettyTime(from),
-					toPretty: prettyTime(to)
+					toPretty: prettyTime(to),
 				});
 				start += segmentDetails.duration;
 			}
@@ -100,9 +100,9 @@ export class MPDParser {
 		return timeline;
 	}
 	findSegmentIndexByTime(segments, seconds) {
-		return segments.findIndex(segment => {
+		return segments.findIndex((segment) => {
 			return segment.timing.from <= seconds && segment.timing.to > seconds;
-		})
+		});
 	}
 	getSegmentsForMinimumBufferedInterval(segments, startIndex) {
 		let duration = 0;
@@ -116,21 +116,25 @@ export class MPDParser {
 		const videoSegmentIndex = this.findSegmentIndexByTime(this.segments, seconds),
 			prettySeconds = prettyTime(seconds);
 		if (videoSegmentIndex === -1) {
-			this.logger.error(`No segments found for ${prettySeconds}!`)
+			this.logger.error(`No segments found for ${prettySeconds}!`);
 			return;
 		}
 
 		const videoStartSegmentIndex = Math.max(0, videoSegmentIndex - 1),
 			//make sure to fetch at least 10 seconds of video after the current
-			videoEndSegmentIndex = Math.min(this.segments.length - 1, this.getSegmentsForMinimumBufferedInterval(this.segments, videoSegmentIndex + 1));
+			videoEndSegmentIndex = Math.min(
+				this.segments.length - 1,
+				this.getSegmentsForMinimumBufferedInterval(this.segments, videoSegmentIndex + 1)
+			);
 
 		this.logger.streaming(
-			`For stream time ${prettyTime(seconds)} (segment index ${videoSegmentIndex}), ${videoEndSegmentIndex - videoStartSegmentIndex} segments should be buffered from ${this.segments[videoStartSegmentIndex].timing.fromPretty} to ${this.segments[videoEndSegmentIndex].timing.toPretty} (segment indices ${videoStartSegmentIndex} to ${videoEndSegmentIndex}).`
-		)
-
-		return this.segments.slice(
-			videoStartSegmentIndex,
-			videoEndSegmentIndex + 1
+			`For stream time ${prettyTime(seconds)} (segment index ${videoSegmentIndex}), ${
+				videoEndSegmentIndex - videoStartSegmentIndex
+			} segments should be buffered from ${this.segments[videoStartSegmentIndex].timing.fromPretty} to ${
+				this.segments[videoEndSegmentIndex].timing.toPretty
+			} (segment indices ${videoStartSegmentIndex} to ${videoEndSegmentIndex}).`
 		);
+
+		return this.segments.slice(videoStartSegmentIndex, videoEndSegmentIndex + 1);
 	}
 }

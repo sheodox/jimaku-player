@@ -8,21 +8,21 @@
 	.video-player.no-cursor {
 		cursor: none;
 	}
-    .pause-alert-container {
+	.pause-alert-container {
 		position: absolute;
 		display: flex;
 		flex-direction: column;
-        height: 100%;
+		height: 100%;
 		justify-content: center;
 		width: 100%;
 	}
 	.pause-alert {
 		font-size: 8vh;
-        background: #111218CC;
+		background: #111218cc;
 		color: white;
 		border-radius: 0.2rem;
 		padding: 2rem;
-        margin: 0 auto;
+		margin: 0 auto;
 		cursor: default;
 		text-transform: uppercase;
 		user-select: none;
@@ -36,18 +36,18 @@
 		font-size: 1rem;
 		z-index: 100000;
 	}
-    .times {
+	.times {
 		padding: 0.3rem;
-        user-select: none;
+		user-select: none;
 	}
-    button {
-        cursor: pointer;
+	button {
+		cursor: pointer;
 		font-size: 2rem;
 		width: 5rem;
 		color: white;
 		flex: 0;
-        margin: 0;
-        padding: 0.5rem;
+		margin: 0;
+		padding: 0.5rem;
 	}
 	.video-player :global(i) {
 		font-size: 1.5rem;
@@ -58,22 +58,20 @@
 	<!-- svelte-ignore a11y-media-has-caption -->
 	<video
 		src={streamer.src}
-		bind:currentTime={currentTime}
+		bind:currentTime
 		bind:duration={totalTime}
-		bind:paused={paused}
+		bind:paused
 		on:click={togglePause}
 		on:error={videoError}
 		bind:this={videoElement}
-	></video>
+	/>
 	{#if paused}
 		<div class="pause-alert-container" on:click={togglePause}>
-			<p class="pause-alert">
-				Paused
-			</p>
+			<p class="pause-alert">Paused</p>
 		</div>
 	{/if}
 	{#if showControls || paused}
-		<div class="video-controls f-row align-items-center" transition:fade={{duration: 100}}>
+		<div class="video-controls f-row align-items-center" transition:fade={{ duration: 100 }}>
 			<button on:click={togglePause}><Icon icon={!paused ? 'pause' : 'play'} noPadding={true} /></button>
 			<span class="times">
 				{prettyTime(currentTime, totalTime > 3600)} / {prettyTime(totalTime)}
@@ -85,7 +83,7 @@
 				on:seek-drag-start={onSeekStart}
 				label="video seek slider"
 			/>
-			<button on:click={() => showSettings = !showSettings} on:contextmenu|preventDefault={() => showDebug = true}>
+			<button on:click={() => (showSettings = !showSettings)} on:contextmenu|preventDefault={() => (showDebug = true)}>
 				<Icon icon="cog" noPadding={true} />
 				<span class="sr-only">Video settings</span>
 			</button>
@@ -112,16 +110,16 @@
 <svelte:body on:mouseleave={inactive} />
 
 <script>
-	import {fade} from 'svelte/transition';
-	import {onMount, tick} from 'svelte';
-	import {Icon, Modal} from 'sheodox-ui';
-	import SaiseiSettings from "./SaiseiSettings.svelte";
-	import viewTimes from "../view-times";
-	import {Streamer} from './Streamer';
-	import {isEnoughBuffered, isTimeBuffered, prettyTime} from "../utils";
-	import {Logger, logLevels} from '../logger';
-	import SaiseiSeek from "./SaiseiSeek.svelte";
-	import SaiseiDebug from "./SaiseiDebug.svelte";
+	import { fade } from 'svelte/transition';
+	import { onMount, tick } from 'svelte';
+	import { Icon, Modal } from 'sheodox-ui';
+	import SaiseiSettings from './SaiseiSettings.svelte';
+	import viewTimes from '../view-times';
+	import { Streamer } from './Streamer';
+	import { isEnoughBuffered, isTimeBuffered, prettyTime } from '../utils';
+	import { Logger, logLevels } from '../logger';
+	import SaiseiSeek from './SaiseiSeek.svelte';
+	import SaiseiDebug from './SaiseiDebug.svelte';
 
 	export let metadata;
 	export let resourceBase;
@@ -263,7 +261,7 @@
 					end = videoElement.buffered.end(i);
 				bufferedTime.push(`${prettyTime(start)}-${prettyTime(end)}`);
 			}
-			logger.streaming(`Buffered segments: ${bufferedTime.join(', ')}`)
+			logger.streaming(`Buffered segments: ${bufferedTime.join(', ')}`);
 			if (!isVideoBuffered(time)) {
 				logger.streaming(`Attempted to buffer video for ${prettyTime(time)} but it is NOT buffered!`);
 			}
@@ -284,8 +282,8 @@
 		setInterval(() => {
 			const video = document.querySelector('video');
 			if (video) {
-				viewTimes.set(videoIdentifier, video.currentTime, video.duration)
+				viewTimes.set(videoIdentifier, video.currentTime, video.duration);
 			}
 		}, 50);
-	})
+	});
 </script>

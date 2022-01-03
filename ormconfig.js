@@ -8,14 +8,10 @@ module.exports = {
 	password: process.env.PGPASSWORD,
 	database: process.env.PGDATABASE,
 	synchronize: false,
-	entities: [
-		'server/entity/**/*.js'
-	],
-	migrations: [
-		'server/migration/**/*.js'
-	],
+	entities: ['server/entity/**/*.js'],
+	migrations: ['server/migration/**/*.js'],
 	cli: {
 		entitiesDir: 'server/entity',
 		migrationsDir: 'server/migration',
-	}
-}
+	},
+};

@@ -15,8 +15,8 @@ services:
         target: /usr/src/app/videos
   postgres:
     image: postgres:13-alpine
-#    ports:
-#      - "$PGPORT:5432"
+    #    ports:
+    #      - "$PGPORT:5432"
     environment:
       POSTGRES_USER: $PGUSER
       POSTGRES_PASSWORD: $PGPASSWORD

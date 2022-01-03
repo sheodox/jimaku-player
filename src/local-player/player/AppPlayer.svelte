@@ -1,3 +1,10 @@
+<style>
+	.video-title,
+	.video-subtitle {
+		display: none;
+	}
+</style>
+
 <span class="video-title">{videoTitle}</span>
 <span class="video-subtitle">{videoSubtitle}</span>
 {#if metadata}
@@ -5,14 +12,8 @@
 	<script src="/subtitler.js"></script>
 {/if}
 
-<style>
-	.video-title, .video-subtitle {
-		display: none;
-	}
-</style>
-
 <script>
-    import {onMount} from 'svelte';
+	import { onMount } from 'svelte';
 	import Saisei from './Saisei.svelte';
 
 	let videoTitle = '';
@@ -23,7 +24,7 @@
 
 	onMount(async () => {
 		if (videoSlug) {
-			const videoInfo = await fetch(`/video-info?path=${encodeURIComponent(videoSlug)}`).then(res => res.json());
+			const videoInfo = await fetch(`/video-info?path=${encodeURIComponent(videoSlug)}`).then((res) => res.json());
 			metadata = videoInfo.metadata;
 			window.jimakuProvidedSubtitles = metadata.subtitles;
 			console.log(metadata);
@@ -34,11 +35,10 @@
 			videoTitle = videoInfo.history
 				//skip the "All Videos" portion, since it'd be in every path
 				.slice(1)
-				.map(h => h.name)
+				.map((h) => h.name)
 				.join('/');
 
 			videoSubtitle = videoInfo.selectedVideo.name;
 		}
-
 	});
 </script>

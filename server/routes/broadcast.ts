@@ -1,16 +1,16 @@
-import {ImageService} from "../ImageService";
+import { ImageService } from '../ImageService';
 import path from 'path';
 import child_process from 'child_process';
-import {promisify} from "util";
-import {Router} from 'express';
-import {imageRepository} from "../entity";
+import { promisify } from 'util';
+import { Router } from 'express';
+import { imageRepository } from '../entity';
 import {
 	deMetaPaths,
 	countVideosInPath,
 	scanVideoDirectories,
 	scanVideos,
-	countDirectoriesInPath
-} from "../video-scanner";
+	countDirectoriesInPath,
+} from '../video-scanner';
 const fs = require('fs').promises,
 	glob = promisify(require('glob')),
 	exec = promisify(child_process.exec),
@@ -18,48 +18,48 @@ const fs = require('fs').promises,
 
 // metadata about a video or a directory
 interface VideoMetadata {
-	type: 'video'
-	src: string
-	name: string
-	imageKey: number
+	type: 'video';
+	src: string;
+	name: string;
+	imageKey: number;
 }
 
 interface DirectoryMetadata {
-	type: 'directory'
-	src: string
-	name: string,
-	containedVideos: number
-	containedDirectories: number
+	type: 'directory';
+	src: string;
+	name: string;
+	containedVideos: number;
+	containedDirectories: number;
 }
 
 interface VideoInfo {
-    metadata?: MetadataFile,
-	selectedVideo?: VideoMetadata
-	directories?: DirectoryMetadata[]
-	videos?: VideoMetadata[]
-	history?: DirectoryMetadata[]
+	metadata?: MetadataFile;
+	selectedVideo?: VideoMetadata;
+	directories?: DirectoryMetadata[];
+	videos?: VideoMetadata[];
+	history?: DirectoryMetadata[];
 }
 
 interface MetadataFile {
-	name: string,
+	name: string;
 	video: {
-		fileName: string
-	},
+		fileName: string;
+	};
 	audio: {
-		language: string,
-		title?: string,
-		fileName: string
-	}[],
+		language: string;
+		title?: string;
+		fileName: string;
+	}[];
 	subtitles: {
-		format: string,
-		language: string,
-		title: string,
-		content: string
-	}[]
+		format: string;
+		language: string;
+		title: string;
+		content: string;
+	}[];
 }
 
 router.get('/video-info', async (req, res) => {
-	const videoPath = (req.query.path as string),
+	const videoPath = req.query.path as string,
 		videos = scanVideos(),
 		videoDirs = scanVideoDirectories(),
 		// make sure the video requested is actually a path of a real video or directory
@@ -70,7 +70,7 @@ router.get('/video-info', async (req, res) => {
 	if (!isValidVideo && !isValidVideoFolder) {
 		res.status(404);
 		res.json({
-			error: 'invalid path specified'
+			error: 'invalid path specified',
 		});
 		return;
 	}
@@ -81,8 +81,7 @@ router.get('/video-info', async (req, res) => {
 		response.selectedVideo = await getVideoInfo(videoPath);
 		response.metadata = await getMetadataFile(videoPath);
 		focusedPath = videoDir;
-	}
-	else if (isValidVideoFolder) {
+	} else if (isValidVideoFolder) {
 		focusedPath = videoPath;
 	}
 	const pathToDirectoryObject = (dirPath: string): DirectoryMetadata => {
@@ -96,8 +95,8 @@ router.get('/video-info', async (req, res) => {
 			src: /\/$/.test(dirPath) ? dirPath : dirPath + '/',
 			name: deepestDirName,
 			containedVideos: countVideosInPath(dirPath),
-			containedDirectories: countDirectoriesInPath(dirPath)
-		}
+			containedDirectories: countDirectoriesInPath(dirPath),
+		};
 	};
 	response.directories = (await getDirectoriesInPath(focusedPath)).map(pathToDirectoryObject);
 
@@ -117,7 +116,7 @@ router.get('/video-info', async (req, res) => {
 			const prettySegment = pathToDirectoryObject(cumulativePath);
 			//override the base 'videos' folder name
 			if (index === 0) {
-				prettySegment.name = 'All Videos'
+				prettySegment.name = 'All Videos';
 			}
 			response.history.push(prettySegment);
 		}
@@ -156,10 +155,9 @@ async function getVideoInfo(videoPath: string): Promise<VideoMetadata> {
 		type: 'video',
 		src: videoPath.replace('./', ''),
 		name: path.basename(videoPath, path.extname(videoPath)),
-		imageKey: await ImageService.findId(videoPath)
-	}
+		imageKey: await ImageService.findId(videoPath),
+	};
 }
-
 
 async function generateMissingImages() {
 	const imageGeneratePath = './data/temp/broadcast-generated.png',
@@ -178,14 +176,10 @@ async function generateMissingImages() {
 		// extract one frame of video to the temp image path
 		await exec(`ffmpeg -ss 00:05:00.000 -i "${videoPath}" -vframes 1 ${imageGeneratePath} -y`);
 
-		await ImageService.generate(
-			await fs.readFile(imageGeneratePath),
-			videoBase
-		);
+		await ImageService.generate(await fs.readFile(imageGeneratePath), videoBase);
 	}
-	console.log(`Videos - done generating images for ${videosWithoutImages.length} videos`)
+	console.log(`Videos - done generating images for ${videosWithoutImages.length} videos`);
 }
-
 
 imageRepository.then(async () => {
 	await generateMissingImages();

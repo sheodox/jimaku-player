@@ -1,7 +1,7 @@
-import {MPDParser} from "./MPDParser";
-import {Logger} from "../logger";
-import {isEnoughBuffered, isTimeBuffered, prettyTime} from "../utils";
-import settings from "../settings";
+import { MPDParser } from './MPDParser';
+import { Logger } from '../logger';
+import { isEnoughBuffered, isTimeBuffered, prettyTime } from '../utils';
+import settings from '../settings';
 
 //clean up buffered memory beyond a certain range. if we load too much
 //this might remove some of it and need to be re-buffered, but the
@@ -13,9 +13,9 @@ const MAX_BUFFER_BEFORE = 20,
 function fetchRange(url, range) {
 	return fetch(url, {
 		headers: {
-			'Range': `bytes=${range}`
-		}
-	}).then(res => res.arrayBuffer());
+			Range: `bytes=${range}`,
+		},
+	}).then((res) => res.arrayBuffer());
 }
 
 function getSourceBufferType(parsedAdaptation) {
@@ -23,7 +23,7 @@ function getSourceBufferType(parsedAdaptation) {
 }
 
 function eventPromise(target, event) {
-	return new Promise(resolve => target.addEventListener(event, resolve, {once: true}));
+	return new Promise((resolve) => target.addEventListener(event, resolve, { once: true }));
 }
 
 export class Streamer {
@@ -36,12 +36,12 @@ export class Streamer {
 			return {
 				src: resourceBase + '/' + audioTrack.fileName,
 				mpd: new MPDParser(audioTrack.mpd, `audio-${index}`),
-				metadata: audioTrack
-			}
+				metadata: audioTrack,
+			};
 		});
 
 		const preferredLanguage = settings.get('preferred-audio-language'),
-			preferredAudioTrack = this.audioTracks.find(track => track.metadata.language === preferredLanguage);
+			preferredAudioTrack = this.audioTracks.find((track) => track.metadata.language === preferredLanguage);
 		this.selectedAudioTrack = preferredAudioTrack || this.audioTracks[0];
 		this.source = new MediaSource();
 		this.src = URL.createObjectURL(this.source);
@@ -54,22 +54,26 @@ export class Streamer {
 		await eventPromise(this.source, 'sourceopen');
 		const videoType = getSourceBufferType(this.videoTrack),
 			audioType = getSourceBufferType(this.selectedAudioTrack.mpd);
-		[videoType, audioType].forEach(type => {
+		[videoType, audioType].forEach((type) => {
 			if (!MediaSource.isTypeSupported(type)) {
 				throw new Error(`Media type "${type}" isn't supported by your browser`);
 			}
 		});
-		this.logger.streaming(`Video type ${videoType}, audio type ${audioType}`)
+		this.logger.streaming(`Video type ${videoType}, audio type ${audioType}`);
 		this.videoBuffer = this.source.addSourceBuffer(videoType);
 		this.audioBuffer = this.source.addSourceBuffer(audioType);
 		this.videoBuffer.mode = 'segments';
 		this.audioBuffer.mode = 'segments';
 
-		this.videoBuffer.addEventListener('error', () => this.logger.error(`Video buffer error! (check videoElement.error)`));
-		this.audioBuffer.addEventListener('error', () => this.logger.error(`Audio buffer error! (check videoElement.error)`));
+		this.videoBuffer.addEventListener('error', () =>
+			this.logger.error(`Video buffer error! (check videoElement.error)`)
+		);
+		this.audioBuffer.addEventListener('error', () =>
+			this.logger.error(`Audio buffer error! (check videoElement.error)`)
+		);
 
 		const videoInit = await fetchRange(this.videoSrc, this.videoTrack.initialization),
-			audioInit = await fetchRange(this.selectedAudioTrack.src, this.selectedAudioTrack.mpd.initialization)
+			audioInit = await fetchRange(this.selectedAudioTrack.src, this.selectedAudioTrack.mpd.initialization);
 		this.logger.streaming('Fetched video and audio initialization buffers');
 
 		//need to initialize the video before any segments can be parsed. this can't use
@@ -107,13 +111,13 @@ export class Streamer {
 		this.selectedAudioTrack = this.audioTracks[audioTrackIndex];
 		await this.updateAudioBuffer(() => {
 			this.audioBuffer.remove(0, this.source.duration);
-		})
+		});
 		await this.bufferAudio(currentTime);
 		settings.set('preferred-audio-language', this.selectedAudioTrack.metadata.language);
 	}
 
 	getSelectedAudioTrackIndex() {
-		return this.audioTracks.findIndex(track => track === this.selectedAudioTrack);
+		return this.audioTracks.findIndex((track) => track === this.selectedAudioTrack);
 	}
 
 	/**
@@ -125,19 +129,17 @@ export class Streamer {
 	 * @returns {Promise<void>}
 	 */
 	async updateVideoBuffer(bufferUpdateFn) {
-		this.videoSegmentUpdatePromise = this.videoSegmentUpdatePromise
-			.then(async () => {
-				await bufferUpdateFn();
-				await eventPromise(this.videoBuffer, 'updateend');
-			});
+		this.videoSegmentUpdatePromise = this.videoSegmentUpdatePromise.then(async () => {
+			await bufferUpdateFn();
+			await eventPromise(this.videoBuffer, 'updateend');
+		});
 		await this.videoSegmentUpdatePromise;
 	}
 	async updateAudioBuffer(bufferUpdateFn) {
-		this.audioSegmentUpdatePromise = this.audioSegmentUpdatePromise
-			.then(async () => {
-				await bufferUpdateFn();
-				await eventPromise(this.audioBuffer, 'updateend');
-			});
+		this.audioSegmentUpdatePromise = this.audioSegmentUpdatePromise.then(async () => {
+			await bufferUpdateFn();
+			await eventPromise(this.audioBuffer, 'updateend');
+		});
 		await this.audioSegmentUpdatePromise;
 	}
 	async purgeUnneededRanges(currentTime) {
@@ -145,14 +147,14 @@ export class Streamer {
 		//browsers don't seem to like removing some of nothing. if we're fetching audio only
 		//it means we're switching buffers and the buffer would have just been cleared already
 		if (!this.videoBuffer.buffered.length) {
-		    return;
+			return;
 		}
 
 		//purge video and audio buffers beyond some time ranges around the current time
 		//we're trying to buffer.
 		if (currentTime > MAX_BUFFER_BEFORE) {
 			const earliestBufferTime = currentTime - MAX_BUFFER_BEFORE;
-			this.logger.streaming(`Purging buffer before ${prettyTime(earliestBufferTime)}`)
+			this.logger.streaming(`Purging buffer before ${prettyTime(earliestBufferTime)}`);
 			//if we're further into the video than the max allowed before the current time, remove
 			//everything up to that. this allows the user to rewind a bit without having to buffer again
 			await this.updateVideoBuffer(() => {
@@ -166,7 +168,7 @@ export class Streamer {
 			//if the video has more time left than the max we want to keep buffered, remove
 			//anything beyond that. this happens if the user seeks back in the video
 			const latestBufferTime = currentTime + MAX_BUFFER_AFTER;
-			this.logger.streaming(`Purging buffer after ${prettyTime(latestBufferTime)}`)
+			this.logger.streaming(`Purging buffer after ${prettyTime(latestBufferTime)}`);
 			await this.updateVideoBuffer(() => {
 				this.videoBuffer.remove(latestBufferTime, this.source.duration);
 			});
@@ -183,15 +185,16 @@ export class Streamer {
 	 */
 	async bufferTime(seconds) {
 		await this.ready;
-	    const bufferingVideo = isEnoughBuffered(seconds, this.videoBuffer.buffered) ? Promise.resolve(false) : this.bufferVideo(seconds),
-			bufferingAudio = isEnoughBuffered(seconds, this.audioBuffer.buffered) ? Promise.resolve(false) : this.bufferAudio(seconds);
+		const bufferingVideo = isEnoughBuffered(seconds, this.videoBuffer.buffered)
+				? Promise.resolve(false)
+				: this.bufferVideo(seconds),
+			bufferingAudio = isEnoughBuffered(seconds, this.audioBuffer.buffered)
+				? Promise.resolve(false)
+				: this.bufferAudio(seconds);
 
-		return Promise.all([
-			bufferingVideo,
-			bufferingAudio
-		]).then(bufferRequests => {
-			return bufferRequests.some(buffer => buffer);
-		})
+		return Promise.all([bufferingVideo, bufferingAudio]).then((bufferRequests) => {
+			return bufferRequests.some((buffer) => buffer);
+		});
 	}
 	async bufferVideo(seconds) {
 		await this.ready;
@@ -207,13 +210,18 @@ export class Streamer {
          */
 		for (const segment of videoSegments) {
 			if (segment && !this.isSegmentBuffered(this.videoBuffer, segment)) {
-				bufferingSegments.push(fetchRange(this.videoSrc, segment.mediaRange.range)
-					.then(async buffer => {
+				bufferingSegments.push(
+					fetchRange(this.videoSrc, segment.mediaRange.range).then(async (buffer) => {
 						await this.updateVideoBuffer(() => {
 							this.videoBuffer.appendBuffer(buffer);
 						});
-						this.logger.streaming(`Buffered video segment ${segment.segmentNumber} for ${segment.timing.fromPretty} to ${segment.timing.toPretty} (for ${prettyTime(seconds)})`);
-					}));
+						this.logger.streaming(
+							`Buffered video segment ${segment.segmentNumber} for ${segment.timing.fromPretty} to ${
+								segment.timing.toPretty
+							} (for ${prettyTime(seconds)})`
+						);
+					})
+				);
 			}
 		}
 		return Promise.all(bufferingSegments).then(() => true);
@@ -226,13 +234,18 @@ export class Streamer {
 
 		for (const segment of audioSegments) {
 			if (segment && !this.isSegmentBuffered(this.audioBuffer, segment)) {
-				bufferingSegments.push(fetchRange(this.selectedAudioTrack.src, segment.mediaRange.range)
-					.then(async buffer => {
+				bufferingSegments.push(
+					fetchRange(this.selectedAudioTrack.src, segment.mediaRange.range).then(async (buffer) => {
 						await this.updateAudioBuffer(() => {
 							this.audioBuffer.appendBuffer(buffer);
-						})
-						this.logger.streaming(`Buffered audio segment ${segment.segmentNumber} for ${segment.timing.fromPretty} to ${segment.timing.toPretty} (for ${prettyTime(seconds)})`);
-					}));
+						});
+						this.logger.streaming(
+							`Buffered audio segment ${segment.segmentNumber} for ${segment.timing.fromPretty} to ${
+								segment.timing.toPretty
+							} (for ${prettyTime(seconds)})`
+						);
+					})
+				);
 			}
 		}
 		return Promise.all(bufferingSegments).then(() => true);

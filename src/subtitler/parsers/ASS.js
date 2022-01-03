@@ -3,7 +3,7 @@ const SubtitleFormat = require('./SubtitleFormat');
 //parser for Advanced SubStation Alpha (.ass) subtitle files
 //https://en.wikipedia.org/wiki/SubStation_Alpha#Advanced_SubStation_Alpha
 
-const camelCase = string => {
+const camelCase = (string) => {
 	return (string.charAt(0).toLowerCase() + string.substring(1)).replace(' ', '');
 };
 
@@ -21,7 +21,7 @@ const legacyAlignmentTranslationMapping = {
 	7: 9,
 	9: 4,
 	10: 5,
-	11: 6
+	11: 6,
 };
 
 const svgNamespace = 'http://www.w3.org/2000/svg';
@@ -39,9 +39,9 @@ function createSVG() {
  * @param alignment
  * @returns {*}
  */
-const parseLegacyAlignment = alignment => {
+const parseLegacyAlignment = (alignment) => {
 	return legacyAlignmentTranslationMapping[alignment];
-}
+};
 
 /**
  * Parse an ASS hex color into an rgba color. Also returns a method to weaken the rgba's alpha
@@ -50,7 +50,7 @@ const parseLegacyAlignment = alignment => {
  * @param assColor
  * @returns {{rgba: string, weakenAlpha: (function(*): string)}}
  */
-const parseColor = assColor => {
+const parseColor = (assColor) => {
 	if (assColor) {
 		assColor = assColor
 			// I've seen subtitles that have lower cased colors for some reason. Uppercase them
@@ -63,17 +63,20 @@ const parseColor = assColor => {
 			// and lose its closing ). but it's better now so that shouldn't happen, but I have seen
 			// an override that had a ) hanging out when it shouldn't, this should trim bad characters
 			// in messy overrides that otherwise cause color parsing to fail. need to do this before padding
-			.replace(/[^0-9A-F]/g, '')
+			.replace(/[^0-9A-F]/g, '');
 		assColor = assColor.padStart(8, '0');
 		const [_, alpha, blue, green, red] = assColor.match(/([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})/i),
-			fromHex = num => parseInt(num, 16);
+			fromHex = (num) => parseInt(num, 16);
 		//alpha channel numbers are backwards from CSS hex colors, need to invert it
 		return {
 			rgba: `rgba(${fromHex(red)}, ${fromHex(green)}, ${fromHex(blue)}, ${((255 - fromHex(alpha)) / 255).toFixed(3)})`,
-			weakenAlpha: alphaStrength => {
-				return `rgba(${fromHex(red)}, ${fromHex(green)}, ${fromHex(blue)}, ${(alphaStrength * ((255 - fromHex(alpha)) / 255)).toFixed(3)})`
-			}
-		}
+			weakenAlpha: (alphaStrength) => {
+				return `rgba(${fromHex(red)}, ${fromHex(green)}, ${fromHex(blue)}, ${(
+					alphaStrength *
+					((255 - fromHex(alpha)) / 255)
+				).toFixed(3)})`;
+			},
+		};
 	}
 };
 
@@ -82,25 +85,24 @@ const parseColor = assColor => {
  * @param clipOptions
  * @returns {{scale: *, commands: *[]}}
  */
-const parseClip = clipOptions => {
+const parseClip = (clipOptions) => {
 	//clips have two types, rectangle and vector.
 	//rectangle clips have four parameters,
 	if (clipOptions.length === 4) {
 		//todo - rectangle clip
-	}
-	else {
+	} else {
 		//if only drawing commands are given the scale is assumed to be 1
 		const [scale, drawingCommands] = clipOptions.length === 1 ? [1, clipOptions[0]] : clipOptions,
-			commands = parseDrawingCommands(drawingCommands)
+			commands = parseDrawingCommands(drawingCommands);
 
 		if (commands) {
 			return {
 				scale,
-				commands
-			}
+				commands,
+			};
 		}
 	}
-}
+};
 
 /**
  * Parse an ASS drawing command string into an array of objects of the individual
@@ -108,7 +110,7 @@ const parseClip = clipOptions => {
  * @param drawText
  * @returns {[]}
  */
-const parseDrawingCommands = drawText => {
+const parseDrawingCommands = (drawText) => {
 	if (!drawText) {
 		return null;
 	}
@@ -123,18 +125,20 @@ const parseDrawingCommands = drawText => {
 		//and the sets of coordinates that come with it
 		commands.push({
 			command: commandName,
-			coordinates: coordinates.map(parseFloat)
+			coordinates: coordinates.map(parseFloat),
 		});
 	}
 
 	//ASS coordinates are weird and allow you to use negative numbers, but that won't show in
 	//an SVG path, it'll be out of the boundaries of the SVG, just bump everything up to at least zero
-	const makePositiveAmount = -1 * commands.reduce((lowest, {coordinates}) => {
-		return Math.min(lowest, ...coordinates)
-	}, 0)
+	const makePositiveAmount =
+		-1 *
+		commands.reduce((lowest, { coordinates }) => {
+			return Math.min(lowest, ...coordinates);
+		}, 0);
 
-	commands.forEach(command => {
-		command.coordinates = command.coordinates.map(c => c + makePositiveAmount);
+	commands.forEach((command) => {
+		command.coordinates = command.coordinates.map((c) => c + makePositiveAmount);
 	});
 	return commands;
 };
@@ -148,7 +152,8 @@ const parseDrawingCommands = drawText => {
  */
 const genPathFromDrawCommands = (commands) => {
 	let paths = [];
-	let maxWidth = 0, maxHeight = 0;
+	let maxWidth = 0,
+		maxHeight = 0;
 	//for an accurate viewBox and SVG sizing we need to know how big the SVG is going to be
 	function analyzeMaxes(x, y) {
 		maxWidth = Math.max(maxWidth, x);
@@ -184,7 +189,7 @@ const genPathFromDrawCommands = (commands) => {
 		paths = paths.concat(commands);
 	}
 
-	for (let {command, coordinates} of commands) {
+	for (let { command, coordinates } of commands) {
 		if (command === 'm' && paths.length > 0) {
 			paths.push(' Z '); //'z' closes the path which is what 'm' does in addition to moving
 		}
@@ -199,12 +204,10 @@ const genPathFromDrawCommands = (commands) => {
 			//ass line commands can take multiple sets of coordinates, but svg paths need
 			//to be grouped in sets of two
 			pathInSets('L', coordinates, 2, analyzeMaxes);
-		}
-		else if (command === 'm') {
+		} else if (command === 'm') {
 			paths.push('M' + coordinates.join(' '));
 			analyzeMaxes(...coordinates);
-		}
-		else if (command === 'b') {
+		} else if (command === 'b') {
 			//in an svg path 'C' is a cubic bezier curve, which is 'b' in ASS
 			pathInSets('C', coordinates, 6, (x1, y1, x2, y2, x3, y3) => {
 				analyzeMaxes(x1, y1);
@@ -217,11 +220,12 @@ const genPathFromDrawCommands = (commands) => {
 	return {
 		path: paths.join(' '),
 		viewBox: `0 0 ${maxWidth} ${maxHeight}`,
-		maxHeight, maxWidth
+		maxHeight,
+		maxWidth,
 	};
-}
+};
 
-const genOutlineStyles = (outlineColor, outlineWidth, shadowColor='transparent', shadowDepth=0, blur=0) => {
+const genOutlineStyles = (outlineColor, outlineWidth, shadowColor = 'transparent', shadowDepth = 0, blur = 0) => {
 	// many shadows will be stacked, which gives an multiplied shadow color, and the shadow will appear
 	// way too thick unless we significantly lower the alpha value on the color. the weakening effect
 	// is multiplied by 4 here because there are 4 directions of shadows we stack, and it looks best it seems
@@ -229,7 +233,7 @@ const genOutlineStyles = (outlineColor, outlineWidth, shadowColor='transparent',
 		color = blur < 1 ? colorSource.rgba : colorSource.weakenAlpha(1 / (4 * outlineWidth));
 	blur = `${blur}px`;
 
-	outlineWidth = (typeof outlineWidth === 'undefined' ? 1 : parseInt(outlineWidth, 10));
+	outlineWidth = typeof outlineWidth === 'undefined' ? 1 : parseInt(outlineWidth, 10);
 	let outlines = [];
 	//make a ton of stacking shadows, because otherwise thicker outlines won't appear smooth
 	for (let i = -1 * outlineWidth; i <= outlineWidth; i++) {
@@ -240,11 +244,13 @@ const genOutlineStyles = (outlineColor, outlineWidth, shadowColor='transparent',
 	if (outlineWidth === 0) {
 		outlines = ['none'];
 	}
-	return `text-shadow: ${outlines.join(', ')}; filter: drop-shadow(${shadowDepth}px ${shadowDepth}px ${blur} ${shadowColor.rgba})`
+	return `text-shadow: ${outlines.join(', ')}; filter: drop-shadow(${shadowDepth}px ${shadowDepth}px ${blur} ${
+		shadowColor.rgba
+	})`;
 };
 
-const genFontFamily = fontName => {
-	return `font-family: "${fontName}", "Source Han Sans", "源ノ角ゴシック", "Hiragino Sans", "HiraKakuProN-W3", "Hiragino Kaku Gothic ProN W3", "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", "Noto Sans JP", "Noto Sans CJK JP", "Noto Sans", "メイリオ", Meiryo, "游ゴシック", YuGothic, "ＭＳ Ｐゴシック", "MS PGothic", "ＭＳ ゴシック", "MS Gothic", sans-serif`
+const genFontFamily = (fontName) => {
+	return `font-family: "${fontName}", "Source Han Sans", "源ノ角ゴシック", "Hiragino Sans", "HiraKakuProN-W3", "Hiragino Kaku Gothic ProN W3", "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", "Noto Sans JP", "Noto Sans CJK JP", "Noto Sans", "メイリオ", Meiryo, "游ゴシック", YuGothic, "ＭＳ Ｐゴシック", "MS PGothic", "ＭＳ ゴシック", "MS Gothic", sans-serif`;
 };
 
 /**
@@ -266,12 +272,12 @@ function* overrideScanner(subtitleText) {
 	if (firstOverrideIndex > 0) {
 		yield {
 			text: subtitleText.substring(0, firstOverrideIndex),
-			overrides: {}
+			overrides: {},
 		};
 	}
 
 	while ((next = nextOverriddenTextReg.exec(subtitleText)) !== null) {
-		yield parseOverrides(next[1])
+		yield parseOverrides(next[1]);
 	}
 }
 
@@ -301,7 +307,7 @@ function* overrideScanner(subtitleText) {
  * Some tags (parseTogether=true) might not have the same data type for all arguments (\clip)
  * and using one parser for all values in a list of complex arguments would cause trouble.
  */
-const intBase10 = numStr => parseInt(numStr, 10),
+const intBase10 = (numStr) => parseInt(numStr, 10),
 	knownOverrides = [
 		{ tag: 't', friendly: 'animatedTransform', complex: true, repeatable: true },
 		{ tag: 'move', friendly: 'movement', complex: true, parser: parseFloat },
@@ -334,7 +340,7 @@ const intBase10 = numStr => parseInt(numStr, 10),
 		{ tag: '1c', friendly: 'color', parser: parseColor },
 		// 'c' is an abbreviation for '1c' (primary fill color aka text color)
 		{ tag: 'c', friendly: 'color', parser: parseColor },
-		{ tag: 'r', friendly: 'reset', defaultValue: false},
+		{ tag: 'r', friendly: 'reset', defaultValue: false },
 		{ tag: 'q', friendly: 'wrapStyle' },
 		{ tag: 'p', friendly: 'drawMode' },
 		{ tag: 'a', friendly: 'alignment', parser: parseLegacyAlignment },
@@ -348,7 +354,7 @@ const intBase10 = numStr => parseInt(numStr, 10),
  * @param parseTogether - if the parser should be run on the whole value (true), or each (false, default)
  * @returns {*}
  */
-function runOverrideValueParser(value, parser, parseTogether=false) {
+function runOverrideValueParser(value, parser, parseTogether = false) {
 	if (!parser) {
 		return value;
 	}
@@ -373,22 +379,31 @@ function parseOverrides(overridesAndText) {
 	//function was called in the first place
 	let [overridesString] = overridesAndText.match(/{.*?}/);
 
-	for (const {tag, friendly, complex=false, defaultValue, parser, repeatable=false, parseTogether} of knownOverrides) {
-		let result = getOverride(overridesString, tag, complex)
+	for (const {
+		tag,
+		friendly,
+		complex = false,
+		defaultValue,
+		parser,
+		repeatable = false,
+		parseTogether,
+	} of knownOverrides) {
+		let result = getOverride(overridesString, tag, complex);
 
 		let i = 0;
-			// for overrides which support only a single value, only check once,
-			// but for overrides that can repeat (\t) check until something is found
+		// for overrides which support only a single value, only check once,
+		// but for overrides that can repeat (\t) check until something is found
 		while ((!repeatable && i === 0) || (repeatable && result)) {
 			if (result) {
 				overridesString = result.overrides;
 
 				const parsedValue = runOverrideValueParser(result.params, parser, parseTogether) || defaultValue;
 				// only parse friendly overrides, the raw ones should stay as-is
-				friendlyOverrides[friendly] = !repeatable ? parsedValue :
-					//if it's a repeatable value (like \t that can occur more than once),
-					//we need to build an array of the times it's been called
-					[...(friendlyOverrides[friendly] || []), parsedValue];
+				friendlyOverrides[friendly] = !repeatable
+					? parsedValue
+					: //if it's a repeatable value (like \t that can occur more than once),
+					  //we need to build an array of the times it's been called
+					  [...(friendlyOverrides[friendly] || []), parsedValue];
 				rawOverrides[tag] = !repeatable ? result.params : [...(rawOverrides[tag] || []), result.params];
 			}
 
@@ -401,8 +416,8 @@ function parseOverrides(overridesAndText) {
 		text,
 		rawText,
 		overrides: friendlyOverrides,
-		rawOverrides
-	}
+		rawOverrides,
+	};
 }
 
 /**
@@ -412,7 +427,7 @@ function parseOverrides(overridesAndText) {
  * @param isComplex - is the value complex? this is any override that accepts (arguments,like,this)
  * @returns {{overrides: (void|string|*), params: []}|{overrides: (void|string|*), params: *}}
  */
-function getOverride(overrides, overrideCode, isComplex=false) {
+function getOverride(overrides, overrideCode, isComplex = false) {
 	//complex overrides can have complex overrides within them, like a \clip within a \t
 	//so we can't just grab everything within the first sets of parenthesis we see, or
 	//we might cut off at the end of the nested override, need to be more careful
@@ -434,7 +449,7 @@ function getOverride(overrides, overrideCode, isComplex=false) {
 		//we need to figure out how far to go until we hit the matching parenthesis, taking
 		//care not to match a nested complex tag
 		const paramsAndMore = overrideMatch[1];
-		for(let i = 0; i < paramsAndMore.length && overrides; i++) {
+		for (let i = 0; i < paramsAndMore.length && overrides; i++) {
 			const thisCharacter = paramsAndMore[i];
 
 			function keep() {
@@ -454,15 +469,13 @@ function getOverride(overrides, overrideCode, isComplex=false) {
 				if (thisCharacter === ')') {
 					return {
 						overrides: overrides.replace(`\\${overrideCode}(` + thisOverride, ''),
-						params
+						params,
 					};
 				}
-			}
-			else if (skippingComplex && thisCharacter === ')') {
+			} else if (skippingComplex && thisCharacter === ')') {
 				keep(); //this won't fall into the 'else', need to terminate the override
 				skippingComplex = false;
-			}
-			else {
+			} else {
 				keep();
 			}
 		}
@@ -476,7 +489,7 @@ function getOverride(overrides, overrideCode, isComplex=false) {
 	return {
 		//pass the overrides back that don't contain this override anymore
 		overrides: overrides.replace(overrideMatch[0], ''),
-		params: overrideMatch[1]
+		params: overrideMatch[1],
 	};
 }
 
@@ -499,10 +512,10 @@ class ASS extends SubtitleFormat {
 			this.parseSubTimings();
 			this.parseStyles(this.parseBlock(this.blocks.styles));
 			this.parseSubOverrideTags();
-		} catch(e) {
+		} catch (e) {
 			console.error('[Jimaku Player] ASS parse error', e);
 			if (this.parsingSub) {
-				console.error('[Jimaku Player] Error occurred parsing this line', this.parsingSub)
+				console.error('[Jimaku Player] Error occurred parsing this line', this.parsingSub);
 			}
 			// if we errored out, having no subs is an error condition detected elsewhere
 			this.subs = [];
@@ -519,25 +532,32 @@ class ASS extends SubtitleFormat {
 			subs = this.getSubs(atTime);
 			styles = {};
 			//filter styles down to only what is used by the current subtitles
-			for (const {style} of subs) {
+			for (const { style } of subs) {
 				styles[style] = this.styles[style];
 			}
 		}
-		return JSON.stringify({
-			info: this.info,
-			styles,
-			subs,
-		}, null, 4);
+		return JSON.stringify(
+			{
+				info: this.info,
+				styles,
+				subs,
+			},
+			null,
+			4
+		);
 	}
 
 	debugInfo() {
-		return [{
-			title: 'Number of styles',
-			detail: Object.keys(this.styles).length
-		}, {
-			title: 'Number of subtitles',
-			detail: this.subs.length
-		}];
+		return [
+			{
+				title: 'Number of styles',
+				detail: Object.keys(this.styles).length,
+			},
+			{
+				title: 'Number of subtitles',
+				detail: this.subs.length,
+			},
+		];
 	}
 
 	/**
@@ -547,12 +567,10 @@ class ASS extends SubtitleFormat {
 	 */
 	parseInfo() {
 		this.info = {};
-		this.blocks.info
-			.split('\n')
-			.forEach(line => {
-				const [key, value] = line.split(/: ?/);
-				this.info[camelCase(key)] = value;
-			})
+		this.blocks.info.split('\n').forEach((line) => {
+			const [key, value] = line.split(/: ?/);
+			this.info[camelCase(key)] = value;
+		});
 
 		//some subtitle scripts have been seen to not include playResX/playResY in
 		//the info block, resulting in NaNvh heights for font sizes which makes them
@@ -584,7 +602,7 @@ class ASS extends SubtitleFormat {
 	 * @param noUnit - return without units, used when math needs to be done at run-time
 	 * @returns {number|string}
 	 */
-	scaleHeight(height, noUnit=false) {
+	scaleHeight(height, noUnit = false) {
 		const scaledHeight = 100 * (height / +this.info.playResY);
 		return noUnit ? scaledHeight : `${scaledHeight}vh`;
 	}
@@ -595,7 +613,7 @@ class ASS extends SubtitleFormat {
 	 * @returns {number|string}
 	 */
 	scaleWidth(width) {
-		const scaledWidth = 100 * (width / +this.info.playResX)
+		const scaledWidth = 100 * (width / +this.info.playResX);
 		return `${scaledWidth}vw`;
 	}
 
@@ -609,7 +627,7 @@ class ASS extends SubtitleFormat {
 		//split the ass file by newlines followed by a [, we know those are the start of the headings
 		const splitByBlocks = ass.split(/\n(?=\[)/),
 			captureBlock = (heading) => {
-				const block = splitByBlocks.find(block => {
+				const block = splitByBlocks.find((block) => {
 					//be tolerant of errant spacing, have seen blocks start like " [Script Info]"
 					block = block.trim();
 					//parse out the text inside the header
@@ -617,14 +635,13 @@ class ASS extends SubtitleFormat {
 					return blockHeading === heading;
 				});
 				//strip out the heading, it'll be the only thing on the first line
-				return block
-					.replace(/.*\n/, '').trim();
+				return block.replace(/.*\n/, '').trim();
 			};
 
 		return {
 			info: captureBlock('Script Info'),
 			styles: captureBlock('V4+ Styles'),
-			subs: captureBlock('Events')
+			subs: captureBlock('Events'),
 		};
 	}
 
@@ -651,7 +668,7 @@ class ASS extends SubtitleFormat {
 		//the first line is a 'Format' line, which specifies the data that each comma separated value on the following lines represent
 		const [formatLine, ...subs] = block.split('\n');
 
-		const parseLine = (line, attrMax=Infinity) => {
+		const parseLine = (line, attrMax = Infinity) => {
 			// each line will be something like "Dialogue: 2,3,5" etc, keep The first bit tells us what kind of line it is
 			// and the rest are comma separated attributes. The first line is the format line, which specifies the names
 			// of each comma separated attribute that's on each following line
@@ -676,8 +693,8 @@ class ASS extends SubtitleFormat {
 
 			return {
 				type: lineType,
-				attributes: attributes
-			}
+				attributes: attributes,
+			};
 		};
 		const format = parseLine(formatLine);
 
@@ -689,7 +706,7 @@ class ASS extends SubtitleFormat {
 			const lineData = parseLine(line, format.attributes.length);
 			//zip the attributes with the format names
 			const zipped = {
-				dataType: lineData.type.toLowerCase()
+				dataType: lineData.type.toLowerCase(),
 			};
 
 			format.attributes.forEach((columnHeader, index) => {
@@ -705,26 +722,26 @@ class ASS extends SubtitleFormat {
 			done.push(zipped);
 
 			return done;
-		}, [])
+		}, []);
 	}
 	parseSubTimings() {
-		this.subs.forEach(sub => {
+		this.subs.forEach((sub) => {
 			//keep original timings around for debugging
 			sub.rawStart = sub.start;
 			sub.rawEnd = sub.end;
 			sub.start = this.timeToMs(sub.start);
 			sub.end = this.timeToMs(sub.end);
-		})
+		});
 	}
 
 	parseStyles(styles) {
 		const parsedStyles = {};
-		styles.forEach(style => {
+		styles.forEach((style) => {
 			/**
 			 * Colors and stuff are weird in the ASS spec, they're in a backwards order (AABBGGRR) to rgba
 			 */
 
-			for (const colorKey of Object.keys(style).filter(k => /colour/i.test(k))) {
+			for (const colorKey of Object.keys(style).filter((k) => /colour/i.test(k))) {
 				style[colorKey] = parseColor(style[colorKey]);
 			}
 
@@ -738,9 +755,23 @@ class ASS extends SubtitleFormat {
 				//note this is different in overrides
 				assTrue = '-1',
 				{
-					primaryColour, secondaryColour, outlineColour, backColour, borderStyle, outline,
-					shadow, fontname, fontsize, bold, italic, underline, strikeOut, alignment,
-					marginL, marginR, marginV
+					primaryColour,
+					secondaryColour,
+					outlineColour,
+					backColour,
+					borderStyle,
+					outline,
+					shadow,
+					fontname,
+					fontsize,
+					bold,
+					italic,
+					underline,
+					strikeOut,
+					alignment,
+					marginL,
+					marginR,
+					marginV,
 				} = style;
 
 			//these styles might always be defined, so maybe we don't need to safety check any of these
@@ -751,10 +782,11 @@ class ASS extends SubtitleFormat {
 				inlineStyle.push(genFontFamily(fontname));
 			}
 
-			if (borderStyle === '1') { //outline + drop shadow
+			if (borderStyle === '1') {
+				//outline + drop shadow
 				inlineStyle.push(genOutlineStyles(outlineColour, outline, backColour, shadow));
-			}
-			else if (borderStyle === '3') { //opaque box
+			} else if (borderStyle === '3') {
+				//opaque box
 				inlineStyle.push(`background-color: ${backColour.rgba}`);
 			}
 
@@ -765,7 +797,9 @@ class ASS extends SubtitleFormat {
 				inlineStyle.push(`font-style: italic`);
 			}
 			if (underline === assTrue || strikeOut === assTrue) {
-				inlineStyle.push(`text-decoration: ${underline === assTrue ? 'underline': ''} ${strikeOut === assTrue ? 'line-through' : ''}`);
+				inlineStyle.push(
+					`text-decoration: ${underline === assTrue ? 'underline' : ''} ${strikeOut === assTrue ? 'line-through' : ''}`
+				);
 			}
 
 			parsedStyles[style.name] = {
@@ -775,7 +809,7 @@ class ASS extends SubtitleFormat {
 				marginV: this.scaleHeight(marginV),
 				fontSize: this.genScaledFont(fontsize),
 				//keep parsed styles as-is for debugging
-				raw: style
+				raw: style,
 			};
 		});
 
@@ -805,8 +839,8 @@ class ASS extends SubtitleFormat {
 		 * Because the styles are cumulative. If a later style overwrites it with something else, the browser will handle displaying
 		 * only the second one. So all styles need to be able to add or remove styles
 		 */
-		this.subs.forEach(sub => {
-		    //copy the subtitle we're parsing overrides for, this lets us log the line that caused parsing to fail
+		this.subs.forEach((sub) => {
+			//copy the subtitle we're parsing overrides for, this lets us log the line that caused parsing to fail
 			this.parsingSub = JSON.parse(JSON.stringify(sub));
 
 			//keep the unchanged text around for debugging purposes
@@ -833,7 +867,7 @@ class ASS extends SubtitleFormat {
 
 			sub.phrases = [];
 
-			const removeOverrideText = text => text.replace(/{.*?}/g, '');
+			const removeOverrideText = (text) => text.replace(/{.*?}/g, '');
 
 			//create a scanner for overrides and the text that immediately follows them
 			const scanner = overrideScanner(sub.text);
@@ -853,16 +887,22 @@ class ASS extends SubtitleFormat {
 						rawOverrides: scanned.rawOverrides,
 						rawText: scanned.rawText,
 						//generated SVG structure for drawings and clip paths
-						html: ''
+						html: '',
 					},
-					{overrides} = scanned;
+					{ overrides } = scanned;
 
 				//todo - parse more tags
 				//http://docs.aegisub.org/3.2/ASS_Tags/
 
 				//outline and shadow use a bunch of text-shadows, so they need to all be parsed at once, and their result computed
 				//if any of them are defined, merge them in with the applied style's definitions, then generate an outline/shadow style
-				if (overrides.outlineColor || overrides.shadowColor || overrides.outlineSize || overrides.shadowDepth || overrides.blur ) {
+				if (
+					overrides.outlineColor ||
+					overrides.shadowColor ||
+					overrides.outlineSize ||
+					overrides.shadowDepth ||
+					overrides.blur
+				) {
 					const baseStyle = this.styles[sub.style];
 
 					// just in case there's no style applied? unsure if that's possible, but checking just in case
@@ -874,7 +914,9 @@ class ASS extends SubtitleFormat {
 							shadowDepth = overrides.shadowDepth || baseStyle.raw.shadow;
 
 						//not using a blur fallback, because blur is only ever defined in an override it seems
-						cumulativeStyles.push(genOutlineStyles(outlineColor, outlineSize, shadowColor, shadowDepth, overrides.blur));
+						cumulativeStyles.push(
+							genOutlineStyles(outlineColor, outlineSize, shadowColor, shadowDepth, overrides.blur)
+						);
 					}
 				}
 
@@ -887,8 +929,7 @@ class ASS extends SubtitleFormat {
 						//positioning applies to the line, and if we just put it on this span it might get put in the right space, but the
 						//containing paragraph elements will stack, possibly overlapping the video controls if
 						containerInline.push(`position: fixed; left: ${this.scaleWidth(x)}; top: ${this.scaleHeight(y)}`);
-					}
-					else if (overrides.movement) {
+					} else if (overrides.movement) {
 						const [x1, y1, x2, y2, ...timings] = overrides.movement;
 						sub.movement = {
 							x1: this.scaleWidth(x1),
@@ -896,8 +937,8 @@ class ASS extends SubtitleFormat {
 							x2: this.scaleWidth(x2),
 							y2: this.scaleHeight(y2),
 							//setting both times to zero in ASS movement is equivalent to not having timings at all
-							timings: timings.every(t => t === 0) ? [] : timings
-						}
+							timings: timings.every((t) => t === 0) ? [] : timings,
+						};
 					}
 
 					//if the text is explicitly positioned we don't want any unwanted wrapping, it's probably something
@@ -910,15 +951,15 @@ class ASS extends SubtitleFormat {
 					//an extra -50%, -50%, so that's why these numbers look weird, without
 					//that adjustment all positioned subtitles are too far down and right
 					const origin = {
-						'1': '0, -100%',
-						'2': '-50%, -100%',
-						'3': '-100%, -100%',
-						'4': '0, -50%',
-						'5': '-50%, -50%',
-						'6': '-100%, -50%',
-						'7': '0, 0',
-						'8': '-50%, 0',
-						'9': '-100%, 0'
+						1: '0, -100%',
+						2: '-50%, -100%',
+						3: '-100%, -100%',
+						4: '0, -50%',
+						5: '-50%, -50%',
+						6: '-100%, -50%',
+						7: '0, 0',
+						8: '-50%, 0',
+						9: '-100%, 0',
 					}[overrides.alignment || inheritedStyle.raw.alignment];
 					containerInline.push(`transform: translate(${origin})`);
 
@@ -926,12 +967,11 @@ class ASS extends SubtitleFormat {
 						const [orgX, orgY] = overrides.origin;
 						cumulativeStyles.push(`transform-origin: ${this.scaleWidth(orgX)} ${this.scaleHeight(orgY)}`);
 					}
-				}
-				else if (overrides.alignment) {
-					sub.mountPoint = overrides.alignment
+				} else if (overrides.alignment) {
+					sub.mountPoint = overrides.alignment;
 				}
 
-				const {fontScaleX, fontScaleY} = overrides;
+				const { fontScaleX, fontScaleY } = overrides;
 				if (fontScaleX) {
 					transforms.push(`scaleX(${fontScaleX}%)`);
 				}
@@ -940,7 +980,7 @@ class ASS extends SubtitleFormat {
 				}
 
 				const rotations = [];
-				const checkRotate = (deg, rotationTransform, multiplier=1) => {
+				const checkRotate = (deg, rotationTransform, multiplier = 1) => {
 					if (deg !== undefined) {
 						deg = parseFloat(deg) * multiplier;
 						return rotations.push(`${rotationTransform}(${deg}deg)`);
@@ -991,10 +1031,12 @@ class ASS extends SubtitleFormat {
 					textDecorationOptions.push('line-through');
 				}
 				if (textDecorationOptions.length) {
-					cumulativeStyles.push(`text-decoration: ${textDecorationOptions.length ? textDecorationOptions.join(' ') : 'none'}`);
+					cumulativeStyles.push(
+						`text-decoration: ${textDecorationOptions.length ? textDecorationOptions.join(' ') : 'none'}`
+					);
 				}
 
-				const {bold, italic} = overrides;
+				const { bold, italic } = overrides;
 				if (bold !== undefined) {
 					const boldSettings = {
 						[bold]: bold,
@@ -1014,7 +1056,7 @@ class ASS extends SubtitleFormat {
 
 				//colors
 				if (overrides.color) {
-					cumulativeStyles.push(`color: ${overrides.color.rgba}`)
+					cumulativeStyles.push(`color: ${overrides.color.rgba}`);
 				}
 
 				if (overrides.reset) {
@@ -1027,7 +1069,7 @@ class ASS extends SubtitleFormat {
 				}
 
 				if (overrides.drawMode === '1') {
-					const drawing = this.draw(phrase.text, overrides, inheritedStyle)
+					const drawing = this.draw(phrase.text, overrides, inheritedStyle);
 					phrase.html += drawing.html;
 					phrase.drawCommands = drawing.commands;
 					phrase.text = '';
@@ -1040,8 +1082,8 @@ class ASS extends SubtitleFormat {
 				}
 
 				if (overrides.clip) {
-					const {html, clipId} = this.clip(overrides.clip, phrase._id);
-					cumulativeStyles.push(`clip-path: url(#${clipId})`)
+					const { html, clipId } = this.clip(overrides.clip, phrase._id);
+					cumulativeStyles.push(`clip-path: url(#${clipId})`);
 					phrase.html += html;
 				}
 
@@ -1060,32 +1102,27 @@ class ASS extends SubtitleFormat {
 		this.parsingSub = null;
 	}
 
-	genSvg(commands, scale=1) {
+	genSvg(commands, scale = 1) {
 		const svgElement = createSVG(),
 			pathElement = createSVGNSElement('path');
 
-		const {
-			path,
-			maxHeight,
-			maxWidth,
-			viewBox
-		} = genPathFromDrawCommands(commands);
+		const { path, maxHeight, maxWidth, viewBox } = genPathFromDrawCommands(commands);
 
 		svgElement.setAttribute('viewBox', viewBox);
 		pathElement.setAttribute('d', path);
-		svgElement.setAttribute('width', this.scaleWidth(maxWidth))
-		svgElement.setAttribute('height', this.scaleHeight(maxHeight))
+		svgElement.setAttribute('width', this.scaleWidth(maxWidth));
+		svgElement.setAttribute('height', this.scaleHeight(maxHeight));
 
 		//not actually appending the two together, as both usages of these have different
 		//structure depending on drawing vs clip shape
 		return {
 			svg: svgElement,
-			path: pathElement
-		}
+			path: pathElement,
+		};
 	}
 
-	clip({scale, commands}, phraseId) {
-		const {svg, path} = this.genSvg(commands, scale),
+	clip({ scale, commands }, phraseId) {
+		const { svg, path } = this.genSvg(commands, scale),
 			defs = createSVGNSElement('defs'),
 			clipPath = createSVGNSElement('clipPath'),
 			clipId = `clip-path-${phraseId}`;
@@ -1099,13 +1136,13 @@ class ASS extends SubtitleFormat {
 		return {
 			html: svg.outerHTML,
 			clipId,
-			commands
-		}
+			commands,
+		};
 	}
 
 	draw(drawText, overrides, inheritedStyle) {
 		const commands = parseDrawingCommands(drawText),
-			{svg, path} = this.genSvg(commands);
+			{ svg, path } = this.genSvg(commands);
 
 		function overrideOrInherit(overrideColor, inheritedColor) {
 			return overrideColor ? overrideColor.rgba : inheritedColor.rgba;
@@ -1116,7 +1153,7 @@ class ASS extends SubtitleFormat {
 
 		return {
 			html: svg.outerHTML,
-			commands
+			commands,
 		};
 	}
 }
@@ -1124,5 +1161,5 @@ class ASS extends SubtitleFormat {
 module.exports = {
 	getOverride,
 	parseColor,
-	ASS
-}
+	ASS,
+};

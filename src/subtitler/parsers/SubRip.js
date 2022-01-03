@@ -1,10 +1,10 @@
-import SubtitleFormat from "./SubtitleFormat";
+import SubtitleFormat from './SubtitleFormat';
 
 const positionAlignmentTranslates = {
-		'line-left': '0%',
-		'center': '-50%',
-		'line-right': '-100%'
-	};
+	'line-left': '0%',
+	center: '-50%',
+	'line-right': '-100%',
+};
 
 /**
  * Parser for SRT and WebVTT files since WebVTT is more or less a superset of SRT
@@ -45,8 +45,8 @@ export default class SubRip extends SubtitleFormat {
 				let [startStr, endStr] = lines[0]
 						//SRT subtitles use a comma for the decimal point on seconds, make it a period so it can be parsed as a float
 						.replace(/,/g, '.')
-						.match(/^([\d:\.\-> ]*)/)
-						[0].split(/\-\->/),
+						.match(/^([\d:\.\-> ]*)/)[0]
+						.split(/\-\->/),
 					styling = lines[0].match(/([a-zA-Z].*)/); //the rest of the line starting at the first alphabetical character
 				styling = styling && styling.length ? styling[1] : ''; //might not have styling cues
 
@@ -57,16 +57,16 @@ export default class SubRip extends SubtitleFormat {
 						if (match) {
 							return match[1];
 						}
-						return fallback
+						return fallback;
 					},
 					getPercentCue = (name, fallback) => {
 						const match = styling.match(new RegExp(`${name}:([\\d\\.]*)%`));
 						if (match) {
 							return parseInt(match[1], 10);
 						}
-						return fallback
+						return fallback;
 					},
-					getTextCue = name => {
+					getTextCue = (name) => {
 						const match = styling.match(new RegExp(`${name}:([\w-]*?)`));
 						if (match) {
 							return match[1];
@@ -87,16 +87,16 @@ export default class SubRip extends SubtitleFormat {
 								position: parseInt(match[1]),
 								//MDN's WebVTT api docs mention "middle" as a center alignment option, and I've seen it in subtitles, though
 								//the W3 spec only shows "center" as a valid option. normalize to center for consistency
-								positionAlignment: match[2] === 'middle' ? 'center' : match[2]
-							}
+								positionAlignment: match[2] === 'middle' ? 'center' : match[2],
+							};
 						}
 						return {
 							position: 50,
-							positionAlignment: 'center'
+							positionAlignment: 'center',
 						};
 					};
 
-				let {position, positionAlignment='center'} = getPositionCue(),
+				let { position, positionAlignment = 'center' } = getPositionCue(),
 					//TODO do something with align, fallback to it instead of positionAlignment having a default 'center'
 					align = getTextCue('align') || 'center',
 					//TODO support non-percent line numbers
@@ -108,8 +108,8 @@ export default class SubRip extends SubtitleFormat {
 					[line]: line,
 					//TODO need to support other integers, these were the examples on MDN but it sounds like other integers are valid
 					'-1': 100,
-					'0': 0
-				}[line]
+					0: 0,
+				}[line];
 
 				inlineStyles.push(`left: ${position}vw`);
 
@@ -126,7 +126,7 @@ export default class SubRip extends SubtitleFormat {
 				//space between lines takes up a considerable amount of space, and lines can go off the page
 				const paddingEstimateVh = 1,
 					paddingBufferZone = linesOfText * paddingEstimateVh,
-                    //if the subtitles are going to go off the bottom of the screen (either a high 'line' or
+					//if the subtitles are going to go off the bottom of the screen (either a high 'line' or
 					//a low 'line' + inversion, we want to translate in the Y direction to make the subtitles
 					//flow upwards, otherwise they'll overflow off the bottom of the screen
 					normalTransform = `transform: ${positionTransform} ` + (top > 75 ? `translateY(-100%)` : ''),
@@ -152,28 +152,26 @@ export default class SubRip extends SubtitleFormat {
 						inverted: {
 							inactive: `${getClampedTop(100 - top, inactiveMaxTop)} ${invertedTransform}`,
 							active: `${getClampedTop(100 - top, activeMaxTop)} ${invertedTransform}`,
-						}
+						},
 					},
 					text,
 					inline: inlineStyles.join('; '),
 				});
-			} catch(e){}
+			} catch (e) {}
 			return done;
 		}, []);
 	}
 
 	serialize(atTime) {
-		return JSON.stringify(
-			typeof atTime === 'number' ? this.getSubs(atTime) : this.subs,
-			null,
-			4
-		);
+		return JSON.stringify(typeof atTime === 'number' ? this.getSubs(atTime) : this.subs, null, 4);
 	}
 
 	debugInfo() {
-		return [{
-			title: 'Number of subtitles',
-			detail: this.subs.length
-		}];
+		return [
+			{
+				title: 'Number of subtitles',
+				detail: this.subs.length,
+			},
+		];
 	}
 }

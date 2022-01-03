@@ -1,12 +1,14 @@
 export const logLevels = {
-	streaming: false
+	streaming: false,
 };
 
-export class Logger{
+export class Logger {
 	constructor(origin) {
 		this.origin = origin;
 		if (!origin) {
-			throw new Error('Logger needs an origin, none was passed! This identifies where the log message originated from.');
+			throw new Error(
+				'Logger needs an origin, none was passed! This identifies where the log message originated from.'
+			);
 		}
 	}
 	_log(...args) {
@@ -22,4 +24,3 @@ export class Logger{
 		}
 	}
 }
-

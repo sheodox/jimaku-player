@@ -7,7 +7,7 @@
 	}
 
 	.video-player {
-        background: #111218;
+		background: #111218;
 	}
 	.video-info {
 		padding: 0 1rem 1rem 1rem;
@@ -19,9 +19,9 @@
 	.host {
 		flex: 1;
 	}
-    .everything {
+	.everything {
 		position: relative;
-        flex: 1;
+		flex: 1;
 		display: flex;
 		flex-direction: column;
 	}
@@ -29,10 +29,10 @@
 
 <ThumbnailGhost />
 <div class="everything">
-    <Header />
+	<Header />
 	<div class="host f-column">
 		<div class="video-player">
-			<iframe title="video player" src="/video.html?{encodeURIComponent(selectedVideoInfo.src)}" allowfullscreen></iframe>
+			<iframe title="video player" src="/video.html?{encodeURIComponent(selectedVideoInfo.src)}" allowfullscreen />
 			<div class="video-info page-content">
 				{#if selectedVideoInfo.name}
 					<h2>{selectedVideoInfo.name}</h2>
@@ -46,9 +46,8 @@
 			</div>
 		</div>
 
-
 		<div class="page-content">
-			<Selector selectedVideoInfo={selectedVideoInfo} />
+			<Selector {selectedVideoInfo} />
 		</div>
 	</div>
 
@@ -56,19 +55,19 @@
 </div>
 
 <script>
-	import {onMount} from 'svelte';
+	import { onMount } from 'svelte';
 	import Selector from './Selector.svelte';
 	import page from 'page';
-	import {Icon} from 'sheodox-ui';
+	import { Icon } from 'sheodox-ui';
 	import Header from './Header.svelte';
-	import Footer from "./Footer.svelte";
-	import {videoInfo} from '../videos-store';
-	import ThumbnailGhost from "./ThumbnailGhost.svelte";
+	import Footer from './Footer.svelte';
+	import { videoInfo } from '../videos-store';
+	import ThumbnailGhost from './ThumbnailGhost.svelte';
 
 	//info for the video that's currently playing
-	let selectedVideoInfo = {src: '', name: ''};
+	let selectedVideoInfo = { src: '', name: '' };
 
-	page('/v/*', async ctx => {
+	page('/v/*', async (ctx) => {
 		updateVideoInfoWithSelection(ctx.pathname.replace(/^\/v\//, ''));
 	});
 	page('*', '/v/videos/');
@@ -82,7 +81,7 @@
 			return;
 		}
 
-		const info = await fetch(`/video-info?path=${encodeURIComponent(videoSrc)}`).then(res => res.json());
+		const info = await fetch(`/video-info?path=${encodeURIComponent(videoSrc)}`).then((res) => res.json());
 		videoInfo.set(info);
 
 		if (info.selectedVideo) {
@@ -91,7 +90,7 @@
 			window.scrollTo({
 				top: 0,
 				left: 0,
-				behavior: 'smooth'
+				behavior: 'smooth',
 			});
 		}
 	}
@@ -101,8 +100,8 @@
 		if (selectedVideoInList) {
 			selectedVideoInList.scrollIntoView({
 				behavior: 'smooth',
-				block: 'center'
-			})
+				block: 'center',
+			});
 		}
 	}
 </script>

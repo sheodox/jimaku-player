@@ -6,24 +6,18 @@
 		z-index: 1000000000;
 	}
 </style>
+
 <div class="subtitles-app">
 	{#if phase === 'prompt'}
-		<SubtitlePrompt on:subtitles-loaded={subtitlesLoaded} on:cancel={() => phase = 'cancelled'}/>
+		<SubtitlePrompt on:subtitles-loaded={subtitlesLoaded} on:cancel={() => (phase = 'cancelled')} />
 	{:else if phase === 'align'}
-		<Align subtitles={subtitles} on:done={aligned} on:reselect={() => phase = 'prompt'}/>
+		<Align {subtitles} on:done={aligned} on:reselect={() => (phase = 'prompt')} />
 	{:else if phase === 'play'}
 		{#if $showSubtitlesOnVideo}
 			{#if subtitles.format === 'subrip'}
-				<SubRipRenderer
-					format={subtitles.format}
-					subtitles={subtitleStore}
-				/>
+				<SubRipRenderer format={subtitles.format} subtitles={subtitleStore} />
 			{:else if subtitles.format === 'ass'}
-				<ASSRenderer
-					format={subtitles.format}
-					styles={subtitles.styles}
-					subtitles={subtitleStore}
-				/>
+				<ASSRenderer format={subtitles.format} styles={subtitles.styles} subtitles={subtitleStore} />
 			{/if}
 		{/if}
 		<Tray
@@ -31,32 +25,27 @@
 			{subtitles}
 			on:restart={restart}
 			on:tray-pauser={trayPauser}
-			on:realign={() => phase = 'align'}
+			on:realign={() => (phase = 'align')}
 		/>
 	{:else if phase === 'cancelled'}
-        <Tray mode="cancelled"
-			on:restart={restart}
-	    />
+		<Tray mode="cancelled" on:restart={restart} />
 	{/if}
 </div>
 
 <Hotkeys />
 
 <script>
-	import {onMount} from 'svelte';
-	import Tray from "./tray/Tray.svelte";
+	import { onMount } from 'svelte';
+	import Tray from './tray/Tray.svelte';
 	import SubRipRenderer from './renderers/SubRipRenderer.svelte';
 	import ASSRenderer from './renderers/ASSRenderer.svelte';
-	import SubtitlePrompt from "./SubtitlePrompt.svelte";
-	import Align from "./Align.svelte";
-	import {showSubtitlesOnVideo, autoCopySubtitles} from "./settingsStore";
-	import {
-		showNameStore,
-		alignmentStore
-	} from './alignmentStore';
-	import {createSubtitleTimer, setSubtitles as setTimerSubtitles} from "./subtitleTimer";
-	import Hotkeys from "./Hotkeys.svelte";
-	import {videoController} from "./VideoController";
+	import SubtitlePrompt from './SubtitlePrompt.svelte';
+	import Align from './Align.svelte';
+	import { showSubtitlesOnVideo, autoCopySubtitles } from './settingsStore';
+	import { showNameStore, alignmentStore } from './alignmentStore';
+	import { createSubtitleTimer, setSubtitles as setTimerSubtitles } from './subtitleTimer';
+	import Hotkeys from './Hotkeys.svelte';
+	import { videoController } from './VideoController';
 
 	const alignmentKey = 'last-used-alignment';
 
@@ -70,7 +59,7 @@
 		subtitleStore,
 		subtitleUnsubscribe;
 
-	alignmentStore.subscribe(val => subOffset = val);
+	alignmentStore.subscribe((val) => (subOffset = val));
 
 	function restart() {
 		phase = 'prompt';
@@ -117,17 +106,20 @@
 		}
 
 		setTimerSubtitles(subtitles);
-		subtitleStore = createSubtitleTimer(alignmentStore)
+		subtitleStore = createSubtitleTimer(alignmentStore);
 		let lastText = '';
-		subtitleUnsubscribe = subtitleStore.subscribe(currentSubs => {
+		subtitleUnsubscribe = subtitleStore.subscribe((currentSubs) => {
 			mergeSubsWithRecent(currentSubs);
 
-			const subText = currentSubs.map(sub => sub.text || '').join('\n').trim();
+			const subText = currentSubs
+				.map((sub) => sub.text || '')
+				.join('\n')
+				.trim();
 			if ($autoCopySubtitles && subText !== lastText && subText) {
 				lastText = subText;
-				GM_setClipboard(subText, 'text')
+				GM_setClipboard(subText, 'text');
 			}
-		})
+		});
 	}
 
 	function mergeSubsWithRecent(subs) {
@@ -145,13 +137,13 @@
 		subtitles = e.detail.subtitles;
 		if (subtitles.subs.length === 0) {
 			console.log('subtitles object failed to parse: ', subtitles);
-			alert(`No subtitles were able to be parsed from the selected subtitle file, verify nothing is wrong with the file. If it appears normal please submit a bug report with the episode and the subtitles file you used to the issue tracker (a link can be found in the tray on the right side of the video player)!`);
+			alert(
+				`No subtitles were able to be parsed from the selected subtitle file, verify nothing is wrong with the file. If it appears normal please submit a bug report with the episode and the subtitles file you used to the issue tracker (a link can be found in the tray on the right side of the video player)!`
+			);
 			phase = 'cancelled';
-		}
-		else if (!e.detail.skipAlignment) {
+		} else if (!e.detail.skipAlignment) {
 			phase = 'align';
-		}
-		else {
+		} else {
 			alignmentStore.set(0);
 			aligned();
 		}

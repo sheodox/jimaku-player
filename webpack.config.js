@@ -8,15 +8,15 @@ module.exports = {
 		host: './src/local-player/host/host.js',
 		player: './src/local-player/player/player.js',
 		'subrip-test': './src/test/subrip/subrip-test.js',
-		'subrip-test-player': './src/test/subrip/test-player.js'
+		'subrip-test-player': './src/test/subrip/test-player.js',
 	},
 	output: {
 		filename: '[name].js',
-		path: path.resolve(__dirname, './static')
+		path: path.resolve(__dirname, './static'),
 	},
 	resolve: {
 		alias: {
-			svelte: path.resolve('node_modules', 'svelte')
+			svelte: path.resolve('node_modules', 'svelte'),
 		},
 		extensions: ['.mjs', '.js', '.svelte'],
 		mainFields: ['svelte', 'browser', 'module', 'main'],
@@ -25,15 +25,15 @@ module.exports = {
 		rules: [
 			{
 				test: /\.(html|svelte)$/,
-				use: 'svelte-loader'
+				use: 'svelte-loader',
 			},
 			{
 				test: /\.scss$/,
-				use: ['style-loader', 'css-loader', 'sass-loader']
-			}
-		]
+				use: ['style-loader', 'css-loader', 'sass-loader'],
+			},
+		],
 	},
 	optimization: {
-		usedExports: true
-	}
+		usedExports: true,
+	},
 };

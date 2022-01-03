@@ -1,13 +1,15 @@
-import {derived, get} from 'svelte/store';
-import {globalFontScale, subtitleClickAction} from "../settingsStore";
-import {showBasedSettings, usesShowBasedSettings} from "../by-show-settings";
-import {videoController} from "../VideoController";
+import { derived, get } from 'svelte/store';
+import { globalFontScale, subtitleClickAction } from '../settingsStore';
+import { showBasedSettings, usesShowBasedSettings } from '../by-show-settings';
+import { videoController } from '../VideoController';
 
 export function joinStyles(stylesArray) {
-	return stylesArray
-		//ensure we're not putting `;undefined;` in the styles
-		.filter(style => !!style)
-		.join(';');
+	return (
+		stylesArray
+			//ensure we're not putting `;undefined;` in the styles
+			.filter((style) => !!style)
+			.join(';')
+	);
 }
 
 export const fontScale = derived(
@@ -17,12 +19,12 @@ export const fontScale = derived(
 			? showBasedSettings.fontScale
 			: globalFontScale;
 	}
-)
+);
 
 //if we need to do something in response to clicking the subtitles.
-export const subtitleActionable = derived(subtitleClickAction, action => {
+export const subtitleActionable = derived(subtitleClickAction, (action) => {
 	return ['jisho', 'copy'].includes(action);
-})
+});
 
 export function performSubtitleClickAction(subtitleText) {
 	subtitleText = subtitleText.trim();
@@ -30,7 +32,7 @@ export function performSubtitleClickAction(subtitleText) {
 
 	switch (action) {
 		case 'jisho':
-			window.open(`https://jisho.org/search/${encodeURIComponent(subtitleText)}`)
+			window.open(`https://jisho.org/search/${encodeURIComponent(subtitleText)}`);
 			videoController.addPauser('define');
 			break;
 		case 'copy':

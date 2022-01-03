@@ -20,7 +20,7 @@ class VideoController {
 		if (this.reasons.length === 0 && this.video.paused) {
 			//we need to add another reason signifying the user has paused the video themselves, this is a special case
 			//otherwise we'll unpause the video though it shouldn't be.
-			this.reasons.push(userPausedReason)
+			this.reasons.push(userPausedReason);
 		}
 
 		//add the new pauser, but don't allow it to be added more than once. there are currently no pausers that would be valid to have
@@ -41,8 +41,7 @@ class VideoController {
 	_checkPause() {
 		if (this.reasons.length) {
 			this.video.pause();
-		}
-		else {
+		} else {
 			this.video.play();
 		}
 	}

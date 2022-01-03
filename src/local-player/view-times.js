@@ -12,14 +12,17 @@ export default {
 			Object.assign(getLastViewTimes(), {
 				[videoSrc]: {
 					currentTime,
-					duration
-				}
+					duration,
+				},
 			})
-		)
+		);
 	},
 	get(videoSrc) {
-		return getLastViewTimes()[videoSrc] || {
-			currentTime: 0, maxTime: 1
-		}
-	}
-}
+		return (
+			getLastViewTimes()[videoSrc] || {
+				currentTime: 0,
+				maxTime: 1,
+			}
+		);
+	},
+};

@@ -1,10 +1,10 @@
-import {readable, writable} from "svelte/store";
-import {currentTime} from "./activity-stores";
+import { readable, writable } from 'svelte/store';
+import { currentTime } from './activity-stores';
 
 let subs;
-export const setSubtitles = subtitleObject => {
+export const setSubtitles = (subtitleObject) => {
 	subs = subtitleObject;
-}
+};
 
 export const subtitleTime = writable(0);
 
@@ -13,29 +13,29 @@ export const subtitleTime = writable(0);
  * @param offsetOrStore - an alignment number (offset in ms) or
  * @returns {readable<*[]>}
  */
-export const createSubtitleTimer = offsetOrStore => readable([], set => {
-	let offset = typeof offsetOrStore === 'number' ? offsetOrStore : 0,
-		offsetUnsubscribe;
+export const createSubtitleTimer = (offsetOrStore) =>
+	readable([], (set) => {
+		let offset = typeof offsetOrStore === 'number' ? offsetOrStore : 0,
+			offsetUnsubscribe;
 
-	//allow a store to be passed, for variable times (the main player itself)
-	//without having to re-create this subtitleTimer given alignment changes
-	if (typeof offsetOrStore !== 'number') {
-		offsetUnsubscribe = offsetOrStore.subscribe(alignment => {
-			offset = alignment;
-		})
-	}
-
-	const unsubCurrentTime = currentTime.subscribe(currentTime => {
-		const time = currentTime * 1000 - offset
-		subtitleTime.set(time);
-		set(subs.getSubs(time))
-	})
-
-	return () => {
-		unsubCurrentTime();
-		if (offsetUnsubscribe) {
-			offsetUnsubscribe();
+		//allow a store to be passed, for variable times (the main player itself)
+		//without having to re-create this subtitleTimer given alignment changes
+		if (typeof offsetOrStore !== 'number') {
+			offsetUnsubscribe = offsetOrStore.subscribe((alignment) => {
+				offset = alignment;
+			});
 		}
-	}
-})
 
+		const unsubCurrentTime = currentTime.subscribe((currentTime) => {
+			const time = currentTime * 1000 - offset;
+			subtitleTime.set(time);
+			set(subs.getSubs(time));
+		});
+
+		return () => {
+			unsubCurrentTime();
+			if (offsetUnsubscribe) {
+				offsetUnsubscribe();
+			}
+		};
+	});

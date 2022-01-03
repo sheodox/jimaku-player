@@ -1,15 +1,15 @@
-import {imageRepository} from './entity';
+import { imageRepository } from './entity';
 import sharp from 'sharp';
-import {Image} from './entity/Image';
+import { Image } from './entity/Image';
 
-type Resolution = {width: number, height: number};
+type Resolution = { width: number; height: number };
 
 const //get a matching height at a 16:9 aspect ratio for the given width
-	scaledResolution = (width: number): Resolution => ({width, height: Math.ceil(width * (9/16))}),
+	scaledResolution = (width: number): Resolution => ({ width, height: Math.ceil(width * (9 / 16)) }),
 	MAX_RESOLUTION = {
 		large: scaledResolution(1280),
 		medium: scaledResolution(550),
-		small: scaledResolution(120)
+		small: scaledResolution(120),
 	};
 
 export type ImageSize = keyof typeof MAX_RESOLUTION;
@@ -21,19 +21,22 @@ export class ImageService {
 	 * @returns {Promise<string[]>}
 	 */
 	static async findMissingImages(videoPaths: string[]) {
-		const populatedIds = (await (await imageRepository).find({
-			select: ["sourceId"]
-		}))
-			.map(({sourceId}) => sourceId);
+		const populatedIds = (
+			await (
+				await imageRepository
+			).find({
+				select: ['sourceId'],
+			})
+		).map(({ sourceId }) => sourceId);
 
-		return videoPaths.filter(video => {
+		return videoPaths.filter((video) => {
 			return !populatedIds.includes(video);
 		});
 	}
 
 	static async findId(videoPath: string) {
 		const repo = await imageRepository,
-			image = await repo.findOne({sourceId: videoPath});
+			image = await repo.findOne({ sourceId: videoPath });
 		return image?.id;
 	}
 
@@ -52,7 +55,7 @@ export class ImageService {
 
 		async function resize(toSize: keyof typeof MAX_RESOLUTION) {
 			return await sharp(sourceImage)
-				.resize({...MAX_RESOLUTION[toSize], fit: 'inside'})
+				.resize({ ...MAX_RESOLUTION[toSize], fit: 'inside' })
 				.toFormat('webp')
 				.toBuffer();
 		}
@@ -74,4 +77,3 @@ export class ImageService {
 		return image[size];
 	}
 }
-

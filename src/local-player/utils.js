@@ -1,4 +1,4 @@
-import {MINIMUM_BUFFER_INTERVAL} from "./player/MPDParser";
+import { MINIMUM_BUFFER_INTERVAL } from './player/MPDParser';
 
 /**
  * Change a number in seconds to mm:ss or hh:mm:ss
@@ -11,12 +11,13 @@ import {MINIMUM_BUFFER_INTERVAL} from "./player/MPDParser";
  */
 export function prettyTime(seconds, forcePadHours = false) {
 	const hoursRemainder = seconds % 3600,
-		hours = Math.floor((seconds / 3600)),
+		hours = Math.floor(seconds / 3600),
 		minutesRemainder = hoursRemainder % 60,
 		minutes = Math.floor(hoursRemainder / 60);
-	const pad = num => Math.floor(num).toString().padStart(2, '0');
+	const pad = (num) => Math.floor(num).toString().padStart(2, '0');
 	return (hours > 0 || forcePadHours ? [hours, minutes, minutesRemainder] : [minutes, minutesRemainder])
-		.map(pad).join(':');
+		.map(pad)
+		.join(':');
 }
 
 /**
@@ -30,7 +31,8 @@ function findBufferedTimeRange(seconds, bufferedTimeRanges) {
 			end = bufferedTimeRanges.end(i);
 		if (seconds > start && end > seconds) {
 			return {
-				start, end
+				start,
+				end,
 			};
 		}
 	}
@@ -54,7 +56,7 @@ export function isTimeBuffered(seconds, bufferedTimeRanges) {
  */
 export function isEnoughBuffered(seconds, bufferedTimeRanges) {
 	const range = findBufferedTimeRange(seconds, bufferedTimeRanges);
-	return range && (range.end - seconds > MINIMUM_BUFFER_INTERVAL);
+	return range && range.end - seconds > MINIMUM_BUFFER_INTERVAL;
 }
 
 export function getTrackTitle(track, trackNumber) {
@@ -64,7 +66,7 @@ export function getTrackTitle(track, trackNumber) {
 }
 
 export function downloadFile(fileName, mime, text) {
-	const blob = new Blob([text], {type: mime}),
+	const blob = new Blob([text], { type: mime }),
 		a = document.createElement('a');
 	a.href = URL.createObjectURL(blob);
 	a.download = fileName;

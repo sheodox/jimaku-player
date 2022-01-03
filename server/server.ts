@@ -1,5 +1,5 @@
 require('dotenv').config();
-import "reflect-metadata";
+import 'reflect-metadata';
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
@@ -8,10 +8,10 @@ const app = express(),
 	port = 3500;
 
 //ensure the path for videos exists
-['./videos', './data', './data/temp'].forEach(dir => {
+['./videos', './data', './data/temp'].forEach((dir) => {
 	try {
 		fs.mkdirSync(dir);
-	} catch(e) {}
+	} catch (e) {}
 });
 
 app.use(express.static('./static'));
@@ -26,4 +26,3 @@ app.get('/v/*', (req, res) => {
 	res.sendFile(path.join(__dirname, '../static/index.html'));
 });
 app.listen(port, () => console.log(`Jimaku Player server listening on port ${port}`));
-

@@ -1,15 +1,17 @@
 <style>
-    p {
+	p {
 		cursor: default;
-        color: white;
-        margin: 0;
-        padding: 0;
-        white-space: pre-wrap;
-        font-family: "Source Han Sans", "源ノ角ゴシック", "Hiragino Sans", "HiraKakuProN-W3", "Hiragino Kaku Gothic ProN W3", "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", "Noto Sans JP", "Noto Sans CJK JP", "Noto Sans", "メイリオ", Meiryo, "游ゴシック", YuGothic, "ＭＳ Ｐゴシック", "MS PGothic", "ＭＳ ゴシック", "MS Gothic", sans-serif;
-    }
-    p:hover {
-        /* need important so it can override .ass inline styles */
-        color: #0aff8c !important;
+		color: white;
+		margin: 0;
+		padding: 0;
+		white-space: pre-wrap;
+		font-family: 'Source Han Sans', '源ノ角ゴシック', 'Hiragino Sans', 'HiraKakuProN-W3', 'Hiragino Kaku Gothic ProN W3',
+			'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', 'Noto Sans JP', 'Noto Sans CJK JP', 'Noto Sans', 'メイリオ',
+			Meiryo, '游ゴシック', YuGothic, 'ＭＳ Ｐゴシック', 'MS PGothic', 'ＭＳ ゴシック', 'MS Gothic', sans-serif;
+	}
+	p:hover {
+		/* need important so it can override .ass inline styles */
+		color: #0aff8c !important;
 		cursor: pointer;
 	}
 
@@ -18,10 +20,10 @@
 			top: var(--move-from-top);
 			left: var(--move-from-left);
 		}
-        to {
-            top: var(--move-to-top);
-            left: var(--move-to-left);
-        }
+		to {
+			top: var(--move-to-top);
+			left: var(--move-to-left);
+		}
 	}
 
 	.has-movement {
@@ -32,7 +34,7 @@
 </style>
 
 <p
-	style="{genBaseStyles(sub)}"
+	style={genBaseStyles(sub)}
 	class:has-movement={!!sub.movement}
 	data-sub-style={sub.style}
 	data-sub-id={sub._id}
@@ -68,13 +70,10 @@
 </p>
 
 <script>
-	import {fade} from 'svelte/transition';
-	import {performSubtitleClickAction} from "./render-common";
-	import {subtitleFallbackColor} from '../settingsStore';
-	import {
-		joinStyles,
-		fontScale,
-	} from './render-common';
+	import { fade } from 'svelte/transition';
+	import { performSubtitleClickAction } from './render-common';
+	import { subtitleFallbackColor } from '../settingsStore';
+	import { joinStyles, fontScale } from './render-common';
 
 	export let sub;
 	export let styles;
@@ -83,7 +82,7 @@
 		if (typeof dur !== 'number') {
 			dur = 0;
 		}
-		return {delay: 0, duration: dur};
+		return { delay: 0, duration: dur };
 	}
 
 	function genPhraseStyles(phrase, sub) {
@@ -95,22 +94,18 @@
 			`font-size: ${style.fontSize * $fontScale}vh`,
 			phrase.inline,
 			//if the phrase has a font size override, this will override the sub's font size
-			phrase.fontSize ? `font-size: ${phrase.fontSize * $fontScale}vh` : null
+			phrase.fontSize ? `font-size: ${phrase.fontSize * $fontScale}vh` : null,
 		]);
 	}
 
 	function genBaseStyles(sub) {
-		let appliedStyles = [
-			`color: ${$subtitleFallbackColor}`
-		];
+		let appliedStyles = [`color: ${$subtitleFallbackColor}`];
 
 		//ASS subtitles inherit their base styles from some style declarations
 		const style = styles[sub.style];
 		appliedStyles.push(style.inline);
 
-		appliedStyles = appliedStyles.concat([
-			(sub.inline || ''),
-		]);
+		appliedStyles = appliedStyles.concat([sub.inline || '']);
 
 		//if there are no overrides the text will be directly mounted inside the <p> and not in <span>s.
 		//as such we can apply the font size directly to the base element, avoiding the problem described
@@ -132,7 +127,7 @@
 				`--move-from-left: ${sub.movement.x1}`,
 				`--move-to-top: ${sub.movement.y2}`,
 				`--move-to-left: ${sub.movement.x2}`,
-			])
+			]);
 		}
 		return joinStyles(appliedStyles);
 	}

@@ -10,7 +10,7 @@
 		height: calc(100% - 10rem);
 		display: flex;
 		flex-direction: column;
-        text-align: center;
+		text-align: center;
 		border-radius: 5px 0 0 5px;
 	}
 
@@ -43,20 +43,20 @@
 	.tab-content {
 		text-align: left;
 		padding: 0.5rem 2rem;
-        flex: 1;
+		flex: 1;
 	}
-    .row:not(:last-child) {
+	.row:not(:last-child) {
 		margin-bottom: 0.5rem;
 	}
 	.tab-cancelled {
 		text-align: center;
 	}
-    .hidden {
+	.hidden {
 		display: none;
 	}
 	.tray :global(.tab-list) {
 		margin: 0;
-    }
+	}
 	.tray :global(.tab-list li) {
 		display: inline-block;
 	}
@@ -67,13 +67,14 @@
 	class:inactive={!$userActive}
 	on:mouseenter={trayHover(true)}
 	on:mouseleave={trayHover(false)}
-	style="right: {$trayAnim}rem" class:hidden={fineAdjustDialogVisible}
+	style="right: {$trayAnim}rem"
+	class:hidden={fineAdjustDialogVisible}
 >
 	<div class="tray-header">
 		<h1>字幕プレーヤー</h1>
 		{#if mode === 'normal'}
 			<div class="tray-tab-buttons">
-                <TabList tabs={tabList} bind:selectedTab />
+				<TabList tabs={tabList} bind:selectedTab />
 			</div>
 		{/if}
 	</div>
@@ -83,7 +84,9 @@
 				<button on:click={() => dispatch('restart')}>Select Subtitles</button>
 			</div>
 			<div class="row">
-				<a target="_blank" href="https://github.com/sheodox/jimaku-player/issues" rel="noopener noreferrer">Issue? Report it here!</a>
+				<a target="_blank" href="https://github.com/sheodox/jimaku-player/issues" rel="noopener noreferrer"
+					>Issue? Report it here!</a
+				>
 			</div>
 		</div>
 	{:else if mode === 'normal'}
@@ -92,11 +95,7 @@
 				<RecentTab {recentSubs} />
 			</Tab>
 			<Tab tabId="setup" bind:selectedTab>
-				<SetupTab
-					on:realign
-					on:restart
-					bind:fineAdjustDialogVisible
-				/>
+				<SetupTab on:realign on:restart bind:fineAdjustDialogVisible />
 			</Tab>
 			<Tab tabId="settings" bind:selectedTab>
 				<SettingsTab {subtitles} />
@@ -104,47 +103,51 @@
 		</div>
 	{/if}
 	<div class="row">
-		<a target="_blank" href="https://discord.gg/Vyjjyj4" rel="noopener noreferrer">Join the Discord community for release notes and discussion!</a>
+		<a target="_blank" href="https://discord.gg/Vyjjyj4" rel="noopener noreferrer"
+			>Join the Discord community for release notes and discussion!</a
+		>
 	</div>
 </div>
 {#if fineAdjustDialogVisible}
-	<FineAdjust on:close={() => fineAdjustDialogVisible = false} />
+	<FineAdjust on:close={() => (fineAdjustDialogVisible = false)} />
 {/if}
 
 <script>
-	import {createEventDispatcher} from 'svelte';
-	import {Tab, TabList} from 'sheodox-ui';
-	import {get} from 'svelte/store';
-	import {
-		pauseWhenTrayOpen,
-	} from '../settingsStore';
-	import {tweened} from 'svelte/motion';
-	import {cubicOut} from 'svelte/easing';
-	import FineAdjust from "../FineAdjust.svelte";
-	import {userActive} from "../activity-stores";
-	import RecentTab from "./RecentTab.svelte";
-	import SetupTab from "./SetupTab.svelte";
-	import SettingsTab from "./SettingsTab.svelte";
+	import { createEventDispatcher } from 'svelte';
+	import { Tab, TabList } from 'sheodox-ui';
+	import { get } from 'svelte/store';
+	import { pauseWhenTrayOpen } from '../settingsStore';
+	import { tweened } from 'svelte/motion';
+	import { cubicOut } from 'svelte/easing';
+	import FineAdjust from '../FineAdjust.svelte';
+	import { userActive } from '../activity-stores';
+	import RecentTab from './RecentTab.svelte';
+	import SetupTab from './SetupTab.svelte';
+	import SettingsTab from './SettingsTab.svelte';
 
 	const dispatch = createEventDispatcher(),
 		trayStates = {
 			hidden: -26,
-			shown: 0
+			shown: 0,
 		},
 		trayAnim = tweened(trayStates.hidden, {
 			duration: 300,
-			easing: cubicOut
+			easing: cubicOut,
 		}),
-		tabList = [{
-			id: 'recent',
-			title: 'Recent Subtitles'
-		}, {
-			id: 'setup',
-			title: 'Setup'
-		}, {
-			id: 'settings',
-			title: 'Settings'
-		}];
+		tabList = [
+			{
+				id: 'recent',
+				title: 'Recent Subtitles',
+			},
+			{
+				id: 'setup',
+				title: 'Setup',
+			},
+			{
+				id: 'settings',
+				title: 'Settings',
+			},
+		];
 
 	export let recentSubs = [];
 	export let subtitles = {};
@@ -164,12 +167,12 @@
 			if (!isEntering || get(pauseWhenTrayOpen)) {
 				dispatch('tray-pauser', isEntering);
 			}
-		}
+		};
 	}
 
 	function toggleSetting(setting) {
-		return e => {
+		return (e) => {
 			dispatch(setting, e.target.checked);
-		}
+		};
 	}
 </script>

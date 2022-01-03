@@ -13,13 +13,14 @@
 		flex-direction: column;
 		max-width: 24rem;
 	}
-	img, .skeleton {
+	img,
+	.skeleton {
 		flex: 1;
 		width: 24rem;
 		align-self: center;
 	}
-    .skeleton {
-		min-height: calc(24rem * (9/16));
+	.skeleton {
+		min-height: calc(24rem * (9 / 16));
 		background: var(--panel-footer-bg);
 	}
 	.selected {
@@ -70,18 +71,19 @@
 		src={imageSrc(video.imageKey)}
 		alt="image for {video.name}"
 		class:hidden={!imageLoaded}
-		on:load={() => imageLoaded = true}
+		on:load={() => (imageLoaded = true)}
 	/>
 	{#if !imageLoaded}
 		<div class="skeleton" />
 	{/if}
-	<progress value={currentTime} max={duration}></progress>
+	<progress value={currentTime} max={duration} />
 	<p class="video-title">
 		{video.name}
 	</p>
 </a>
+
 <script>
-	import {onMount, onDestroy, createEventDispatcher} from 'svelte';
+	import { onMount, onDestroy, createEventDispatcher } from 'svelte';
 	import page from 'page';
 	const dispatch = createEventDispatcher();
 	import viewTimes from '../view-times';
@@ -98,7 +100,7 @@
 		duration = 1;
 
 	function imageSrc(imageKey) {
-		return `/image/medium/${imageKey}`
+		return `/image/medium/${imageKey}`;
 	}
 
 	function renderUpdatedViewTimes() {
@@ -111,9 +113,9 @@
 	let viewTimesUpdateInterval;
 	onMount(() => {
 		viewTimesUpdateInterval = setInterval(renderUpdatedViewTimes, 10 * 1000);
-        renderUpdatedViewTimes();
+		renderUpdatedViewTimes();
 	});
 	onDestroy(() => {
 		clearInterval(viewTimesUpdateInterval);
-	})
+	});
 </script>

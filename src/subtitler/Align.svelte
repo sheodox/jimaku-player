@@ -2,7 +2,7 @@
 	.column {
 		display: flex;
 		flex-direction: column;
-        text-align: center;
+		text-align: center;
 	}
 	button {
 		margin: 0.5rem;
@@ -42,34 +42,39 @@
 	.alignment-panel > :not(select):not(button) {
 		color: white;
 	}
-    h1 {
+	h1 {
 		margin: 0;
 	}
-    h1 {
+	h1 {
 		font-size: 1.3rem;
 		border-bottom: 2px solid #f47521;
 	}
 	h2 {
 		font-size: 0.9rem;
 	}
-	p, label {
+	p,
+	label {
 		max-width: 14rem;
 	}
 	.alignment-sign-hint {
-        font-size: 0.8rem;
+		font-size: 0.8rem;
 	}
-    #manual-alignment {
+	#manual-alignment {
 		width: 5rem;
 		align-self: center;
 	}
 
 	/* crunchyroll has a really small viewport sometimes, just shrink everything in that case */
 	@media (max-width: 700px) {
-		button, input, label, legend, p {
+		button,
+		input,
+		label,
+		legend,
+		p {
 			font-size: 0.7rem !important;
 			margin: 0.2rem;
 		}
-        .alignment-sign-hint {
+		.alignment-sign-hint {
 			font-size: 0.6rem;
 		}
 		button {
@@ -78,7 +83,7 @@
 		h1 {
 			font-size: 1rem;
 		}
-        h2 {
+		h2 {
 			font-size: 0.9rem;
 		}
 		#subtitle-options {
@@ -94,15 +99,16 @@
 	.search-match:not(:last-child) {
 		margin-bottom: 1rem;
 	}
-    .search-match legend {
+	.search-match legend {
 		white-space: pre;
-        margin: 0 auto;
+		margin: 0 auto;
 	}
-    #subtitle-search {
+	#subtitle-search {
 		align-self: center;
 		max-width: 100%;
 	}
 </style>
+
 <div class="column">
 	<div class="alignment-panel">
 		<button class="small-button secondary" on:click={goBackAPhase}>
@@ -122,21 +128,15 @@
 					{#if showName}
 						for <span class="show-name">{showName}</span>
 					{/if}
-					<br>
+					<br />
 					({$explainedSecondsStore})
 				</button>
 			{:else}
-            	<p>
-					You haven't set an alignment for this show before
-				</p>
-				<button on:click={() => align(0)}>
-					 Assume subtitles are properly timed
-				</button>
+				<p>You haven't set an alignment for this show before</p>
+				<button on:click={() => align(0)}> Assume subtitles are properly timed </button>
 			{/if}
 
-			<button on:click={() => phase = phases.automatic} class="secondary">
-				Choose a different alignment...
-			</button>
+			<button on:click={() => (phase = phases.automatic)} class="secondary"> Choose a different alignment... </button>
 
 			{#if $alignmentHistoryStore.length}
 				<h2>Other Recently Used Alignments</h2>
@@ -145,8 +145,8 @@
 		{:else if phase === phases.automatic}
 			<label id="subtitle-search">
 				Can't find a line? Search all subtitles:
-				<br>
-				<input type="text" bind:value={subtitleSearchText} placeholder="type something you heard">
+				<br />
+				<input type="text" bind:value={subtitleSearchText} placeholder="type something you heard" />
 			</label>
 			<fieldset>
 				<legend>Click a subtitle as soon as you hear it said</legend>
@@ -161,10 +161,10 @@
 									<legend>
 										{option.sub.text.trim()}
 									</legend>
-                                    <div class="column">
+									<div class="column">
 										{#each option.subsequent as subsequent}
 											<button on:click={() => alignToSubtitle(subsequent)}>
-												({subsequent.offset})<br>{subsequent.text.trim()}
+												({subsequent.offset})<br />{subsequent.text.trim()}
 											</button>
 										{/each}
 									</div>
@@ -172,26 +172,32 @@
 							</div>
 						{:else}
 							<button on:click={() => alignToSubtitle(option)}>
-								({option.offset})<br>{option.text.trim()}
+								({option.offset})<br />{option.text.trim()}
 							</button>
 						{/if}
 					{/each}
 				</div>
 			</fieldset>
 
-			<button on:click={() => phase = phases.manual} class="secondary">Or manually enter an offset...</button>
+			<button on:click={() => (phase = phases.manual)} class="secondary">Or manually enter an offset...</button>
 		{:else if phase === phases.manual}
 			<div class="column">
 				<form on:submit|preventDefault={submitManualAlignment} class="column">
 					<label for="manual-alignment">Offset subtitle display times (in seconds):</label>
 					<div class="row">
-						<input type="text" id="manual-alignment" bind:value={manualAlignmentValue} autocomplete="off" on:keydown={manualInputKeydown} use:focusInputOnMount >
+						<input
+							type="text"
+							id="manual-alignment"
+							bind:value={manualAlignmentValue}
+							autocomplete="off"
+							on:keydown={manualInputKeydown}
+							use:focusInputOnMount
+						/>
 						<button>Use this</button>
 					</div>
 				</form>
 				<p class="alignment-sign-hint">
-					Positive numbers will delay subtitles.
-					Negative numbers will show the subtitles earlier.
+					Positive numbers will delay subtitles. Negative numbers will show the subtitles earlier.
 				</p>
 			</div>
 		{/if}
@@ -199,8 +205,8 @@
 </div>
 
 <script>
-	import {createEventDispatcher} from 'svelte';
-	import {get} from 'svelte/store'
+	import { createEventDispatcher } from 'svelte';
+	import { get } from 'svelte/store';
 	import {
 		showNameStore,
 		alignmentStore,
@@ -209,7 +215,7 @@
 		secondsStore,
 		signedSecondsStore,
 		explainedSecondsStore,
-		saveAlignmentToHistory
+		saveAlignmentToHistory,
 	} from './alignmentStore';
 	import RecentAlignments from './RecentAlignments.svelte';
 	export let subtitles;
@@ -220,7 +226,7 @@
 		phases = {
 			entry: 'entry',
 			manual: 'manual',
-			automatic: 'automatic'
+			automatic: 'automatic',
 		};
 
 	let reactionSubtitleOptions = subtitles.getAlignmentCandidates(),
@@ -276,11 +282,12 @@
 	}
 
 	function align(alignment) {
-        const video = document.querySelector('video'),
-			subOffset = typeof alignment === 'number'
-				? alignment
-				//assume decent reaction time, subtract by a bit so they don't have to perfectly time it
-				: video.currentTime * 1000 - reactionSubtitle.start - 400;
+		const video = document.querySelector('video'),
+			subOffset =
+				typeof alignment === 'number'
+					? alignment
+					: //assume decent reaction time, subtract by a bit so they don't have to perfectly time it
+					  video.currentTime * 1000 - reactionSubtitle.start - 400;
 
 		alignmentStore.set(subOffset);
 		saveAlignmentToHistory(subOffset);

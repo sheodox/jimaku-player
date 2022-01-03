@@ -9,8 +9,7 @@ const [_, oldVersion] = lastPackagedScript.match(/@version\s*\d+\.\d+\.(\d+)/);
 //if packaging a release version, increment the version
 if (process.argv.includes('release')) {
 	versionBase += parseInt(oldVersion) + 1;
-}
-else {
+} else {
 	versionBase += oldVersion;
 }
 

@@ -11,8 +11,11 @@
     "build-server:dev": "tsc --watch",
     "build-server:prod": "tsc",
     "server:dev": "nodemon server/server.js",
-    "test": "jest",
-    "test:dev": "jest --watch"
+    "style:write": "prettier --write .",
+    "style:check": "prettier --check . --loglevel warn",
+    "test": "npm run style:check && jest",
+    "test:dev": "jest --watch",
+    "prepare": "husky install"
   },
   "author": "sheodox",
   "license": "ISC",
@@ -42,7 +45,10 @@
     "@types/express": "^4.17.8",
     "@types/node": "^14.14.6",
     "@types/sharp": "^0.26.0",
+    "husky": "^7.0.0",
     "jest": "^26.6.3",
-    "nodemon": "^2.0.6"
+    "nodemon": "^2.0.6",
+    "prettier": "2.5.1",
+    "prettier-plugin-svelte": "^2.5.1"
   }
 }
