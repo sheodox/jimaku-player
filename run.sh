@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-if [ ! -f ".env" ]; then
-  echo "ERROR: You need to create a .env file!"
-  cp .env.sample .env
-  echo "A base .env file has been created for you. Fill out anything in brackets and rerun this command."
-  exit 1
-fi
+#if [ ! -f ".env" ]; then
+  #echo "ERROR: You need to create a .env file!"
+  #cp .env.sample .env
+  #echo "A base .env file has been created for you. Fill out anything in brackets and rerun this command."
+  #exit 1
+#fi
 
 deploy_target=$1
 
