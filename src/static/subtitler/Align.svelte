@@ -3,7 +3,7 @@
 		display: flex;
 		flex-direction: column;
 		text-align: center;
-		max-width: 30rem;
+		max-width: 20rem;
 	}
 	button {
 		max-width: 20rem;

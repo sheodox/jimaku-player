@@ -36,6 +36,8 @@ Currently supported subtitle formats:
 If you would like support for other subtitle formats, please create an issue and I'll look into
 it. I would love to support more subtitle formats and features!
 
+![image showing subtitles in use](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/subtitles.png)
+
 ## Usage
 
 ### Step 1 - Select a subtitle file
@@ -77,7 +79,7 @@ After selecting a subtitle file you're asked to align it. Generally you can assu
 but if subtitles are mistimed that can be fixed.
 
 To align your subtitles, from the "Alignment" menu (which shows automatically after selecting a subtitle file) you can
-choose `Chose a different alignment...`, it will show you a few lines of dialog. Pay attention to what's said and as
+choose `Choose a different alignment...`, it will show you a few lines of dialog. Pay attention to what's said and as
 soon as you hear the start of one of those subtitles press the corresponding button and Jimaku Player will figure out
 the correct subtitle timing based on that.
 
