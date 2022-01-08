@@ -121,14 +121,16 @@
 	}
 
 	function mergeSubsWithRecent(subs: Subtitle[]) {
-		let newestSub = subs[subs.length - 1];
+		const interestingSubs = subs.filter((sub) => !!sub.text),
+			newSubs = [];
 
-		if (newestSub && !recentSubs.some((sub) => sub._id === newestSub._id)) {
-			recentSubs = [...recentSubs, newestSub];
+		for (const sub of interestingSubs) {
+			if (recentSubs.every((s) => s._id !== sub._id)) {
+				newSubs.push(sub);
+			}
 		}
-		if (recentSubs.length > 10) {
-			recentSubs = recentSubs.slice(recentSubs.length - 10);
-		}
+
+		recentSubs = [...newSubs, ...recentSubs].slice(0, 10);
 	}
 
 	function subtitlesLoaded(e: CustomEvent<{ subtitles: SubtitleParser; skipAlignment: boolean }>) {

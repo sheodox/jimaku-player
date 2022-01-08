@@ -21,7 +21,7 @@
 		list-style: none;
 		padding: 0;
 		display: flex;
-		flex-direction: column-reverse;
+		flex-direction: column;
 	}
 	.muted {
 		font-style: italic;
@@ -30,20 +30,15 @@
 
 <ul id="recent-subs">
 	{#each recentSubs as sub (sub._id)}
-		<li
-			in:fly={{ y: -50, duration: 200 }}
-			out:fly={{ y: 50, duration: 200 }}
-			animate:flip={{ duration: 200 }}
-			class="mb-3"
-		>
+		<li in:fly={{ y: -50, duration: 100 }} out:fly={{ y: 50, duration: 100 }} class="mb-3">
 			<button class="small-button secondary" on:click={() => rewindToSubtitle(sub)} title="Rewind to this subtitle"
 				>⯇<span class="sr">Rewind to this subtitle</span></button
 			>
 			{#if $subtitleClickAction === 'nothing'}
-				{(sub.text || '').trim()}
+				{sub.text.trim()}
 			{:else}
 				<button class="a" on:click={() => performSubtitleClickAction(sub.text)}>
-					{(sub.text || '').trim()}
+					{sub.text.trim()}
 				</button>
 			{/if}
 		</li>
@@ -54,7 +49,6 @@
 
 <script lang="ts">
 	import { fly } from 'svelte/transition';
-	import { flip } from 'svelte/animate';
 	import { alignmentStore } from '../stores/alignment';
 	import { performSubtitleClickAction } from '../renderers/render-common';
 	import { subtitleClickAction } from '../stores/settings';

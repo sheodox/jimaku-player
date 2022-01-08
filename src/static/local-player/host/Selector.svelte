@@ -5,6 +5,10 @@
 		flex-wrap: wrap;
 		justify-content: center;
 	}
+	.history a {
+		cursor: pointer;
+		font-weight: bold;
+	}
 	.history li:last-child a {
 		color: white;
 		cursor: default;
@@ -23,7 +27,7 @@
 
 <div id="video-list">
 	<nav class="history">
-		<ol class="f-row justify-content-center">
+		<ol class="f-row justify-content-center has-inline-links">
 			{#each $videoInfo.history as path, index}
 				<li>
 					<a href={path.src} on:click|preventDefault={() => selectPath(path)}>{path.name}</a>

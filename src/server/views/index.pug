@@ -5,6 +5,9 @@ html(lang="en")
 		meta(name="viewport", content="width=device-width, initial-scale=1")
 		link(rel="stylesheet", href="/fontawesome/css/all.min.css")
 		link(rel="icon", href="/assets/logo.png")
+		if !development
+			each fileName in cssImports
+				link(rel="stylesheet", href=`/${fileName}`)
 	body.f-column.justify-content-center
 		div#app-root.f-column
 		if development

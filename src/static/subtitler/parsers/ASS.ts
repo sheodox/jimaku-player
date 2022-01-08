@@ -1203,7 +1203,9 @@ export class ASS extends SubtitleFormat<ASSSubtitle> {
 					const drawing = this.draw(phrase.text, overrides, inheritedStyle);
 					phrase.html += drawing.html;
 					phrase.drawCommands = drawing.commands;
+					// don't let the Recent Subtitles tab think this is a sub that we want to show!
 					phrase.text = '';
+					sub.text = '';
 					//SVGs don't have anything you can define, and searching jisho for a path is just going to be nonsense
 					containerInline.push('pointer-events: none');
 

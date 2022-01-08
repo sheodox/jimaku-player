@@ -1,2 +1,5 @@
 videos
 node_modules
+build
+dist
+

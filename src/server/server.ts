@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { router as broadcastRouter } from './routes/broadcast.js';
+import { getManifest } from './utils.js';
 
 const app = express(),
 	port = 3500;
@@ -18,14 +19,20 @@ app.set('view engine', 'pug');
 app.get('/', (req, res) => {
 	res.redirect('/v/');
 });
-app.get('/v/*', (req, res) => {
+app.get('/v/*', async (req, res) => {
+	const { cssImports, scriptEntryFile } = await getManifest('src/static/local-player/host/host.ts');
 	res.render('index', {
 		development: process.env.NODE_ENV === 'development',
+		cssImports,
+		scriptEntryFile,
 	});
 });
-app.get('/video', (req, res) => {
+app.get('/video', async (req, res) => {
+	const { cssImports, scriptEntryFile } = await getManifest('src/static/local-player/player/player.ts');
 	res.render('video', {
 		development: process.env.NODE_ENV === 'development',
+		cssImports,
+		scriptEntryFile,
 	});
 });
 

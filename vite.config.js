@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,16 +12,11 @@ export default defineConfig({
 			port: '3000',
 		},
 	},
+	base: path.join(process.cwd(), './build/static/'),
 	build: {
 		manifest: true,
 		outDir: './build/static',
-		cssCodeSplit: false,
 		rollupOptions: {
-			output: {
-				//format: 'iife',
-				manualChunks: () => 'everything.js',
-				inlineDynamicImports: true,
-			},
 			input: {
 				subtitler: './src/static/subtitler/main.ts',
 				host: './src/static/local-player/host/host.ts',
