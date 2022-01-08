@@ -1,5 +1,5 @@
 <div align="center">
-	<img src="static/logo.svg?sanitize=true" width="160" height="160" alt="logo">
+	<img src="src/static/assets/logo.svg?sanitize=true" width="160" height="160" alt="logo">
 	<h1>字幕プレーヤー</h1>
 </div>
 
