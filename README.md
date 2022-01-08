@@ -57,16 +57,12 @@ on alignment.](#alignment)
 
 ![image showing subtitles in use](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/subtitles.png)
 
-### Settings and recent subs
+### Settings and recent subtitles
 
 Hover over the right side of the screen to open a tray that shows the last few subtitles. You can
-click them to open a Jisho search if you missed something.
+click them to open a Jisho search if you missed something. You'll also find settings in here.
 
 ![image showing the tray open](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/tray.png)
-
-There are a several settings you can adjust, and I'm always adding more!
-
-![image showing settings in the tray](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/tray-settings.png)
 
 ### Click subtitles to search for words you don't know!
 
