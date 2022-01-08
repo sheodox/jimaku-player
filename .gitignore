@@ -9,3 +9,4 @@ videos
 data
 .env
 server/**/*.js
+build

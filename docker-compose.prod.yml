@@ -4,5 +4,3 @@ services:
     build:
       target: prod
     restart: always
-  postgres:
-    restart: always

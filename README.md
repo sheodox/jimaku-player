@@ -74,32 +74,26 @@ There are a several settings you can adjust, and I'm always adding more!
 
 ## Alignment
 
-Some subtitles might have a different start time than VRV does, like if VRV plays a studio's
-intro before the episode but the subtitle timings assumes the episode starts immediately. In
-instances like that the subtitles would show at the wrong times from when the lines are actually said by
-possibly a considerable amount, and wouldn't be useful at all and is extremely distracting.
-Because of this the first step after selecting a subtitle file for the episode is to align the
-subtitles by figuring out by how much time the subtitles are offset from when they're actually
-said.
+Sometimes subtitles might be timed differently than the actual anime you're watching, causing subtitles to
+show up at the wrong time. "Alignment" is the term Jimaku Player uses for compensating for these issues.
 
-Most of the time the subtitler can figure out the offset automatically with one button click. It
-will show you the first several subtitles that show up in the script. You can click a subtitle the instant you
-hear that line and the subtitler will calculate the timing discrepancy and the timing of all
-subtitles will be adjusted accordingly.
+After selecting a subtitle file you're asked to align it. Generally you can assume the default timing is correct
+but if subtitles are mistimed that can be fixed.
 
-If the subtitles get misaligned later in the video you can go back to the alignment wizard by
-clicking _Realign Subtitles_ in the _Setup_ tab of the tray, then search for a word or subtitle
-you hear. It will show the next few lines after each matching search result (it's already too
-late to align to the subtitle you just heard, it'd be a second or two too late), and you can just
-click one of those subtitles the moment you hear one of those.
+To align your subtitles, from the "Alignment" menu (which shows automatically after selecting a subtitle file) you can
+choose `Chose a different alignment...`, it will show you a few lines of dialog. Pay attention to what's said and as
+soon as you hear the start of one of those subtitles press the corresponding button and Jimaku Player will figure out
+the correct subtitle timing based on that.
+
+> Hint: If the subtitles you're hearing aren't an option you can search for part of a line of dialog you can hear, then click one of the subsequent lines. You can adjust your alignment at any time from the "Setup" tab in the tray.
 
 ![image showing searching for a subtitle line while aligning](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/align-auto-searched.png)
 
 ### Fine Alignment Adjustment
 
-If the alignment is a little off, you can use the fine alignment dialog, found in the Settings
-tab of the tray, which will let you tweak the timing while watching the video until they're
-perfect without having to retry automatic timing or guess at a different manual timing.
+If the alignment is just a little wrong, you can use the fine alignment dialog, found in the Settings
+tab of the tray. This lets you make tiny adjustments to the alignment to while watching the video
+get it perfect.
 
 ![image showing the fine adjustment dialog](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/fine-adjustment.png)
 

@@ -1,0 +1,14 @@
+button,
+.button {
+	&:not(.primary) {
+		background: var(--shdx-gray-400);
+		&:hover {
+			background: var(--shdx-gray-300);
+		}
+	}
+}
+
+.small-button {
+	font-size: 0.8rem;
+	padding: 0.2rem;
+}

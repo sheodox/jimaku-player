@@ -1,3 +1,5 @@
 videos
+data
 dist
+build
 package*.json

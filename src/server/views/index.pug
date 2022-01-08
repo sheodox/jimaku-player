@@ -1,0 +1,14 @@
+doctype html
+html(lang="en")
+	head
+		title 字幕プレーヤー
+		meta(name="viewport", content="width=device-width, initial-scale=1")
+		link(rel="stylesheet", href="/fontawesome/css/all.min.css")
+		link(rel="icon", href="/assets/logo.png")
+	body.f-column.justify-content-center
+		div#app-root.f-column
+		if development
+			script(type="module", src="http://localhost:3000/@vite/client")
+			script(type="module", src="http://localhost:3000/src/static/local-player/host/host.ts")
+		else
+			script(src=`/${scriptEntryFile}`, type="module")

@@ -1,15 +1,16 @@
 {
 	"compilerOptions": {
-		"module": "CommonJS",
-		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
+		"moduleResolution": "node",
+		"module": "es2020",
 		"esModuleInterop": true,
-		"target": "ES6",
+		"target": "es2020",
 		"noImplicitAny": true,
 		"removeComments": false,
 		"preserveConstEnums": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"isolatedModules": true,
+		"outDir": "build"
 	},
-	"include": ["server/**/*"],
-	"exclude": ["node_modules", "**/*.spec.ts"]
+	"include": ["src/**/*"],
+	"exclude": ["node_modules", "**/*.test.ts"]
 }

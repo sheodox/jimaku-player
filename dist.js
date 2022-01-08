@@ -1,9 +1,9 @@
-const fs = require('fs'),
-	packagedScriptPath = `./dist/jimaku-player.user.js`,
+import fs from 'fs';
+const packagedScriptPath = `./dist/jimaku-player.user.js`,
 	lastPackagedScript = fs.readFileSync(packagedScriptPath).toString(),
-	script = fs.readFileSync(`./static/subtitler.js`).toString();
+	script = fs.readFileSync(`./build/subtitler/subtitler.js`).toString();
 
-let versionBase = '0.5.';
+let versionBase = '0.6.';
 const [_, oldVersion] = lastPackagedScript.match(/@version\s*\d+\.\d+\.(\d+)/);
 
 //if packaging a release version, increment the version
