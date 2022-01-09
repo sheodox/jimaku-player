@@ -24,3 +24,12 @@
 		border-color: var(--shdx-gray-200);
 	}
 }
+
+// show modals over subtitles and everything else
+.portal-mount {
+	.overlay,
+	.modal {
+		// subtitle z index + 1
+		z-index: 1000000000;
+	}
+}

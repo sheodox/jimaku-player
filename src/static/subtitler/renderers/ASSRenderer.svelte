@@ -1,10 +1,22 @@
 <style>
-	.an {
-		position: fixed;
+	.subtitles {
+		--player-width: calc(100vh * var(--aspect-ratio));
+		height: 100vh;
+		width: var(--player-width);
+		margin: 0 auto;
+		position: relative;
+		pointer-events: none;
+	}
+	.layer {
 		width: 100%;
-		max-width: 100vw;
+		height: 100%;
+	}
+	.an {
+		position: absolute;
 		display: flex;
+		width: 100%;
 		flex-direction: column;
+		max-width: calc(100vh * var(--aspect-ratio));
 		/* eventually need to pay attention to the margin on subtitles for accuracy's sake,
 		 but this should keep it from being too close to the edge of the screen until then*/
 		padding: 0.8rem;
@@ -23,12 +35,12 @@
 	}
 	.an2 {
 		top: 100vh;
-		left: 50vw;
+		left: calc(var(--player-width) / 2);
 		transform: translate(-50%, -100%);
 	}
 	.an3 {
 		top: 100vh;
-		left: 100vw;
+		left: var(--player-width);
 		transform: translate(-100%, -100%);
 	}
 	.an4 {
@@ -38,12 +50,12 @@
 	}
 	.an5 {
 		top: 50vh;
-		left: 50vw;
+		left: calc(var(--player-width) / 2);
 		transform: translate(-50%, -50%);
 	}
 	.an6 {
 		top: 50vh;
-		left: 100vw;
+		left: var(--player-width);
 		transform: translate(-100%, -50%);
 	}
 	.an7 {
@@ -53,12 +65,13 @@
 	}
 	.an8 {
 		top: 0;
-		left: 50vw;
+		left: calc(var(--player-width) / 2);
 		transform: translate(-50%, 0);
 	}
 	.an9 {
 		top: 0;
 		left: 100vw;
+		left: var(--player-width);
 		transform: translate(-100%, 0);
 	}
 
@@ -88,11 +101,14 @@
 	.non-actionable {
 		pointer-events: none;
 	}
+	.actionable .an {
+		pointer-events: auto;
+	}
 </style>
 
-<div class="subtitles" class:non-actionable={!$subtitleActionable}>
+<div class={`subtitles ${$subtitleActionable ? 'actionable' : 'non-actionable'}`} style={`--aspect-ratio: ${aspect}`}>
 	{#each $layers as arrangement (arrangement.layer)}
-		<div data-ass-layer={arrangement.layer} style="position: absolute; z-index: {arrangement.layer}">
+		<div data-ass-layer={arrangement.layer} class="layer" style="position: absolute; z-index: {arrangement.layer}">
 			{#each arrangement.mounts.positioned as sub (sub._id)}
 				<ASSSubtitleRenderer {sub} {styles} on:define-pauser />
 			{/each}
@@ -113,11 +129,21 @@
 	import { derived, Readable } from 'svelte/store';
 	import ASSSubtitleRenderer from './ASSSubtitleRenderer.svelte';
 	import { invertVerticalAlignment } from '../stores/settings';
-	import { subtitleActionable } from './render-common';
-	import type { ASSSubtitle } from '../parsers/ASS';
+	import { subtitleActionable, aspectRatioSetting, aspectRatioStringToNumber } from './render-common';
+	import type { ASS, ASSSubtitle } from '../parsers/ASS';
 
+	export let subtitleParser: ASS;
 	export let subtitles: Readable<ASSSubtitle[]>; //store for which subtitles should be shown each frame
 	export let styles = {}; // base styles from the subtitle file
+
+	$: aspect = getAspectRatio(subtitleParser, $aspectRatioSetting);
+
+	function getAspectRatio(parser: ASS, setting: string) {
+		if (setting === 'auto') {
+			return parser.getAspectRatio();
+		}
+		return aspectRatioStringToNumber(setting);
+	}
 
 	const alignments = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 	//the 'invert subtitle vertical alignment' checkbox in the tray controls

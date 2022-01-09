@@ -13,6 +13,9 @@
 	.radio-label {
 		display: block;
 	}
+	.modal-body {
+		max-width: 30rem;
+	}
 </style>
 
 <h2>Settings</h2>
@@ -64,6 +67,28 @@
 		/>
 	</label>
 </div>
+<div class="row">
+	<fieldset class="my-2 mx-0">
+		<legend> Video Aspect Ratio </legend>
+
+		<div class="f-row justify-space-between align-items-center">
+			<div class="f-1">
+				{#each aspectRatioOptions as action}
+					<label class="radio-label">
+						<input
+							type="radio"
+							bind:group={$aspectRatio}
+							value={action.value}
+							disabled={$showBasedSettings.overrideGlobalAspectRatio}
+						/>
+						{action.name}
+					</label>
+				{/each}
+			</div>
+			<button on:click={() => (showAspectHelp = true)}>About Aspect Ratios</button>
+		</div>
+	</fieldset>
+</div>
 {#if $usesShowBasedSettings}
 	<h3>Settings for {$showNameStore}</h3>
 	<div class="row">
@@ -88,9 +113,46 @@
 			</label>
 		</div>
 	{/if}
+	<div class="row">
+		<label>
+			<input type="checkbox" bind:checked={$showBasedSettings.overrideGlobalAspectRatio} />
+			Use a different aspect ratio for this show
+		</label>
+	</div>
+	{#if $showBasedSettings.overrideGlobalAspectRatio}
+		<div class="row">
+			<fieldset class="my-2 mx-0">
+				<legend> Video Aspect Ratio </legend>
+				{#each aspectRatioOptions as action}
+					<label class="radio-label">
+						<input type="radio" bind:group={$showBasedSettings.aspectRatio} value={action.value} />
+						{action.name}
+					</label>
+				{/each}
+			</fieldset>
+		</div>
+	{/if}
+{/if}
+
+{#if showAspectHelp}
+	<Modal bind:visible={showAspectHelp} title="Aspect Ratio Help">
+		<div class="modal-body">
+			<p>
+				Aspect Ratio is the ratio of a video's width to height. The <strong>"16:9"</strong> aspect ratio is typically
+				called "widescreen" and it's the most common one you'll see. Older stuff was <strong>"4:3"</strong> and typically
+				called "fullscreen" and is more square.
+			</p>
+			<p>
+				Jimaku Player has support for both sizes so your subtitles don't extend beyond the sides of the video. If you're
+				using subtitles in the <em>ASS format</em> the <strong>Auto</strong> aspect ratio can figure out the right aspect
+				ratio from the subtitles or use 16:9 otherwise. You can choose to force it to use either 16:9 or 4:3 if you prefer.
+			</p>
+		</div>
+	</Modal>
 {/if}
 
 <script lang="ts">
+	import { Modal } from 'sheodox-ui';
 	import { showNameStore } from '../stores/alignment';
 	import {
 		subtitleFallbackColor,
@@ -100,12 +162,20 @@
 		globalFontScale,
 		subtitleClickAction,
 		autoCopySubtitles,
+		aspectRatio,
 	} from '../stores/settings';
 	import { usesShowBasedSettings, showBasedSettings } from '../stores/by-show-settings';
 
+	let showAspectHelp = false;
+
 	const subtitleActionOptions = [
-		{ value: 'jisho', name: 'Search on Jisho' },
-		{ value: 'copy', name: 'Copy to clipboard' },
-		{ value: 'nothing', name: 'Do nothing' },
-	];
+			{ value: 'jisho', name: 'Search on Jisho' },
+			{ value: 'copy', name: 'Copy to clipboard' },
+			{ value: 'nothing', name: 'Do nothing' },
+		],
+		aspectRatioOptions = [
+			{ value: 'auto', name: 'Auto' },
+			{ value: '16:9', name: '16:9' },
+			{ value: '4:3', name: '4:3' },
+		];
 </script>

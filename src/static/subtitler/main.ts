@@ -14,6 +14,7 @@ if (location.host.includes('crunchyroll')) {
 mount.id = 'sheodox-jimaku-player';
 mount.style.position = 'fixed';
 mount.style.width = '100%';
+mount.style.pointerEvents = 'none';
 // crunchyroll's player might have some overlays that catch all clicks,
 // make any of jimaku player's buttons unclickable
 mount.style.zIndex = '999999999';

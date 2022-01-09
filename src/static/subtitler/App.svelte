@@ -1,9 +1,12 @@
 <style>
 	.subtitles-app {
 		position: relative;
+		/* don't let the subtitler itself steal clicks from pausing the video */
+		pointer-events: none;
 	}
 	.subtitles-app > :global(*) {
 		z-index: 1000000000;
+		pointer-events: auto;
 	}
 </style>
 
@@ -17,7 +20,11 @@
 			{#if parsedSubtitles.format === 'subrip'}
 				<SubRipRenderer subtitles={asSubRip(subtitleStore)} />
 			{:else if parsedSubtitles.format === 'ass'}
-				<ASSRenderer styles={parsedSubtitles.styles} subtitles={asASS(subtitleStore)} />
+				<ASSRenderer
+					styles={parsedSubtitles.styles}
+					subtitleParser={parsedSubtitles}
+					subtitles={asASS(subtitleStore)}
+				/>
 			{/if}
 		{/if}
 		<Tray

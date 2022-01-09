@@ -650,6 +650,10 @@ export class ASS extends SubtitleFormat<ASSSubtitle> {
 		}
 	}
 
+	getAspectRatio() {
+		return +this.info.playResX / +this.info.playResY;
+	}
+
 	// serialize dumps either all subs or only subs at the specified time.
 	// This is used for debugging to confirm what subtitles were parsed.
 	serialize(atTime: number) {
@@ -684,6 +688,14 @@ export class ASS extends SubtitleFormat<ASSSubtitle> {
 			{
 				title: 'Number of subtitles',
 				detail: this.subs.length,
+			},
+			{
+				title: 'Resolution',
+				detail: `${this.info.playResX}x${this.info.playResY}`,
+			},
+			{
+				title: 'Aspect Ratio',
+				detail: this.getAspectRatio(),
 			},
 		];
 	}

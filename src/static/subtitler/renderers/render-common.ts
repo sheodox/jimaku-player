@@ -1,5 +1,5 @@
 import { derived, get } from 'svelte/store';
-import { globalFontScale, subtitleClickAction } from '../stores/settings';
+import { aspectRatio, globalFontScale, subtitleClickAction } from '../stores/settings';
 import { showBasedSettings, usesShowBasedSettings } from '../stores/by-show-settings';
 import { videoController } from '../video-controller';
 
@@ -48,4 +48,22 @@ function copyText(subtitleText: string) {
 	copyInput.select();
 	document.execCommand('copy');
 	copyInput.remove();
+}
+
+export const aspectRatioSetting = derived(
+	[aspectRatio, usesShowBasedSettings, showBasedSettings],
+	([aspectRatio, usesShowBasedSettings, showBasedSettings]) => {
+		return usesShowBasedSettings && showBasedSettings.overrideGlobalAspectRatio
+			? showBasedSettings.aspectRatio
+			: aspectRatio;
+	}
+);
+
+export function aspectRatioStringToNumber(aspect: string) {
+	if (aspect === '4:3') {
+		return 4 / 3;
+	}
+	// 'auto' on SRT just defaults to 16:9.
+	// the ASS renderer handles auto itself
+	return 16 / 9;
 }

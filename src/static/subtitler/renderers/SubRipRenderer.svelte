@@ -1,4 +1,12 @@
 <style>
+	.subtitles {
+		--player-width: calc(100vh * var(--aspect-ratio));
+		height: 100vh;
+		width: var(--player-width);
+		margin: 0 auto;
+		position: relative;
+		pointer-events: none !important;
+	}
 	p {
 		position: fixed;
 		color: white;
@@ -6,7 +14,7 @@
 		padding: 0;
 		white-space: pre-line;
 		text-align: center;
-		max-width: 100vw;
+		max-width: var(--player-width);
 		font-family: 'Source Han Sans', '源ノ角ゴシック', 'Hiragino Sans', 'HiraKakuProN-W3', 'Hiragino Kaku Gothic ProN W3',
 			'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', 'Noto Sans JP', 'Noto Sans CJK JP', 'Noto Sans', 'メイリオ',
 			Meiryo, '游ゴシック', YuGothic, 'ＭＳ Ｐゴシック', 'MS PGothic', 'ＭＳ ゴシック', 'MS Gothic', sans-serif;
@@ -45,12 +53,12 @@
 		cursor: pointer;
 		color: #0aff8c !important;
 	}
-	.non-actionable {
-		pointer-events: none;
+	.subtitles.actionable p {
+		pointer-events: auto;
 	}
 </style>
 
-<div class="subtitles" class:non-actionable={!$subtitleActionable}>
+<div class={`subtitles ${$subtitleActionable ? 'actionable' : 'non-actionable'}`} style={`--aspect-ratio: ${aspect}`}>
 	{#if $showSubtitlesOnVideo}
 		{#each $subtitles as sub (sub._id)}
 			<p
@@ -67,7 +75,13 @@
 </div>
 
 <script lang="ts">
-	import { joinStyles, fontScale, subtitleActionable } from './render-common';
+	import {
+		joinStyles,
+		fontScale,
+		subtitleActionable,
+		aspectRatioStringToNumber,
+		aspectRatioSetting,
+	} from './render-common';
 	import { showSubtitlesOnVideo, subtitleFallbackColor, invertVerticalAlignment } from '../stores/settings';
 	import { performSubtitleClickAction } from './render-common';
 	import { userActive } from '../stores/activity';
@@ -75,6 +89,10 @@
 	import type { SubRipSubtitle } from '../parsers/SubRip';
 
 	export let subtitles: Readable<SubRipSubtitle[]>; //store for which subtitles should be shown each frame
+
+	// unlike ASS, SRT and VTT don't specify the video's resolution or aspect in the script,
+	// so there's nothing to do for 'auto', just let it default to 16:9
+	$: aspect = aspectRatioStringToNumber($aspectRatioSetting);
 
 	function genBaseStyles(sub: SubRipSubtitle, userActive: boolean) {
 		let appliedStyles = [`color: ${$subtitleFallbackColor}`, `font-size: ${5 * $fontScale}vh`];

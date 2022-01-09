@@ -4,12 +4,16 @@ import { showNameStore } from './alignment';
 interface ShowBasedSettings {
 	overrideGlobalFontScale: boolean;
 	fontScale: number;
+	overrideGlobalAspectRatio: boolean;
+	aspectRatio: string;
 }
 
 function getDefaultSettings(): ShowBasedSettings {
 	return {
 		overrideGlobalFontScale: false,
 		fontScale: 1,
+		overrideGlobalAspectRatio: false,
+		aspectRatio: 'auto',
 	};
 }
 
