@@ -104,4 +104,8 @@ formatting that can be present in an subtitle file. Please don't hesitate to
 
 Please read the [contributing guide](https://github.com/sheodox/jimaku-player/blob/master/CONTRIBUTING.md) if you would like to help out!
 
-[Check out my other Japanese learning focused Userscripts!](https://github.com/sheodox/japanese-userscripts#vrv-srt-playeruserjs)
+# Other Stuff By Me
+
+I also made the site [Context.Reviews](https://context.reviews/), a site to help build Anki decks to study words and phrases you look up on Jisho.
+
+[Check out my other Japanese learning focused Userscripts!](https://github.com/sheodox/japanese-userscripts)
