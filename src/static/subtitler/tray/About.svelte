@@ -74,12 +74,15 @@
 			id: 'about',
 			title: 'About',
 		},
-		{
-			id: 'debug',
-			title: 'Debug',
-		},
 	];
 	let selectedTab: string;
+
+	if (subtitleParser) {
+		tabs.push({
+			id: 'debug',
+			title: 'Debug',
+		});
+	}
 
 	function downloadParsedSubtitles(atTime?: number) {
 		const a = document.createElement('a'),
