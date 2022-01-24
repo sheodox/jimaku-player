@@ -1,4 +1,10 @@
 <style>
+	#subtitles-prompt {
+		top: 50%;
+		left: 50%;
+		position: fixed;
+		transform: translate(-50%, -50%);
+	}
 	.column {
 		display: flex;
 		flex-direction: column;
@@ -30,7 +36,7 @@
 	}
 </style>
 
-<div class="column">
+<div class="column" id="subtitles-prompt">
 	<div class="f-row gap-1">
 		<label for="srt-upload">
 			<div class="f-row align-items-center">

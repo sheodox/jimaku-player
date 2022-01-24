@@ -1,4 +1,10 @@
 <style>
+	#alignment {
+		top: 50%;
+		left: 50%;
+		position: fixed;
+		transform: translate(-50%, -50%);
+	}
 	.column {
 		display: flex;
 		flex-direction: column;
@@ -81,7 +87,7 @@
 	}
 </style>
 
-<div class="column panel m-3 px-4">
+<div class="column panel m-3 px-4" id="alignment">
 	<div class="f-row align-items-center justify-content-between">
 		<h1>Alignment</h1>
 		<button class="small" on:click={goBackAPhase}>Back</button>
