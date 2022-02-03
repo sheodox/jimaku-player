@@ -1,17 +1,17 @@
 <style>
 	.tray {
 		width: 28rem;
-		margin-top: 0.5rem;
 		background: rgba(255, 255, 255, 0.2);
 		position: fixed;
 		right: 0;
-		top: 0;
+		top: 50%;
 		color: white;
-		height: calc(100% - 10rem);
+		height: calc(100% - 15rem);
 		display: flex;
 		flex-direction: column;
 		text-align: center;
 		border-radius: 5px 0 0 5px;
+		transform: translateY(-50%);
 	}
 
 	.tray.inactive {
