@@ -15,8 +15,8 @@
 	</div>
 	<Tab tabId="about" {selectedTab}>
 		<p>
-			Jimaku Player is made by <ExternalLink href="https://github.com/sheodox">sheodox</ExternalLink>, a Software
-			Engineer from Minnesota.
+			Jimaku Player is made by <ExternalLink href="https://sheodox.com/">sheodox</ExternalLink>, a Software Engineer
+			from Minnesota.
 		</p>
 		<div class="mt-4">
 			<ExternalLink href="https://github.com/sheodox/jimaku-player">Project homepage (Github)</ExternalLink>
@@ -28,8 +28,8 @@
 			<ExternalLink href="https://www.buymeacoffee.com/sheodox">Buy Me a Coffee</ExternalLink>
 		</div>
 		<p>
-			I also made <ExternalLink href="https://context.reviews">Context.Reviews</ExternalLink> which helps make Anki cards
-			from phrases you've looked up on Jisho!
+			Check out <ExternalLink href="https://sheodox.com/">my website</ExternalLink>! I have several other helpful
+			projects for productivity and learning Japanese that you might like!
 		</p>
 	</Tab>
 	<Tab tabId="debug" {selectedTab}>

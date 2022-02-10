@@ -94,6 +94,9 @@
 			<div class="row">
 				<ExternalLink href="https://github.com/sheodox/jimaku-player/issues">Issue? Report it here!</ExternalLink>
 			</div>
+			<div class="row">
+				<ExternalLink href="https://sheodox.com/">My other projects</ExternalLink>
+			</div>
 		</div>
 	{:else if mode === 'normal'}
 		<div class="tab-content px-4">
