@@ -1,8 +1,7 @@
 <style>
 	kbd {
 		color: white;
-		background: #2f2d2d;
-		border: 1px solid #444;
+		background: var(--shdx-gray-400);
 		border-radius: 0.2rem;
 		padding: 0 0.2rem;
 		font-family: monospace;
@@ -177,13 +176,13 @@
 	const subtitleActionOptions = [
 			{ value: 'jisho', name: 'Search on Jisho' },
 			{ value: 'copy', name: 'Copy to clipboard' },
-			{ value: 'nothing', name: 'Do nothing' },
 			{
 				value: 'context.reviews',
 				name: 'Save to Context.Reviews',
 				href: 'https://context.reviews',
 				linkText: 'About',
 			},
+			{ value: 'nothing', name: 'Do nothing' },
 		],
 		aspectRatioOptions = [
 			{ value: 'auto', name: 'Auto' },
