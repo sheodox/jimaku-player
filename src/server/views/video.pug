@@ -36,6 +36,11 @@ html(lang="en")
 					console.warn(`GM_setClipboard usage was attempted, this is not polyfilled by the local Jimaku Player!`);
 				}
 			};
+
+			window.GM_xmlhttpRequest = (details) => {
+				console.warn("Because of CORS settings, GM_xmlhttpRequest cannot be used through the local player and is not polyfilled. Request details:", details);
+				details.onload({status: 200});
+			};
 	body
 		div#player-root
 

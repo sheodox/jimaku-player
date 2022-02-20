@@ -2,6 +2,7 @@ import { derived, get } from 'svelte/store';
 import { aspectRatio, globalFontScale, subtitleClickAction } from '../stores/settings';
 import { showBasedSettings, usesShowBasedSettings } from '../stores/by-show-settings';
 import { videoController } from '../video-controller';
+import { createToast } from '../stores/toasts';
 
 export function joinStyles(stylesArray: string[]) {
 	return (
@@ -23,11 +24,15 @@ export const fontScale = derived(
 
 //if we need to do something in response to clicking the subtitles.
 export const subtitleActionable = derived(subtitleClickAction, (action) => {
-	return ['jisho', 'copy'].includes(action);
+	return ['jisho', 'copy', 'context.reviews'].includes(action);
 });
 
-export function performSubtitleClickAction(subtitleText: string) {
-	subtitleText = subtitleText.trim();
+export function performSubtitleClickAction(subtitles: string[]) {
+	if (subtitles.length === 0) {
+		return;
+	}
+
+	const subtitleText = subtitles.join('').trim();
 	const action = get(subtitleClickAction);
 
 	switch (action) {
@@ -37,6 +42,9 @@ export function performSubtitleClickAction(subtitleText: string) {
 			break;
 		case 'copy':
 			copyText(subtitleText);
+			break;
+		case 'context.reviews':
+			saveToContextReviews(subtitles);
 			break;
 	}
 }
@@ -48,6 +56,38 @@ function copyText(subtitleText: string) {
 	copyInput.select();
 	document.execCommand('copy');
 	copyInput.remove();
+}
+
+interface XHRResponse {
+	status: number;
+}
+
+function saveToContextReviews(subtitleText: string[]) {
+	GM_xmlhttpRequest({
+		url: 'https://context.reviews/phrases/add?jimakuplayer=1',
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		data: JSON.stringify({
+			phraseText: subtitleText,
+		}),
+		onload: (res: XHRResponse) => {
+			if (res.status === 200) {
+				createToast({
+					duration: 500,
+					variant: 'info',
+					message: 'Subtitle saved to Context.Reviews',
+				});
+			} else {
+				createToast({
+					duration: 1000,
+					variant: 'error',
+					message: 'Failed to save to Context.Reviews. Are you logged in?',
+				});
+			}
+		},
+	});
 }
 
 export const aspectRatioSetting = derived(

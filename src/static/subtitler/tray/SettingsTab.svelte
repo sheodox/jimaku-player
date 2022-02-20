@@ -25,7 +25,7 @@
 </div>
 <div class="row">
 	<input id="show-subs" type="checkbox" bind:checked={$showSubtitlesOnVideo} />
-	<label for="show-subs">Show subtitles(<kbd title="Hotkey: h">H</kbd>)</label>
+	<label for="show-subs">Show subtitles(<kbd>Hotkey: h</kbd>)</label>
 </div>
 <div class="row">
 	<input id="pause-on-tray" type="checkbox" bind:checked={$pauseWhenTrayOpen} />
@@ -38,18 +38,23 @@
 <div class="row">
 	<input id="invert-subtitle-alignment" type="checkbox" bind:checked={$invertVerticalAlignment} />
 	<label for="invert-subtitle-alignment">
-		Flip subtitle vertical position (<kbd title="Hotkey: i">I</kbd>)
+		Flip subtitle vertical position (<kbd>Hotkey: i</kbd>)
 	</label>
 </div>
 <div class="row">
 	<fieldset class="my-2 mx-0">
-		<legend> When a subtitle is clicked... </legend>
+		<legend> When a subtitle is clicked... (<kbd>Hotkey: a</kbd>)</legend>
 
 		{#each subtitleActionOptions as action}
-			<label class="radio-label">
-				<input type="radio" bind:group={$subtitleClickAction} value={action.value} />
-				{action.name}
-			</label>
+			<div class="f-row">
+				<label class="radio-label">
+					<input type="radio" bind:group={$subtitleClickAction} value={action.value} />
+					{action.name}
+				</label>
+				{#if action.href}
+					<ExternalLink href={action.href} classes="ml-1 shdx-font-size-2">({action.linkText})</ExternalLink>
+				{/if}
+			</div>
 		{/each}
 	</fieldset>
 </div>
@@ -165,6 +170,7 @@
 		aspectRatio,
 	} from '../stores/settings';
 	import { usesShowBasedSettings, showBasedSettings } from '../stores/by-show-settings';
+	import ExternalLink from '../../local-player/ExternalLink.svelte';
 
 	let showAspectHelp = false;
 
@@ -172,6 +178,12 @@
 			{ value: 'jisho', name: 'Search on Jisho' },
 			{ value: 'copy', name: 'Copy to clipboard' },
 			{ value: 'nothing', name: 'Do nothing' },
+			{
+				value: 'context.reviews',
+				name: 'Save to Context.Reviews',
+				href: 'https://context.reviews',
+				linkText: 'About',
+			},
 		],
 		aspectRatioOptions = [
 			{ value: 'auto', name: 'Auto' },

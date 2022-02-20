@@ -37,7 +37,7 @@
 			{#if $subtitleClickAction === 'nothing'}
 				{sub.text.trim()}
 			{:else}
-				<button class="a" on:click={() => performSubtitleClickAction(sub.text)}>
+				<button class="a" on:click={() => performSubtitleClickAction([sub.text])}>
 					{sub.text.trim()}
 				</button>
 			{/if}

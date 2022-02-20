@@ -65,7 +65,7 @@
 				style={genBaseStyles(sub, $userActive)}
 				data-sub-style={sub.style}
 				data-sub-id={sub._id}
-				on:click={() => performSubtitleClickAction(sub.text)}
+				on:click={() => performSubtitleClickAction([sub.text])}
 				title="click to search this phrase on Jisho.org"
 			>
 				{sub.text}

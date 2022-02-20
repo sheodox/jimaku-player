@@ -19,11 +19,14 @@ const userscript = `// ==UserScript==
 // @version      ${versionBase}
 // @description  Study Japanese by using Japanese subtitles on VRV!
 // @author       sheodox
+// @supportUrl   https://github.com/sheodox/jimaku-player/issues
 // @match        https://static.vrv.co/vilos/player.html*
 // @match        https://static.crunchyroll.com/vilos-v2/web/vilos/player.html*
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_setClipboard
+// @connect      context.reviews
+// @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
 ${script}

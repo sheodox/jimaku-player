@@ -37,9 +37,10 @@
 	{:else if phase === 'cancelled'}
 		<Tray mode="cancelled" on:restart={restart} />
 	{/if}
+	<Toasts />
 </div>
 
-<Hotkeys />
+<Hotkeys {subtitleStore} />
 
 <script lang="ts">
 	import { onMount } from 'svelte';
@@ -47,6 +48,7 @@
 	import SubRipRenderer from './renderers/SubRipRenderer.svelte';
 	import ASSRenderer from './renderers/ASSRenderer.svelte';
 	import SubtitlePrompt from './SubtitlePrompt.svelte';
+	import Toasts from './Toasts.svelte';
 	import Align from './Align.svelte';
 	import { showSubtitlesOnVideo, autoCopySubtitles } from './stores/settings';
 	import { showNameStore, alignmentStore } from './stores/alignment';
