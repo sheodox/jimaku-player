@@ -988,16 +988,18 @@ export class ASS extends SubtitleFormat<ASSSubtitle> {
 				style: rawSub.style,
 				end: this.timeToMs(rawSub.end),
 				phrases: [],
-				text: rawSub.text
-					//\n is a soft line break where the subtitle renderer can choose if it needs a line break here,
-					//essentially a <wbr> but it's easier to ignore that for now and treat it as a space
-					.replace(/\\n/g, ' ')
-					//these characters need to be double escaped
-					.replace(/\\N/g, '\n') //hard new line
-					//non "hard spaces" on the ends of the text are supposed to be ignored
-					.trim()
-					//subtitles are rendered with `white-space:pre` so just using a space character for a hard space should be enough
-					.replace(/\\h/g, ' '), //hard space
+				text: this.cleanSubtitleText(
+					rawSub.text
+						//\n is a soft line break where the subtitle renderer can choose if it needs a line break here,
+						//essentially a <wbr> but it's easier to ignore that for now and treat it as a space
+						.replace(/\\n/g, ' ')
+						//these characters need to be double escaped
+						.replace(/\\N/g, '\n') //hard new line
+						//non "hard spaces" on the ends of the text are supposed to be ignored
+						.trim()
+						//subtitles are rendered with `white-space:pre` so just using a space character for a hard space should be enough
+						.replace(/\\h/g, ' ') //hard space
+				),
 			};
 
 			const inheritedStyle = this.styles[rawSub.style];

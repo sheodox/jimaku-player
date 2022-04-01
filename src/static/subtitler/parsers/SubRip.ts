@@ -143,17 +143,22 @@ export class SubRip extends SubtitleFormat<SubRipSubtitle> {
 				shift();
 				//now that we've processed all the cues the remaining text is the subtitle text
 
-				const text = lines.join('\n').replace(/<\/?c.Japanese>/g, '');
+				//get rid of <c.Japanese>subtitle</c.Japanese> stuff from the subs (cue payload text tags),
+				//we currently don't use them, and showing that text is not what we want
+				//https://developer.mozilla.org/en-US/docs/Web/API/WebVTT_API#cue_payload_text_tags
+				const text = this.cleanSubtitleText(lines.join('\n').replace(/<\/?[cibuv].*?>/g, ''));
 
 				//rough estimate of the padding between each lines, on very small players like crunchyroll the
 				//space between lines takes up a considerable amount of space, and lines can go off the page
 				const paddingEstimateVh = 1,
 					paddingBufferZone = linesOfText * paddingEstimateVh,
-					//if the subtitles are going to go off the bottom of the screen (either a high 'line' or
-					//a low 'line' + inversion, we want to translate in the Y direction to make the subtitles
-					//flow upwards, otherwise they'll overflow off the bottom of the screen
-					normalTransform = `transform: ${positionTransform} ` + (top > 75 ? `translateY(-100%)` : ''),
-					invertedTransform = `transform: translateY(${top > 75 ? '0%' : '-100%'}) ${positionTransform}`,
+					// if using properly positioned VTT subtitles (with a 'line' cue that gets adjusted based on the
+					// number of lines in the subtitle) we should just honor the subtitle's positioning. For
+					// subrip we're using a default line of 100%, which isn't reasonable as is, so instead of doing
+					// math to figure out how hight it should be, we just put it against the edge of the screen and
+					// use transformY to make sure the text flows in a direction that's visible.
+					normalTransform = `transform: ${positionTransform} ` + (top === 100 ? `translateY(-100%)` : ''),
+					invertedTransform = `transform: translateY(${top === 100 ? '0%' : '-100%'}) ${positionTransform}`,
 					activeMaxTop = `calc(100vh - 100px)`,
 					inactiveMaxTop = `${100 - paddingBufferZone}vh`,
 					getClampedTop = (val: string | number, max: string | number) =>

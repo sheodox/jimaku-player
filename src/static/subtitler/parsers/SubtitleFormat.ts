@@ -9,6 +9,12 @@ const MS_MINUTE = 60 * 1000,
 
 const clone = <T>(sub: T): T => Object.assign({}, sub);
 
+// svelte doesn't decode html entities at runtime in expressions, so we need to map
+// any entities people have encountered to their equivalents
+const htmlEntityReplacements: [RegExp, string][] = [
+	[/&lrm;/g, ''], // left-right-mark, until told otherwise I don't think we need this
+];
+
 export interface SubtitleBase {
 	_id: string;
 	text: string;
@@ -34,6 +40,13 @@ export class SubtitleFormat<T extends SubtitleBase> {
 		this.fileName = fileName;
 		this.subs = [];
 		this.generatedIdBase = 0;
+	}
+
+	cleanSubtitleText(text: string) {
+		for (const [test, replacement] of htmlEntityReplacements) {
+			text = text.replace(test, replacement);
+		}
+		return text;
 	}
 
 	//IDs are generated for every subtitle line
