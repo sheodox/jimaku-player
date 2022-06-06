@@ -3,25 +3,28 @@ import { writable } from 'svelte/store';
 const TOAST_EXPIRATION_CHECK_INTERVAL = 50;
 
 export interface ToastData {
-	id: number;
+	id: number | string;
 	ttl: number; //time remaining until destroyed
 	duration: number; //time the toast should be shown
 	message: string;
 	variant: 'info' | 'error';
 }
 
+// id is optional, ttl is internal
+export type ToastEditable = Omit<ToastData, 'ttl' | 'id'> & Partial<Pick<ToastData, 'id'>>;
+
 export const toasts = writable<ToastData[]>([]);
 
-let toastId = 0;
+let toastId = 1;
 
-export function createToast(toast: Omit<ToastData, 'ttl' | 'id'>) {
+export function createToast(toast: ToastEditable) {
 	toasts.update((existingToasts) => {
 		return [
-			...existingToasts,
+			...existingToasts.filter((t) => t.id !== toast.id),
 			{
 				...toast,
 				ttl: toast.duration,
-				id: toastId++,
+				id: toast.id || toastId++,
 			},
 		];
 	});

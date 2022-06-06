@@ -1,4 +1,5 @@
 import { writable, derived } from 'svelte/store';
+import { createToast } from './toasts';
 
 const getAlignmentKey = () => `last-used-alignment-${show}`,
 	getHistoryKey = () => `alignment-history-${show}`,
@@ -7,10 +8,34 @@ const getAlignmentKey = () => `last-used-alignment-${show}`,
 	HISTORY_MAX = 5;
 let show = '';
 
+//ms that alignment is adjusted by with each click
+export const COARSE_ADJUST_AMOUNT_MS = 1000;
+export const FINE_ADJUST_AMOUNT_MS = 200;
+
 //the current alignment in use
 export const alignmentStore = writable<number>(null);
 //whether an alignment has ever been set for this show
 export const hasAlignmentStore = writable(false);
+
+//used for fine alignment without creating a new history entry
+export const adjustAlignmentInPlace = (by: number) => {
+	alignmentStore.update((a) => {
+		const newAlignment = a + by;
+
+		historyStore.update((history) => {
+			return [createHistoryEntry(newAlignment), ...history.slice(1)];
+		});
+
+		createToast({
+			id: 'fine-adjust-in-place',
+			message: `Alignment: ${explainOffset(newAlignment / 1000)}`,
+			duration: 1000,
+			variant: 'info',
+		});
+
+		return newAlignment;
+	});
+};
 
 //the last few alignments used for this show
 const historyStore = writable<{ alignment: number; signed: string }[]>([]);
@@ -80,11 +105,17 @@ export const secondsStore = derived(alignmentStore, ($alignment) => {
 export const signedSecondsStore = derived(alignmentStore, ($alignment) => {
 	return msToSigned($alignment);
 });
-//a store for displaying the alignment as an explanation that's more understandable
-//than just an offset number.
-export const explainedSecondsStore = derived(secondsStore, ($seconds) => {
-	if ($seconds === 0) {
+
+function explainOffset(seconds: number) {
+	if (seconds === 0) {
 		return `no adjustment`;
 	}
-	return $seconds > 0 ? `delayed by ${$seconds} seconds` : `hastened by ${Math.abs($seconds)} seconds`;
+	const plural = Math.abs(seconds) === 1 ? '' : 's';
+	return seconds > 0 ? `delayed by ${seconds} second${plural}` : `hastened by ${Math.abs(seconds)} second${plural}`;
+}
+
+//a store for displaying the alignment as an explanation that's more understandable
+//than just an offset number.
+export const explainedSecondsStore = derived(secondsStore, (seconds) => {
+	return explainOffset(seconds);
 });

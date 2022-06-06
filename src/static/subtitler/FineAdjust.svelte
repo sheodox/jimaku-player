@@ -15,10 +15,10 @@
 		<strong>Subtitles are being {$explainedSecondsStore}</strong>
 	</p>
 	<p>Do the subtitles show...</p>
-	<button on:click={changeAlignment(-1 * coarseAdjustAmount)} class="secondary">Way too late?</button>
-	<button on:click={changeAlignment(-1 * fineAdjustAmount)} class="secondary">Too late?</button>
-	<button on:click={changeAlignment(fineAdjustAmount)} class="secondary">Too early?</button>
-	<button on:click={changeAlignment(coarseAdjustAmount)} class="secondary">Way too early?</button>
+	<button on:click={changeAlignment(-1 * COARSE_ADJUST_AMOUNT_MS)} class="secondary">Way too late?</button>
+	<button on:click={changeAlignment(-1 * FINE_ADJUST_AMOUNT_MS)} class="secondary">Too late?</button>
+	<button on:click={changeAlignment(FINE_ADJUST_AMOUNT_MS)} class="secondary">Too early?</button>
+	<button on:click={changeAlignment(COARSE_ADJUST_AMOUNT_MS)} class="secondary">Way too early?</button>
 	<br />
 	<button on:click={done} class="primary mt-4">Done</button>
 </div>
@@ -26,16 +26,19 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { get } from 'svelte/store';
-	import { alignmentStore, explainedSecondsStore, saveAlignmentToHistory } from './stores/alignment';
+	import {
+		alignmentStore,
+		COARSE_ADJUST_AMOUNT_MS,
+		explainedSecondsStore,
+		FINE_ADJUST_AMOUNT_MS,
+		saveAlignmentToHistory,
+	} from './stores/alignment';
 
 	const changeAlignment = (change: number) => () => {
 		alignmentStore.update((n) => n + change);
 	};
 
-	const dispatch = createEventDispatcher(),
-		//ms that alignment is adjusted by with each click
-		coarseAdjustAmount = 1000,
-		fineAdjustAmount = 200;
+	const dispatch = createEventDispatcher();
 
 	function done() {
 		saveAlignmentToHistory(get(alignmentStore));

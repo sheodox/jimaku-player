@@ -93,6 +93,8 @@ If the alignment is just a little wrong, you can use the fine alignment dialog, 
 tab of the tray. This lets you make tiny adjustments to the alignment to while watching the video
 get it perfect.
 
+There are also hotkeys if you find yourself doing this often! `z` will delay subtitles by 0.2 seconds, and `x` will hasten them by 0.2 seconds. Hold `shift` while pressing `z` or `x` to delay or hasten subtitles by one second at a time.
+
 ![image showing the fine adjustment dialog](https://raw.githubusercontent.com/sheodox/jimaku-player/master/images/fine-adjustment.png)
 
 ## Issues
