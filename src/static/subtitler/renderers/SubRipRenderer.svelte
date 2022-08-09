@@ -1,4 +1,4 @@
-<style>
+<style lang="scss">
 	.subtitles {
 		--player-width: calc(100vh * var(--aspect-ratio));
 		height: 100vh;
@@ -8,7 +8,6 @@
 		pointer-events: none !important;
 	}
 	p {
-		position: fixed;
 		color: white;
 		margin: 0;
 		padding: 0;
@@ -56,13 +55,30 @@
 	.subtitles.actionable p {
 		pointer-events: auto;
 	}
+
+	.subs-without-styles-container {
+		position: absolute;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		transition: bottom 0.1s;
+
+		&.normal.active {
+			bottom: 100px;
+		}
+
+		&.inverted {
+			top: 0;
+			bottom: unset;
+		}
+	}
 </style>
 
 <div class={`subtitles ${$subtitleActionable ? 'actionable' : 'non-actionable'}`} style={`--aspect-ratio: ${aspect}`}>
 	{#if $showSubtitlesOnVideo}
-		{#each $subtitles as sub (sub._id)}
+		{#each subtitlesWithStyling as sub (sub._id)}
 			<p
-				style={genBaseStyles(sub, $userActive)}
+				style={genBaseStyles(sub, $userActive, true)}
 				data-sub-style={sub.style}
 				data-sub-id={sub._id}
 				on:click={() => performSubtitleClickAction([sub.text])}
@@ -71,6 +87,24 @@
 				{sub.text}
 			</p>
 		{/each}
+		{#if subtitlesWithoutStyling.length}
+			<div
+				class="subs-without-styles-container {$invertVerticalAlignment ? 'inverted' : 'normal'}"
+				class:active={$userActive}
+			>
+				{#each subtitlesWithoutStyling as sub (sub._id)}
+					<p
+						style={genBaseStyles(sub, $userActive, false)}
+						data-sub-style={sub.style}
+						data-sub-id={sub._id}
+						on:click={() => performSubtitleClickAction([sub.text])}
+						title="click to search this phrase on Jisho.org"
+					>
+						{sub.text}
+					</p>
+				{/each}
+			</div>
+		{/if}
 	{/if}
 </div>
 
@@ -93,9 +127,17 @@
 	// unlike ASS, SRT and VTT don't specify the video's resolution or aspect in the script,
 	// so there's nothing to do for 'auto', just let it default to 16:9
 	$: aspect = aspectRatioStringToNumber($aspectRatioSetting);
+	$: subtitlesWithStyling = $subtitles.filter((sub) => sub.hasStyling);
+	$: subtitlesWithoutStyling = $subtitles.filter((sub) => !sub.hasStyling);
 
-	function genBaseStyles(sub: SubRipSubtitle, userActive: boolean) {
+	function genBaseStyles(sub: SubRipSubtitle, userActive: boolean, hasSubtitleStyles: boolean) {
 		let appliedStyles = [`color: ${$subtitleFallbackColor}`, `font-size: ${5 * $fontScale}vh`];
+
+		if (!hasSubtitleStyles) {
+			return joinStyles(appliedStyles);
+		}
+
+		appliedStyles.push('position: fixed');
 
 		if (sub.verticalAlignment) {
 			appliedStyles.push(

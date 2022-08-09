@@ -10,6 +10,7 @@ export interface SubRipSubtitle extends SubtitleBase {
 	// inline styles to render this sub as desired
 	inline: string;
 	style: string;
+	hasStyling: boolean;
 	// Because of the "Flip subtitle vertical position" setting we need to dynamically switch
 	// between positions depending on that setting.
 	verticalAlignment: {
@@ -168,6 +169,7 @@ export class SubRip extends SubtitleFormat<SubRipSubtitle> {
 					_id: this.genId(),
 					start: this.timeToMs(startStr),
 					end: this.timeToMs(endStr),
+					hasStyling: !!styling,
 					verticalAlignment: {
 						normal: {
 							//inactive = the user is just watching, the player controls aren't showing, position as intended
