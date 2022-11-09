@@ -17,6 +17,36 @@ function createSVG() {
 	return svg;
 }
 
+const FALLBACK_STYLE_NAME = 'Jimaku Player Fallback Style',
+	RAW_FALLBACK_STYLE = {
+		dataType: 'style',
+		name: FALLBACK_STYLE_NAME,
+		// just use the default Japanese font stack
+		fontname: '',
+		fontsize: '20',
+		primaryColour: '&H00FFFFFF',
+		secondaryColour: '&H000000FF',
+		outlineColour: '&H00000000',
+		backColour: '&H00000000',
+		bold: '0',
+		italic: '0',
+		underline: '0',
+		strikeOut: '0',
+		scaleX: '100',
+		scaleY: '100',
+		spacing: '0',
+		angle: '0',
+		borderStyle: '1',
+		outline: '2',
+		shadow: '2',
+		alignment: '2',
+		marginL: '10',
+		marginR: '10',
+		marginV: '10',
+		encoding: '0',
+		_id: FALLBACK_STYLE_NAME.toLowerCase().replace(/ /g, '-'),
+	};
+
 //the legacy alignment numbering system is kind of weird, 1-3 are the same,
 //but 5-7 are the top of the screen, then switching to 9-11 for the center.
 //but the locations they end up in are all the same, so this just maps
@@ -266,7 +296,10 @@ const genOutlineStyles = (
 // However with these ASS files being just a text file that doens't include font data we can only hope that it's a font
 // that the user has installed on their system. It'll otherwise just our default Japanese font stack.
 const genFontFamily = (fontName: string) => {
-	return `font-family: "${fontName}", "Source Han Sans", "源ノ角ゴシック", "Hiragino Sans", "HiraKakuProN-W3", "Hiragino Kaku Gothic ProN W3", "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", "Noto Sans JP", "Noto Sans CJK JP", "Noto Sans", "メイリオ", Meiryo, "游ゴシック", YuGothic, "ＭＳ Ｐゴシック", "MS PGothic", "ＭＳ ゴシック", "MS Gothic", sans-serif`;
+	const goodJapaneseFonts =
+		'"Source Han Sans", "源ノ角ゴシック", "Hiragino Sans", "HiraKakuProN-W3", "Hiragino Kaku Gothic ProN W3", "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", "Noto Sans JP", "Noto Sans CJK JP", "Noto Sans", "メイリオ", Meiryo, "游ゴシック", YuGothic, "ＭＳ Ｐゴシック", "MS PGothic", "ＭＳ ゴシック", "MS Gothic", sans-serif';
+
+	return fontName ? `font-family: "${fontName}", ${goodJapaneseFonts}` : `font-family: ${goodJapaneseFonts}`;
 };
 
 /**
@@ -860,7 +893,8 @@ export class ASS extends SubtitleFormat<ASSSubtitle> {
 
 	parseStyles(rawStyles: Record<string, string>[]) {
 		this.styles = {};
-		rawStyles.forEach((rawStyle) => {
+
+		[RAW_FALLBACK_STYLE, ...rawStyles].forEach((rawStyle) => {
 			const style: Partial<ASSStyle> = {
 				_id: rawStyle._id,
 				// sometimes *Default === Default, just make anything here and in subs that use either just be "Default"
@@ -902,9 +936,7 @@ export class ASS extends SubtitleFormat<ASSSubtitle> {
 			if (style.primaryColor) {
 				inlineStyle.push(`color: ${style.primaryColor.rgba}`);
 			}
-			if (fontname) {
-				inlineStyle.push(genFontFamily(fontname));
-			}
+			inlineStyle.push(genFontFamily(fontname));
 
 			if (borderStyle === '1') {
 				//outline + drop shadow
@@ -947,6 +979,10 @@ export class ASS extends SubtitleFormat<ASSSubtitle> {
 				raw: rawStyle,
 			} as ASSStyle;
 		});
+	}
+
+	getStyle(styleName: string) {
+		return this.styles[styleName] ?? this.styles[FALLBACK_STYLE_NAME];
 	}
 
 	genScaledFont(fontSize: number) {
@@ -1002,7 +1038,7 @@ export class ASS extends SubtitleFormat<ASSSubtitle> {
 				),
 			};
 
-			const inheritedStyle = this.styles[rawSub.style];
+			const inheritedStyle = this.getStyle(rawSub.style);
 			sub.mountPoint = inheritedStyle.alignment;
 
 			//just ignore lines with no overrides
@@ -1047,7 +1083,7 @@ export class ASS extends SubtitleFormat<ASSSubtitle> {
 						overrides.blur,
 					].some((v) => typeof v !== 'undefined')
 				) {
-					const baseStyle = this.styles[sub.style],
+					const baseStyle = this.getStyle(sub.style),
 						fallback = (ovrd: number, base: number) => (typeof ovrd === 'number' ? ovrd : base);
 
 					// just in case there's no style applied? unsure if that's possible, but checking just in case
@@ -1205,7 +1241,7 @@ export class ASS extends SubtitleFormat<ASSSubtitle> {
 				}
 
 				if (overrides.reset) {
-					const srcStyle = this.styles[overrides.reset];
+					const srcStyle = this.getStyle(overrides.reset);
 					cumulativeStyles = [srcStyle.inline];
 				}
 				//if we're not switching to another style, just blank out the styles

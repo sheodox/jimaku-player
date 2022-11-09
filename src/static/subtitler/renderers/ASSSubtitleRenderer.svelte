@@ -74,8 +74,9 @@
 	import { performSubtitleClickAction } from './render-common';
 	import { subtitleFallbackColor } from '../stores/settings';
 	import { joinStyles, fontScale } from './render-common';
-	import type { ASSStyle, ASSSubtitle, ASSSubtitlePhrase } from '../parsers/ASS';
+	import type { ASS, ASSStyle, ASSSubtitle, ASSSubtitlePhrase } from '../parsers/ASS';
 
+	export let subtitleParser: ASS;
 	export let sub: ASSSubtitle;
 	export let styles: Record<string, ASSStyle>;
 
@@ -87,7 +88,7 @@
 	}
 
 	function genPhraseStyles(phrase: ASSSubtitlePhrase, sub: ASSSubtitle) {
-		const style = styles[sub.style];
+		const style = subtitleParser.getStyle(sub.style);
 		return joinStyles([
 			//not inheriting the font-size from the sub, instead apply it directly to every phrase.
 			//if a large font size is on the sub, but as small font size override, the bounding box
@@ -103,7 +104,7 @@
 		let appliedStyles = [`color: ${$subtitleFallbackColor}`];
 
 		//ASS subtitles inherit their base styles from some style declarations
-		const style = styles[sub.style];
+		const style = subtitleParser.getStyle(sub.style);
 		appliedStyles.push(style.inline);
 
 		appliedStyles = appliedStyles.concat([sub.inline || '']);
