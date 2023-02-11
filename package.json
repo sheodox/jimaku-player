@@ -58,7 +58,7 @@
     "eslint-plugin-svelte3": "^3.3.0",
     "husky": "^7.0.0",
     "jest": "^27.4.7",
-    "nodemon": "^2.0.6",
+    "nodemon": "^2.0.20",
     "prettier": "2.5.1",
     "prettier-plugin-svelte": "^2.5.1",
     "svelte-check": "^2.2.11",
