@@ -9,25 +9,24 @@
 	button {
 		margin: 0;
 	}
-	hr {
-		border-color: var(--shdx-gray-300);
+	.restart {
+		width: 100%;
 	}
 </style>
 
-<h2>Start Over</h2>
-<div class="row gap-2">
-	<button on:click={() => dispatch('restart')} class="secondary">Reselect Subtitles</button>
-	<button on:click={() => dispatch('realign')} class="secondary">Redo Alignment</button>
+<div class="gap-2 mt-2">
+	<button class="restart secondary" on:click={() => dispatch('restart')}>Select Different Subtitles</button>
 </div>
 
-<hr class="my-4" />
-
-<h2>Alignment Adjustment</h2>
-<div class="row mt-1">
-	<button on:click={() => (fineAdjustDialogVisible = true)} class="secondary">Fine Adjustment</button>
+<h2>Alignment</h2>
+<div class="mt-1">
+	<p class="muted">Currently {$explainedSecondsStore}</p>
+	<p class="fw-bold mb-0 mt-2">The timing is...</p>
+	<button on:click={() => (fineAdjustDialogVisible = true)} class="secondary">Almost Correct</button>
+	<button on:click={() => dispatch('realign')} class="secondary">Not Even Close</button>
 </div>
 {#if $alignmentHistoryStore.length}
-	<h3>Other recently used alignments</h3>
+	<h3 class="sx-font-size-3">Or use a recently used alignment</h3>
 	{#if $pauseWhenTrayOpen}
 		<!-- without a way to resume the video, with this setting on you wouldn't be able to watch for the subtitles changing, the video would be paused -->
 		<button id="resume-button" class="secondary" on:click={playVideo}>Resume Video</button>
@@ -41,7 +40,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import RecentAlignments from '../RecentAlignments.svelte';
 	import { pauseWhenTrayOpen } from '../stores/settings';
-	import { alignmentHistoryStore } from '../stores/alignment';
+	import { alignmentHistoryStore, explainedSecondsStore } from '../stores/alignment';
 	const dispatch = createEventDispatcher();
 
 	export let fineAdjustDialogVisible: boolean;

@@ -10,7 +10,7 @@
 	}
 	.played {
 		height: 100%;
-		background: var(--shdx-accent-purple);
+		background: var(--sx-accent-purple);
 		border-radius: 3px;
 	}
 	.seek:not(:hover) .thumb {
@@ -27,6 +27,7 @@
 	}
 </style>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="seek" on:click={setValue} bind:this={seekBar}>
 	<div class="played" style="width:{trackProgress}" />
 	<div

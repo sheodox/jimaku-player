@@ -11,8 +11,10 @@ export const setSubtitles = (subtitleObject: SubtitleParser) => {
 // (i.e. current video time compensating for alignment)
 export const subtitleTime = writable(0);
 
+export const subtitleHistory = writable<Subtitle[]>([]);
+
 // Create a readable store for subtitles that should show over the video on the page given the specified offset.
-export const createSubtitleTimer = (alignmentOffset: number | Readable<number>) =>
+export const createSubtitleTimer = (alignmentOffset: number | Readable<number>, setHistory?: boolean) =>
 	readable<Subtitle[]>([], (set) => {
 		let offset = typeof alignmentOffset === 'number' ? alignmentOffset : 0,
 			offsetUnsubscribe: Unsubscriber;
@@ -35,7 +37,12 @@ export const createSubtitleTimer = (alignmentOffset: number | Readable<number>) 
 			const time = currentTime * 1000 - offset;
 			// expose the current time of the subtitles being shown
 			subtitleTime.set(time);
-			set(subs.getSubs(time));
+			const s = subs.getSubs(time);
+			set(s.subs);
+
+			if (setHistory) {
+				subtitleHistory.set(s.history);
+			}
 		});
 
 		return () => {

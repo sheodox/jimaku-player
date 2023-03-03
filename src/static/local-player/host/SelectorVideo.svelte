@@ -2,7 +2,7 @@
 	a {
 		cursor: pointer;
 		box-shadow: 0 0 2px black;
-		background: var(--shdx-gray-500);
+		background: var(--sx-gray-500);
 		transition: box-shadow 0.2s;
 		text-decoration: none;
 		border: none;
@@ -21,22 +21,22 @@
 	}
 	.skeleton {
 		min-height: calc(24rem * (9 / 16));
-		background: var(--shdx-gray-600);
+		background: var(--sx-gray-600);
 	}
 	.selected {
-		outline: 1px solid var(--shdx-accent-blue);
-		box-shadow: 0.5rem 0.5rem var(--shdx-accent-blue);
+		outline: 1px solid var(--sx-accent-blue);
+		box-shadow: 0.5rem 0.5rem var(--sx-accent-blue);
 	}
 	a:not(.selected) {
 		opacity: 0.7;
 	}
 	a:not(.selected):hover {
 		opacity: 1;
-		color: var(--shdx-accent-blue);
-		outline: 1px solid var(--shdx-accent-blue);
+		color: var(--sx-accent-blue);
+		outline: 1px solid var(--sx-accent-blue);
 	}
 	a:not(.selected):hover .video-title {
-		color: var(--shdx-accent-blue);
+		color: var(--sx-accent-blue);
 	}
 	.video-title {
 		font-size: 1rem;
@@ -59,10 +59,10 @@
 		background: #111218;
 	}
 	progress::-moz-progress-bar {
-		background: var(--shdx-accent-gradient) fixed;
+		background: var(--sx-accent-gradient) fixed;
 	}
 	progress::-webkit-progress-value {
-		background: var(--shdx-accent-gradient) fixed;
+		background: var(--sx-accent-gradient) fixed;
 	}
 </style>
 

@@ -5,7 +5,7 @@ import fs from 'fs';
 import globImport from 'glob';
 import type { VideoMetadata, ManifestFile } from '../shared/types/videos';
 
-const glob = promisify(globImport);
+const glob = promisify(globImport) as (pattern: string) => Promise<string[]>;
 
 /**
  * Videos are scanned for by looking for a manifest file, but that's an ugly path to show the browser,

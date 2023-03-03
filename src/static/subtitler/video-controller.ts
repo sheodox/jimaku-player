@@ -1,4 +1,12 @@
+import { get } from 'svelte/store';
+import { alignmentStore } from './stores/alignment';
+
 const userPausedReason = 'user-paused';
+
+export function rewindToSubtitle(subtitleStartTime: number) {
+	// rewind the video to just a bit before the line is said, less jarring and hides tiny misalignment differences
+	document.querySelector('video').currentTime = Math.max(0, (subtitleStartTime + get(alignmentStore)) / 1000 - 0.5);
+}
 
 class VideoController {
 	video: HTMLVideoElement;

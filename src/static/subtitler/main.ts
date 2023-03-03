@@ -1,6 +1,4 @@
 import App from './App.svelte';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { styles } from 'sheodox-ui';
 import './style/style.scss';
 
 const mount = document.createElement('div');
@@ -21,7 +19,9 @@ function init() {
 	if (!container) {
 		// try again and hope the body has loaded, this can happen with extensions like Crunchyroll With Better Seasons
 		// which interrupt the page loading so the player container might not be there immediately
-		return setTimeout(init, 10);
+		return setTimeout(() => {
+			init();
+		}, 10);
 	}
 	container.appendChild(mount);
 

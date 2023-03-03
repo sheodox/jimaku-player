@@ -1,16 +1,16 @@
 <style lang="scss">
 	.toast {
 		border-radius: 4px;
-		box-shadow: var(--shdx-shadow-3);
+		box-shadow: var(--sx-shadow-3);
 		font-weight: bold;
 		line-height: 1;
 		max-width: 15rem;
 
 		&.variant-info {
-			background: var(--shdx-gray-600);
+			background: var(--sx-gray-600);
 		}
 		&.variant-error {
-			background: var(--shdx-accent-red);
+			background: var(--sx-accent-red);
 			color: black;
 		}
 	}
@@ -25,7 +25,7 @@
 {#if $toasts.length}
 	<div class="toasts f-column gap-3 align-items-center">
 		{#each $toasts as toast (toast.id)}
-			<div class="toast variant-{toast.variant} p-3 shdx-font-size-4">
+			<div class="toast variant-{toast.variant} p-3 sx-font-size-4">
 				{toast.message}
 			</div>
 		{/each}

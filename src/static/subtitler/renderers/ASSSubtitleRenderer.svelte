@@ -33,6 +33,7 @@
 	}
 </style>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <p
 	style={genBaseStyles(sub)}
 	class:has-movement={!!sub.movement}
@@ -74,11 +75,10 @@
 	import { performSubtitleClickAction } from './render-common';
 	import { subtitleFallbackColor } from '../stores/settings';
 	import { joinStyles, fontScale } from './render-common';
-	import type { ASS, ASSStyle, ASSSubtitle, ASSSubtitlePhrase } from '../parsers/ASS';
+	import type { ASS, ASSSubtitle, ASSSubtitlePhrase } from '../parsers/ASS';
 
 	export let subtitleParser: ASS;
 	export let sub: ASSSubtitle;
-	export let styles: Record<string, ASSStyle>;
 
 	function genFade(dur?: number) {
 		if (typeof dur !== 'number') {

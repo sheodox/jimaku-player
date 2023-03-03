@@ -5,7 +5,10 @@ const MS_MINUTE = 60 * 1000,
 	MAX_SUBSEQUENT_CANDIDATES = 3,
 	//the max number of results (and their subsequent subtitles) that should be returned,
 	//prevent showing too many results if something very generic is searched
-	MAX_SEARCH_RESULTS = 5;
+	MAX_SEARCH_RESULTS = 5,
+	// this is how many subs *before* the most recent subtitle we want to show in "Recent Subtitles"
+	// so the total shown is one more than this
+	SUB_HISTORY_QUANTITY = 9;
 
 const clone = <T>(sub: T): T => Object.assign({}, sub);
 
@@ -34,12 +37,29 @@ export interface SubtitleSearchResults {
 export class SubtitleFormat<T extends SubtitleBase> {
 	fileName: string;
 	subs: T[];
+	// after parsing subtitles we store an array of all subtitles in here,
+	// to use when figuring out the recent subtitles, as this filters out
+	// all subtitles that don't have displayable text (usually ASS svg paths)
+	// because we only want to show recognizable subtitles in the history
+	// and we'd get inconsistent amounts of recent subs if we used this.subs
+	// and also tried filtering out non-text subtitles
+	private subsWithValidText: T[];
 	generatedIdBase: number;
 
 	constructor(fileName: string) {
 		this.fileName = fileName;
 		this.subs = [];
 		this.generatedIdBase = 0;
+	}
+
+	// after the subtitles have been parsed, do some stuff to prepare for use
+	finish() {
+		//order all the subtitles by start time, so history makes sense (sometimes ending subs are at the beginning of the script)
+		this.subs.sort((a, b) => a.start - b.start);
+
+		// we need to only consider subtitles with actual text on them for the "Recent Subtitles" tab in the tray
+		// and it's a lot easier to do math deciding what to show when we have an array of those subs only
+		this.subsWithValidText = this.subs.filter((s) => !!s.text);
 	}
 
 	cleanSubtitleText(text: string) {
@@ -55,9 +75,33 @@ export class SubtitleFormat<T extends SubtitleBase> {
 	}
 
 	getSubs(ms: number) {
-		return this.subs.filter((sub) => {
-			return sub.start <= ms && sub.end >= ms;
-		});
+		let mostRecentlyStartedSubtitleWithTextIndex: number | null = null;
+
+		const currentSubtitles = this.subs.filter((sub, index) => {
+				// keep looking for the last subtitle with displayable text that should actually show in the history
+				if (sub.text && sub.start <= ms) {
+					mostRecentlyStartedSubtitleWithTextIndex = index;
+				}
+				return sub.start <= ms && sub.end >= ms;
+			}),
+			// try and find the ID of the most recent subtitle we want to show under "Recent Subtitles"
+			lastDisplayableSubId = this.subs[mostRecentlyStartedSubtitleWithTextIndex]?._id ?? null,
+			// get the index within the text-only copy of subtitles for the most recent subtitle
+			lastSubsValidTextIndex = lastDisplayableSubId
+				? this.subsWithValidText.findIndex((sub) => sub._id === lastDisplayableSubId)
+				: -1;
+
+		return {
+			subs: currentSubtitles,
+			history:
+				lastSubsValidTextIndex !== -1
+					? this.subsWithValidText
+							// slice to +1 to be inclusive of the most recent subtitle
+							.slice(Math.max(0, lastSubsValidTextIndex - SUB_HISTORY_QUANTITY), lastSubsValidTextIndex + 1)
+							// reverse so it shows newest first
+							.reverse()
+					: [],
+		};
 	}
 	// convert a time stamp in hh:mm:ss format (seconds can be a floating point number)
 	timeToMs(timeStr: string) {

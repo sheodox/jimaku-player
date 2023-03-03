@@ -1,6 +1,6 @@
 <style>
 	table {
-		border: 1px solid var(--shdx-gray-300);
+		border: 1px solid var(--sx-gray-300);
 		border-radius: 3px;
 	}
 	.modal-body {

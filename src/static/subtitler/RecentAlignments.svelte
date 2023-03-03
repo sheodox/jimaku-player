@@ -15,11 +15,11 @@
 	/* show buttons with subtitle previews in a grid, otherwise they move around a lot when allowd to just flow based on size */
 	.with-previews {
 		display: grid;
-		gap: var(--shdx-spacing-3);
+		gap: var(--sx-spacing-3);
 		grid-template-columns: 1fr 1fr;
 	}
 	.no-previews button {
-		margin: var(--shdx-spacing-1);
+		margin: var(--sx-spacing-1);
 	}
 </style>
 

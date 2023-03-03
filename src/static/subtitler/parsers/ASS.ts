@@ -640,7 +640,7 @@ export interface ASSSubtitle extends SubtitleBase {
 
 // export default class ASS extends SubtitleFormat {
 export class ASS extends SubtitleFormat<ASSSubtitle> {
-	format: 'ass' = 'ass';
+	format = 'ass' as const;
 
 	info: {
 		playResX: string;
@@ -681,6 +681,8 @@ export class ASS extends SubtitleFormat<ASSSubtitle> {
 			// if we errored out, having no subs is an error condition detected elsewhere
 			this.subs = [];
 		}
+
+		this.finish();
 	}
 
 	getAspectRatio() {
@@ -694,7 +696,7 @@ export class ASS extends SubtitleFormat<ASSSubtitle> {
 			styles = this.styles;
 
 		if (typeof atTime === 'number') {
-			subs = this.getSubs(atTime);
+			subs = this.getSubs(atTime).subs;
 			styles = {};
 			//filter styles down to only what is used by the current subtitles
 			for (const { style } of subs) {

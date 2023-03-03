@@ -1,4 +1,4 @@
-FROM node:16-alpine AS dev
+FROM node:18-alpine AS dev
 RUN apk add --no-cache ffmpeg bash
 WORKDIR /usr/src/app
 

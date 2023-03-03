@@ -1,4 +1,4 @@
-<style>
+<style lang="scss">
 	.tray {
 		width: 28rem;
 		background: rgba(255, 255, 255, 0.2);
@@ -10,7 +10,7 @@
 		display: flex;
 		flex-direction: column;
 		text-align: center;
-		border-radius: 5px 0 0 5px;
+		border-radius: 15px 0 0 15px;
 		transform: translateY(-50%);
 	}
 
@@ -23,28 +23,25 @@
 		visibility: hidden;
 	}
 
-	.tray:hover {
-		background: var(--shdx-gray-700);
+	.tray:hover,
+	.tray.debug-always-open {
+		background: var(--sx-gray-700);
 		overflow: auto;
-		border-radius: 3px;
 		border: 1px solid #8c8c8c21;
 		border-right: none;
-	}
 
-	.tray:hover > :global(*) {
-		visibility: visible;
+		> :global(*) {
+			visibility: visible;
+		}
 	}
 
 	.tray-header {
-		background: var(--shdx-gray-600);
+		background: var(--sx-gray-600);
 	}
 
 	.tab-content {
 		text-align: left;
 		flex: 1;
-	}
-	.row:not(:last-child) {
-		margin-bottom: 0.5rem;
 	}
 	.tab-cancelled {
 		text-align: center;
@@ -66,11 +63,12 @@
 
 <div
 	class="tray"
-	class:inactive={!$userActive}
+	class:inactive={!$userActive && !DEBUG_ALWAYS_SHOW_TRAY}
 	on:mouseenter={trayHover(true)}
 	on:mouseleave={trayHover(false)}
 	style="right: {$trayAnim}rem"
 	class:hidden={fineAdjustDialogVisible}
+	class:debug-always-open={DEBUG_ALWAYS_SHOW_TRAY}
 >
 	<div class="tray-header">
 		<div class="f-row justify-content-between align-items-center px-3 py-2">
@@ -81,27 +79,27 @@
 			<button on:click={() => (showAbout = true)}>About</button>
 		</div>
 		{#if mode === 'normal'}
-			<div class="tray-tab-buttons">
+			<div class="f-row justify-content-center">
 				<TabList tabs={tabList} bind:selectedTab />
 			</div>
 		{/if}
 	</div>
 	{#if mode === 'cancelled'}
-		<div class="tab tab-active tab-cancelled">
-			<div class="row">
-				<button on:click={() => dispatch('restart')}>Select Subtitles</button>
+		<div class="tab tab-active tab-cancelled gap-2">
+			<div>
+				<button on:click={() => dispatch('restart')} class="primary">Select Subtitles</button>
 			</div>
-			<div class="row">
+			<div>
 				<ExternalLink href="https://github.com/sheodox/jimaku-player/issues">Issue? Report it here!</ExternalLink>
 			</div>
-			<div class="row">
+			<div>
 				<ExternalLink href="https://sheodox.com/">My other projects</ExternalLink>
 			</div>
 		</div>
 	{:else if mode === 'normal'}
 		<div class="tab-content px-4">
 			<Tab tabId="recent" {selectedTab}>
-				<RecentTab {recentSubs} />
+				<RecentTab recentSubs={$subtitleHistory} />
 			</Tab>
 			<Tab tabId="setup" {selectedTab}>
 				<SetupTab on:realign on:restart bind:fineAdjustDialogVisible />
@@ -141,14 +139,17 @@
 	import Logo from '../Logo.svelte';
 	import About from './About.svelte';
 	import ExternalLink from '../../local-player/ExternalLink.svelte';
-	import type { Subtitle, SubtitleParser } from '../types/subtitles';
+	import { subtitleHistory } from '../stores/subtitle-timer';
+	import type { SubtitleParser } from '../types/subtitles';
 
 	const dispatch = createEventDispatcher<{
 			restart: void;
 			'tray-pauser': boolean;
 		}>(),
+		// when doing dev on the tray, set this to true to keep it open
+		DEBUG_ALWAYS_SHOW_TRAY = false,
 		trayStates = {
-			hidden: -26,
+			hidden: DEBUG_ALWAYS_SHOW_TRAY ? 0 : -26,
 			shown: 0,
 		},
 		trayAnim = tweened(trayStates.hidden, {
@@ -162,7 +163,7 @@
 			},
 			{
 				id: 'setup',
-				title: 'Setup',
+				title: 'Session Options',
 			},
 			{
 				id: 'settings',
@@ -170,7 +171,6 @@
 			},
 		];
 
-	export let recentSubs: Subtitle[] = [];
 	export let subtitleParser: SubtitleParser = null;
 	export let mode = 'normal';
 

@@ -108,7 +108,7 @@ export const signedSecondsStore = derived(alignmentStore, ($alignment) => {
 
 function explainOffset(seconds: number) {
 	if (seconds === 0) {
-		return `no adjustment`;
+		return `using video timing`;
 	}
 	const plural = Math.abs(seconds) === 1 ? '' : 's';
 	return seconds > 0 ? `delayed by ${seconds} second${plural}` : `hastened by ${Math.abs(seconds)} second${plural}`;

@@ -4,8 +4,7 @@
 </div>
 
 This is a [Tampermonkey](https://www.tampermonkey.net/) userscript that lets you provide your own subtitles to play over anime on
-[VRV](https://vrv.co/) or [Crunchyroll](https://www.crunchyroll.com/), to help with learning
-Japanese.
+[VRV](https://vrv.co/) or [Crunchyroll](https://www.crunchyroll.com/), to help with learning Japanese.
 
 # [Install](https://github.com/sheodox/jimaku-player/raw/master/dist/jimaku-player.user.js) (requires [Tampermonkey](https://www.tampermonkey.net/))
 
@@ -89,9 +88,8 @@ the correct subtitle timing based on that.
 
 ### Fine Alignment Adjustment
 
-If the alignment is just a little wrong, you can use the fine alignment dialog, found in the Settings
-tab of the tray. This lets you make tiny adjustments to the alignment to while watching the video
-get it perfect.
+If the alignment is just a little wrong, hover over the right side of the video player to open the tray, then go to "Session Options",
+then click "Almost Correct". This lets you make tiny adjustments to the alignment to while watching the video get it perfect.
 
 There are also hotkeys if you find yourself doing this often! `z` will delay subtitles by 0.2 seconds, and `x` will hasten them by 0.2 seconds. Hold `shift` while pressing `z` or `x` to delay or hasten subtitles by one second at a time.
 

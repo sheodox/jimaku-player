@@ -20,15 +20,10 @@
 			{#if parsedSubtitles.format === 'subrip'}
 				<SubRipRenderer subtitles={asSubRip(subtitleStore)} />
 			{:else if parsedSubtitles.format === 'ass'}
-				<ASSRenderer
-					styles={parsedSubtitles.styles}
-					subtitleParser={parsedSubtitles}
-					subtitles={asASS(subtitleStore)}
-				/>
+				<ASSRenderer subtitleParser={parsedSubtitles} subtitles={asASS(subtitleStore)} />
 			{/if}
 		{/if}
 		<Tray
-			{recentSubs}
 			subtitleParser={parsedSubtitles}
 			on:restart={restart}
 			on:tray-pauser={trayPauser}
@@ -42,8 +37,11 @@
 
 <Hotkeys {subtitleStore} />
 
+<SheodoxUIStyles />
+
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { SheodoxUIStyles } from 'sheodox-ui';
 	import Tray from './tray/Tray.svelte';
 	import SubRipRenderer from './renderers/SubRipRenderer.svelte';
 	import ASSRenderer from './renderers/ASSRenderer.svelte';
@@ -56,14 +54,13 @@
 	import Hotkeys from './Hotkeys.svelte';
 	import { videoController } from './video-controller';
 	import type { Unsubscriber, Readable } from 'svelte/store';
-	import { Subtitle, SubtitleParser } from './types/subtitles';
+	import { SubtitleParser } from './types/subtitles';
 	import { SubRipSubtitle } from './parsers/SubRip';
 	import { ASSSubtitle } from './parsers/ASS';
 
 	let phase = 'prompt',
 		parsedSubtitles: SubtitleParser = null,
 		video = null,
-		recentSubs: Subtitle[] = [],
 		subtitleStore: ReturnType<typeof createSubtitleTimer>,
 		subtitleUnsubscribe: Unsubscriber;
 
@@ -103,7 +100,6 @@
 	function aligned() {
 		video = document.querySelector('video');
 		videoController.setVideo(video);
-		recentSubs = [];
 		phase = 'play';
 
 		if (subtitleUnsubscribe) {
@@ -111,11 +107,9 @@
 		}
 
 		setTimerSubtitles(parsedSubtitles);
-		subtitleStore = createSubtitleTimer(alignmentStore);
+		subtitleStore = createSubtitleTimer(alignmentStore, true);
 		let lastText = '';
 		subtitleUnsubscribe = subtitleStore.subscribe((currentSubs) => {
-			mergeSubsWithRecent(currentSubs);
-
 			const subText = currentSubs
 				.map((sub) => sub.text || '')
 				.join('\n')
@@ -127,19 +121,6 @@
 				GM_setClipboard(subText, 'text');
 			}
 		});
-	}
-
-	function mergeSubsWithRecent(subs: Subtitle[]) {
-		const interestingSubs = subs.filter((sub) => !!sub.text),
-			newSubs = [];
-
-		for (const sub of interestingSubs) {
-			if (recentSubs.every((s) => s._id !== sub._id)) {
-				newSubs.push(sub);
-			}
-		}
-
-		recentSubs = [...newSubs, ...recentSubs].slice(0, 10);
 	}
 
 	function subtitlesLoaded(e: CustomEvent<{ subtitles: SubtitleParser; skipAlignment: boolean }>) {

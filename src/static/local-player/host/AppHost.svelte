@@ -28,6 +28,8 @@
 </style>
 
 <ThumbnailGhost />
+<SheodoxUIStyles />
+
 <div class="everything">
 	<Header />
 	<div class="host f-column">
@@ -58,7 +60,7 @@
 	import { onMount } from 'svelte';
 	import Selector from './Selector.svelte';
 	import page from 'page';
-	import { Icon } from 'sheodox-ui';
+	import { Icon, SheodoxUIStyles } from 'sheodox-ui';
 	import Header from './Header.svelte';
 	import Footer from './Footer.svelte';
 	import { videoInfo } from '../videos-store';

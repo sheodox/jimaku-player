@@ -16,8 +16,11 @@
 	<Subtitler />
 {/if}
 
+<SheodoxUIStyles />
+
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { SheodoxUIStyles } from 'sheodox-ui';
 	import { ManifestFile, VideoInfo } from '../../../shared/types/videos';
 	import Saisei from './Saisei.svelte';
 	import Subtitler from './Subtitler.svelte';

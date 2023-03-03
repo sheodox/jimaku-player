@@ -21,6 +21,6 @@
 	onMount(async () => {
 		const testScript = await fetch('/test/subrip/vtt-test.vtt').then((res) => res.text()),
 			subs = new SubRip(testScript, 'vtt-test.vtt');
-		subtitles.set(subs.getSubs(1000 * currentTime));
+		subtitles.set(subs.getSubs(1000 * currentTime).subs);
 	});
 </script>

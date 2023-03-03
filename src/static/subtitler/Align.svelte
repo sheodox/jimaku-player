@@ -4,24 +4,11 @@
 		left: 50%;
 		position: fixed;
 		transform: translate(-50%, -50%);
-	}
-	.column {
-		display: flex;
-		flex-direction: column;
-		text-align: center;
 		max-width: 20rem;
+		text-align: center;
 	}
 	button {
 		max-width: 20rem;
-	}
-	.row {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		align-content: center;
-	}
-	.row button {
-		max-width: 15rem;
 	}
 	.show-name {
 		font-style: italic;
@@ -82,12 +69,11 @@
 		margin-bottom: 1rem;
 	}
 	.search-match legend {
-		white-space: pre;
 		margin: 0 auto;
 	}
 </style>
 
-<div class="column panel m-3 px-4" id="alignment">
+<div class="panel m-3 px-4" id="alignment">
 	<div class="f-row align-items-center justify-content-between">
 		<h1>Alignment</h1>
 		<button class="small" on:click={goBackAPhase}>Back</button>
@@ -122,7 +108,7 @@
 		<TextInput bind:value={subtitleSearchText} id="subtitle-search">Subtitle Search</TextInput>
 		<div class="mt-3" id="subtitle-list">
 			<p>Click a subtitle as soon as you hear it said</p>
-			<div id="subtitle-options" class="column">
+			<div id="subtitle-options" class="f-column">
 				{#if reactionSubtitleOptions.length === 0}
 					<p>No subtitles matching "{subtitleSearchText}".</p>
 				{/if}
@@ -133,9 +119,9 @@
 								<legend>
 									{option.sub.text.trim()}
 								</legend>
-								<div class="column">
+								<div class="f-column">
 									{#each option.subsequent as subsequent}
-										<button on:click={() => alignToSubtitle(subsequent)}>
+										<button on:click={() => alignToSubtitle(subsequent)} class="secondary">
 											({subsequent.offset})<br />{subsequent.text.trim()}
 										</button>
 									{/each}
@@ -143,8 +129,10 @@
 							</fieldset>
 						</div>
 					{:else}
-						<button on:click={() => alignToSubtitle(option)}>
-							({option.offset})<br />{option.text.trim()}
+						<button on:click={() => alignToSubtitle(option)} class="secondary">
+							{option.text.trim()}
+							<br />
+							<span class="muted">({option.offset})</span>
 						</button>
 					{/if}
 				{/each}
@@ -153,10 +141,10 @@
 
 		<button on:click={() => (phase = phases.manual)} class="secondary">Or manually enter an offset...</button>
 	{:else if phase === phases.manual}
-		<div class="column">
-			<form on:submit|preventDefault={submitManualAlignment} class="column">
+		<div class="f-column">
+			<form on:submit|preventDefault={submitManualAlignment} class="f-column">
 				<label for="manual-alignment">Subtitle display time offset (in seconds):</label>
-				<div class="row">
+				<div>
 					<input
 						type="text"
 						id="manual-alignment"
@@ -192,7 +180,6 @@
 	import RecentAlignments from './RecentAlignments.svelte';
 	import { TextInput } from 'sheodox-ui';
 	import type { SubtitleParser } from './types/subtitles';
-	import { SubtitleBase } from './parsers/SubtitleFormat';
 
 	export let subtitles: SubtitleParser;
 
@@ -250,7 +237,9 @@
 		input.select();
 	}
 
-	function alignToSubtitle(sub: SubtitleBase) {
+	// using 'any' as a workaround because I can't use TS in the template, and TS doesn't know this is a SubtitleBase
+	// at this point, as we've already handled the other case (search results)
+	function alignToSubtitle(sub: any) {
 		//assume decent reaction time, subtract by a bit so they don't have to perfectly time it
 		align(document.querySelector('video').currentTime * 1000 - sub.start - 400);
 	}

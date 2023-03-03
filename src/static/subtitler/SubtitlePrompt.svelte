@@ -1,4 +1,4 @@
-<style>
+<style lang="scss">
 	#subtitles-prompt {
 		top: 50%;
 		left: 50%;
@@ -15,7 +15,6 @@
 	}
 
 	label {
-		background: var(--shdx-gray-400);
 		transition: background 0.2s;
 		border-radius: 0.2rem;
 		color: white;
@@ -29,10 +28,18 @@
 		font-size: 1.2rem;
 	}
 	label:hover {
-		background: var(--shdx-gray-300);
+		background: var(--sx-gray-300);
 	}
 	input {
 		display: none;
+	}
+	// need to override the button colors because sheodox-ui uses transparent colors, which don't look great over videos
+	button,
+	label {
+		background: var(--sx-gray-400);
+		&:hover {
+			background: var(--sx-gray-300);
+		}
 	}
 </style>
 
@@ -43,7 +50,7 @@
 				<Logo />
 				<div class="ml-3">
 					<p class="m-0">字幕プレーヤー</p>
-					<p class="m-0 shdx-font-size-2">Select a subtitle file to begin</p>
+					<p class="m-0 sx-font-size-2">Select a subtitle file to begin</p>
 				</div>
 			</div>
 		</label>

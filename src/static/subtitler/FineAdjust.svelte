@@ -12,7 +12,7 @@
 	<p class="mt-0">
 		Play the video and use these adjustment buttons until the subtitles show at the right time.
 		<br />
-		<strong>Subtitles are being {$explainedSecondsStore}</strong>
+		<strong>Subtitles are {$explainedSecondsStore}</strong>
 	</p>
 	<p>Do the subtitles show...</p>
 	<button on:click={changeAlignment(-1 * COARSE_ADJUST_AMOUNT_MS)} class="secondary">Way too late?</button>

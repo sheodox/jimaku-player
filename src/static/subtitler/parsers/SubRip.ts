@@ -31,11 +31,14 @@ export interface SubRipSubtitle extends SubtitleBase {
  * Parser for SRT and WebVTT files since WebVTT is more or less a superset of SRT
  */
 export class SubRip extends SubtitleFormat<SubRipSubtitle> {
-	format: 'subrip' = 'subrip';
+	// the type lets us do type narrowing in App.svelte
+	format = 'subrip' as const;
 
 	constructor(subripFile: string, fileName: string) {
 		super(fileName);
 		this.parse(subripFile);
+
+		this.finish();
 	}
 	parse(subripFile: string) {
 		const subs = subripFile

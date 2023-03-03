@@ -110,13 +110,13 @@
 	{#each $layers as arrangement (arrangement.layer)}
 		<div data-ass-layer={arrangement.layer} class="layer" style="position: absolute; z-index: {arrangement.layer}">
 			{#each arrangement.mounts.positioned as sub (sub._id)}
-				<ASSSubtitleRenderer {sub} {styles} {subtitleParser} on:define-pauser />
+				<ASSSubtitleRenderer {sub} {subtitleParser} on:define-pauser />
 			{/each}
 			{#each alignments as an (an)}
 				{#if arrangement.mounts[`an${an}`].length}
 					<div class="an an{an}">
 						{#each arrangement.mounts[`an${an}`] as sub (sub._id)}
-							<ASSSubtitleRenderer {sub} {styles} {subtitleParser} on:define-pauser />
+							<ASSSubtitleRenderer {sub} {subtitleParser} on:define-pauser />
 						{/each}
 					</div>
 				{/if}
@@ -134,7 +134,6 @@
 
 	export let subtitleParser: ASS;
 	export let subtitles: Readable<ASSSubtitle[]>; //store for which subtitles should be shown each frame
-	export let styles = {}; // base styles from the subtitle file
 
 	$: aspect = getAspectRatio(subtitleParser, $aspectRatioSetting);
 

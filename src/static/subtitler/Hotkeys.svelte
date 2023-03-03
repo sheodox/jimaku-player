@@ -5,7 +5,9 @@
 	import { performSubtitleClickAction } from './renderers/render-common';
 	import { adjustAlignmentInPlace, COARSE_ADJUST_AMOUNT_MS, FINE_ADJUST_AMOUNT_MS } from './stores/alignment';
 	import { invertVerticalAlignment, showSubtitlesOnVideo } from './stores/settings';
+	import { subtitleHistory } from './stores/subtitle-timer';
 	import { Subtitle } from './types/subtitles';
+	import { rewindToSubtitle } from './video-controller';
 
 	export let subtitleStore: Readable<Subtitle[]>;
 
@@ -26,6 +28,11 @@
 			adjustAlignmentInPlace(e.shiftKey ? COARSE_ADJUST_AMOUNT_MS : FINE_ADJUST_AMOUNT_MS);
 		} else if (key === 'x') {
 			adjustAlignmentInPlace(-1 * (e.shiftKey ? COARSE_ADJUST_AMOUNT_MS : FINE_ADJUST_AMOUNT_MS));
+		} else if (key === 'b') {
+			const recent = $subtitleHistory;
+			if (recent[0]) {
+				rewindToSubtitle(recent[0].start);
+			}
 		}
 	}
 </script>

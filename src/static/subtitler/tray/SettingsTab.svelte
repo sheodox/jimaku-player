@@ -1,10 +1,11 @@
 <style>
 	kbd {
 		color: white;
-		background: var(--shdx-gray-400);
+		background: var(--sx-gray-400);
 		border-radius: 0.2rem;
 		padding: 0 0.2rem;
 		font-family: monospace;
+		font-size: var(--sx-font-size-2);
 	}
 	input[type='range']:disabled {
 		opacity: 0.3;
@@ -17,33 +18,33 @@
 	}
 </style>
 
-<h2>Settings</h2>
-<div class="row">
+<div class="mt-2">
 	<label for="subtitle-color">Subtitle fallback color:</label>
 	<input type="color" id="subtitle-color" bind:value={$subtitleFallbackColor} />
 </div>
-<div class="row">
+<div>
 	<input id="show-subs" type="checkbox" bind:checked={$showSubtitlesOnVideo} />
 	<label for="show-subs">Show subtitles(<kbd>Hotkey: h</kbd>)</label>
 </div>
-<div class="row">
+<div>
 	<input id="pause-on-tray" type="checkbox" bind:checked={$pauseWhenTrayOpen} />
 	<label for="pause-on-tray">Pause when tray is open</label>
 </div>
-<div class="row">
+<div>
 	<input id="auto-copy-subtitles" type="checkbox" bind:checked={$autoCopySubtitles} />
 	<label for="auto-copy-subtitles">Auto-copy every subtitle to the clipboard </label>
 </div>
-<div class="row">
+<div>
 	<input id="invert-subtitle-alignment" type="checkbox" bind:checked={$invertVerticalAlignment} />
 	<label for="invert-subtitle-alignment">
 		Flip subtitle vertical position (<kbd>Hotkey: i</kbd>)
 	</label>
 </div>
-<div class="row">
-	<fieldset class="my-2 mx-0">
-		<legend> When a subtitle is clicked... (<kbd>Hotkey: a</kbd>)</legend>
-
+<div>
+	<Fieldset fieldsetClasses="my-2 mx-0" legend="When a subtitle is clicked...">
+		<p>
+			<kbd>Hotkey: a</kbd>
+		</p>
 		{#each subtitleActionOptions as action}
 			<div class="f-row">
 				<label class="radio-label">
@@ -51,13 +52,13 @@
 					{action.name}
 				</label>
 				{#if action.href}
-					<ExternalLink href={action.href} classes="ml-1 shdx-font-size-2">({action.linkText})</ExternalLink>
+					<ExternalLink href={action.href} classes="ml-1 sx-font-size-2">({action.linkText})</ExternalLink>
 				{/if}
 			</div>
 		{/each}
-	</fieldset>
+	</Fieldset>
 </div>
-<div class="row">
+<div>
 	<label>
 		Subtitle font size scale ({Math.floor($globalFontScale * 100)}%)
 		<br />
@@ -71,10 +72,8 @@
 		/>
 	</label>
 </div>
-<div class="row">
-	<fieldset class="my-2 mx-0">
-		<legend> Video Aspect Ratio </legend>
-
+<div class="f-row">
+	<Fieldset fieldsetClasses="my-2 mx-0" legend="Video Aspect Ratio">
 		<div class="f-row justify-space-between align-items-center">
 			<div class="f-1">
 				{#each aspectRatioOptions as action}
@@ -91,18 +90,18 @@
 			</div>
 			<button on:click={() => (showAspectHelp = true)}>About Aspect Ratios</button>
 		</div>
-	</fieldset>
+	</Fieldset>
 </div>
 {#if $usesShowBasedSettings}
 	<h3>Settings for {$showNameStore}</h3>
-	<div class="row">
+	<div class="f-row">
 		<label>
 			<input type="checkbox" bind:checked={$showBasedSettings.overrideGlobalFontScale} />
 			Use a different subtitle font size scale for this show
 		</label>
 	</div>
 	{#if $showBasedSettings.overrideGlobalFontScale}
-		<div class="row">
+		<div class="f-row">
 			<label>
 				This show's subtitle font size scale ({Math.floor($showBasedSettings.fontScale * 100)}%)
 				<br />
@@ -117,23 +116,22 @@
 			</label>
 		</div>
 	{/if}
-	<div class="row">
+	<div class="f-row">
 		<label>
 			<input type="checkbox" bind:checked={$showBasedSettings.overrideGlobalAspectRatio} />
 			Use a different aspect ratio for this show
 		</label>
 	</div>
 	{#if $showBasedSettings.overrideGlobalAspectRatio}
-		<div class="row">
-			<fieldset class="my-2 mx-0">
-				<legend> Video Aspect Ratio </legend>
+		<div class="f-row">
+			<Fieldset fieldsetClasses="my-2 mx-0" legend="Video Aspect Ratio">
 				{#each aspectRatioOptions as action}
 					<label class="radio-label">
 						<input type="radio" bind:group={$showBasedSettings.aspectRatio} value={action.value} />
 						{action.name}
 					</label>
 				{/each}
-			</fieldset>
+			</Fieldset>
 		</div>
 	{/if}
 {/if}
@@ -156,7 +154,7 @@
 {/if}
 
 <script lang="ts">
-	import { Modal } from 'sheodox-ui';
+	import { Modal, Fieldset } from 'sheodox-ui';
 	import { showNameStore } from '../stores/alignment';
 	import {
 		subtitleFallbackColor,

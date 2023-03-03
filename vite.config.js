@@ -6,11 +6,8 @@ import path from 'path';
 export default defineConfig({
 	plugins: [svelte()],
 	server: {
-		hmr: {
-			protocol: 'ws',
-			host: 'localhost',
-			port: '3000',
-		},
+		host: 'localhost',
+		port: '3000',
 	},
 	base: path.join(process.cwd(), './build/static/'),
 	build: {

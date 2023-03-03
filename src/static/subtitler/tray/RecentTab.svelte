@@ -2,20 +2,16 @@
 	.a:hover {
 		text-decoration: underline;
 	}
-	li {
-		text-align: center;
-	}
 	.a {
-		white-space: pre;
 		background: none !important;
 		color: white;
 		text-transform: none;
 		font-weight: normal;
 		margin: 0;
 		padding: 0;
-		font-size: var(--shdx-font-size-5);
+		font-size: var(--sx-font-size-5);
 		line-height: 1.2;
-		text-align: center;
+		text-align: left;
 	}
 	ul {
 		list-style: none;
@@ -26,21 +22,30 @@
 	.muted {
 		font-style: italic;
 	}
+	.subtitle {
+		white-space: wrap;
+	}
 </style>
 
 <ul id="recent-subs">
 	{#each recentSubs as sub (sub._id)}
-		<li in:fly={{ y: -50, duration: 100 }} out:fly={{ y: 50, duration: 100 }} class="mb-3">
-			<button class="small-button secondary" on:click={() => rewindToSubtitle(sub)} title="Rewind to this subtitle"
-				>⯇<span class="sr">Rewind to this subtitle</span></button
-			>
-			{#if $subtitleClickAction === 'nothing'}
-				{sub.text.trim()}
-			{:else}
-				<button class="a" on:click={() => performSubtitleClickAction([sub.text])}>
+		<li class="mb-3 f-row" in:fly={{ y: -50, duration: 100 }}>
+			<div class="subtitle f-1">
+				{#if $subtitleClickAction === 'nothing'}
 					{sub.text.trim()}
-				</button>
-			{/if}
+				{:else}
+					<button class="a" on:click={() => performSubtitleClickAction([sub.text])}>
+						{sub.text.trim()}
+					</button>
+				{/if}
+			</div>
+			<div class="rewind">
+				<button
+					class="small-button secondary"
+					on:click={() => rewindToSubtitle(sub.start)}
+					title="Rewind to this subtitle">⯇<span class="sr">Rewind to this subtitle</span></button
+				>
+			</div>
 		</li>
 	{:else}
 		<p class="muted text-align-center">No subtitles yet!</p>
@@ -49,15 +54,10 @@
 
 <script lang="ts">
 	import { fly } from 'svelte/transition';
-	import { alignmentStore } from '../stores/alignment';
 	import { performSubtitleClickAction } from '../renderers/render-common';
 	import { subtitleClickAction } from '../stores/settings';
+	import { rewindToSubtitle } from '../video-controller';
 	import type { Subtitle } from '../types/subtitles';
 
 	export let recentSubs: Subtitle[];
-
-	function rewindToSubtitle(sub: Subtitle) {
-		// rewind the video to just a bit before the line is said, less jarring and hides tiny misalignment differences
-		document.querySelector('video').currentTime = (sub.start + $alignmentStore) / 1000 - 0.5;
-	}
 </script>

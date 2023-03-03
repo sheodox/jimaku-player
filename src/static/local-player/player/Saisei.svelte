@@ -66,6 +66,7 @@
 		bind:this={videoElement}
 	/>
 	{#if paused}
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<div class="pause-alert-container" on:click={togglePause}>
 			<p class="pause-alert">Paused</p>
 		</div>
