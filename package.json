@@ -63,6 +63,6 @@
     "prettier-plugin-svelte": "^2.9.0",
     "svelte-check": "^3.0.4",
     "svelte-preprocess": "^5.0.1",
-    "vite": "^4.1.4"
+    "vite": "^4.5.10"
   }
 }
